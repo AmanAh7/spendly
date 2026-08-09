@@ -7,6 +7,7 @@ import { z } from "zod";
 
 import { signIn } from "@/auth";
 import { prisma } from "@/lib/prisma";
+import { DEFAULT_CATEGORY_DEFINITIONS } from "@/lib/default-categories";
 
 const registrationSchema = z.object({
   name: z
@@ -69,6 +70,15 @@ export async function registerUser(formData: FormData): Promise<ActionResult> {
       currency: "INR",
       theme: "system",
       dateFormat: "DD/MM/YYYY",
+      categories: {
+        create: DEFAULT_CATEGORY_DEFINITIONS.map((category) => ({
+          name: category.name,
+          icon: category.icon,
+          color: category.color,
+          type: category.type,
+          isDefault: category.isDefault,
+        })),
+      },
     },
   });
 
@@ -81,7 +91,9 @@ export async function loginUser(formData: FormData) {
   const email = String(formData.get("email") ?? "")
     .trim()
     .toLowerCase();
+
   const password = String(formData.get("password") ?? "");
+
   const callbackUrl = String(formData.get("callbackUrl") ?? "/dashboard");
 
   if (!email || !password) {
