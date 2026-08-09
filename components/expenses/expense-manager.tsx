@@ -121,6 +121,20 @@ export function ExpenseManager({
     }
   }, [editingExpense, form]);
 
+  useEffect(() => {
+    if (!feedback?.success) {
+      return;
+    }
+
+    const timeoutId = window.setTimeout(() => {
+      setFeedback(null);
+    }, 2000);
+
+    return () => {
+      window.clearTimeout(timeoutId);
+    };
+  }, [feedback]);
+
   function openCreateForm() {
     setEditingExpense(null);
     setFeedback(null);
