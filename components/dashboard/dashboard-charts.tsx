@@ -42,24 +42,38 @@ function compactCurrency(value: number, currency: string) {
     return `${symbol}${(value / 1000).toFixed(1)}K`;
   }
 
-  return `${symbol}${value}`;
+  return `${symbol}${value.toFixed(0)}`;
 }
 
-function tooltipFormatter(value: number, currency: string) {
-  return [
-    new Intl.NumberFormat("en-IN", {
-      style: "currency",
-      currency,
-      maximumFractionDigits: 2,
-    }).format(value),
-    "",
-  ];
+function formatTooltipValue(value: number, currency: string) {
+  return new Intl.NumberFormat("en-IN", {
+    style: "currency",
+    currency,
+    maximumFractionDigits: 2,
+  }).format(value);
+}
+
+function EmptyChart({ message }: { message: string }) {
+  return (
+    <div className="flex h-full items-center justify-center rounded-2xl border border-dashed border-border/60">
+      <div className="px-6 text-center">
+        <p className="text-sm font-medium">No chart data yet</p>
+        <p className="mt-1 text-xs text-muted-foreground">{message}</p>
+      </div>
+    </div>
+  );
 }
 
 export function DashboardCharts({
   monthlyData,
   currency,
 }: DashboardChartsProps) {
+  const hasExpenseData = monthlyData.some((item) => item.expenses > 0);
+
+  const hasCashflowData = monthlyData.some(
+    (item) => item.income > 0 || item.expenses > 0,
+  );
+
   return (
     <div className="grid gap-6 xl:grid-cols-2">
       <div className="glass-panel-strong rounded-3xl p-5">
@@ -71,7 +85,7 @@ export function DashboardCharts({
         </div>
 
         <div className="h-72 w-full">
-          {monthlyData.length > 0 ? (
+          {hasExpenseData ? (
             <ResponsiveContainer width="100%" height="100%">
               <AreaChart
                 data={monthlyData}
@@ -100,18 +114,24 @@ export function DashboardCharts({
                   strokeOpacity={0.08}
                   vertical={false}
                 />
+
                 <XAxis
                   dataKey="month"
                   axisLine={false}
                   tickLine={false}
                   tick={{ fill: "currentColor", fontSize: 11 }}
                 />
+
                 <YAxis
                   axisLine={false}
                   tickLine={false}
                   tick={{ fill: "currentColor", fontSize: 11 }}
-                  tickFormatter={(value) => compactCurrency(value, currency)}
+                  tickFormatter={(value) =>
+                    compactCurrency(Number(value), currency)
+                  }
+                  domain={[0, "dataMax"]}
                 />
+
                 <Tooltip
                   contentStyle={{
                     backgroundColor: "rgba(17, 25, 54, 0.95)",
@@ -119,10 +139,12 @@ export function DashboardCharts({
                     borderRadius: "12px",
                     color: "#ffffff",
                   }}
-                  formatter={(value) =>
-                    tooltipFormatter(Number(value), currency)
-                  }
+                  formatter={(value) => [
+                    formatTooltipValue(Number(value), currency),
+                    "Expenses",
+                  ]}
                 />
+
                 <Area
                   type="monotone"
                   dataKey="expenses"
@@ -134,9 +156,7 @@ export function DashboardCharts({
               </AreaChart>
             </ResponsiveContainer>
           ) : (
-            <div className="flex h-full items-center justify-center text-sm text-muted-foreground">
-              No expense data available yet.
-            </div>
+            <EmptyChart message="Add an expense to see your spending trend." />
           )}
         </div>
       </div>
@@ -150,7 +170,7 @@ export function DashboardCharts({
         </div>
 
         <div className="h-72 w-full">
-          {monthlyData.length > 0 ? (
+          {hasCashflowData ? (
             <ResponsiveContainer width="100%" height="100%">
               <BarChart
                 data={monthlyData}
@@ -166,18 +186,24 @@ export function DashboardCharts({
                   strokeOpacity={0.08}
                   vertical={false}
                 />
+
                 <XAxis
                   dataKey="month"
                   axisLine={false}
                   tickLine={false}
                   tick={{ fill: "currentColor", fontSize: 11 }}
                 />
+
                 <YAxis
                   axisLine={false}
                   tickLine={false}
                   tick={{ fill: "currentColor", fontSize: 11 }}
-                  tickFormatter={(value) => compactCurrency(value, currency)}
+                  tickFormatter={(value) =>
+                    compactCurrency(Number(value), currency)
+                  }
+                  domain={[0, "dataMax"]}
                 />
+
                 <Tooltip
                   contentStyle={{
                     backgroundColor: "rgba(17, 25, 54, 0.95)",
@@ -185,22 +211,26 @@ export function DashboardCharts({
                     borderRadius: "12px",
                     color: "#ffffff",
                   }}
-                  formatter={(value) =>
-                    tooltipFormatter(Number(value), currency)
-                  }
+                  formatter={(value, name) => [
+                    formatTooltipValue(Number(value), currency),
+                    name,
+                  ]}
                 />
+
                 <Legend
                   wrapperStyle={{
                     fontSize: "12px",
                     paddingTop: "12px",
                   }}
                 />
+
                 <Bar
                   dataKey="income"
                   name="Income"
                   fill="#22c55e"
                   radius={[5, 5, 0, 0]}
                 />
+
                 <Bar
                   dataKey="expenses"
                   name="Expenses"
@@ -210,9 +240,7 @@ export function DashboardCharts({
               </BarChart>
             </ResponsiveContainer>
           ) : (
-            <div className="flex h-full items-center justify-center text-sm text-muted-foreground">
-              No income or expense data available yet.
-            </div>
+            <EmptyChart message="Add income or expenses to compare cash flow." />
           )}
         </div>
       </div>
