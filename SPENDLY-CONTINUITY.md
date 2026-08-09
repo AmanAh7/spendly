@@ -1,116 +1,97 @@
-Spendly Permanent Technical Handoff
-This document is the technical continuity prompt for future AI coding sessions. The actual local VS Code project is the source of truth. The Perplexity sandbox is not the source of truth.
+# Spendly Permanent Technical Handoff
 
-1. Project Overview
-   Project name: Spendly
+This document is the technical continuity prompt for future AI coding sessions. The actual local VS Code project is the source of truth. This document and any previous AI conversation are context only; they must never override the current local files.
 
-Spendly is a personal finance and expense-tracking SaaS application. It is designed to help users manage expenses, income, budgets, savings goals, recurring expenses, combined transactions, categories, analytics, reports, notifications, and account settings.
+## 1. Project Overview
 
-Architecture:
+Spendly is a personal finance and expense-tracking SaaS application built as one Next.js full-stack application. It currently supports authentication, a dashboard, expense management, income management, and a combined transactions read view.
 
-One Next.js App Router full-stack application.
+Current implementation status:
 
-Server Components for database-backed reads.
+- Phases 1–7 are implemented according to the current project state.
+- Phase 7, Combined Transactions, is the latest implemented phase.
+- Phase 8, Budgets, has not started.
+- The developer maintains the real project locally in VS Code on Windows PowerShell.
+- Neon PostgreSQL is the persistent database.
+- GitHub is used for source control and backup.
+- Do not rebuild the project or initialize another architecture.
 
-Server Actions for mutations.
+## 2. Technology Stack and Versions
 
-Prisma ORM connected to Neon PostgreSQL.
+Known versions from the local project and previous successful checks:
 
-Auth.js v5 Credentials authentication.
+| Technology | Version/status |
+|---|---|
+| Next.js | 15.5.23 confirmed from local build output |
+| React | Package range `^19.0.0`; exact installed version not separately confirmed |
+| React DOM | Package range `^19.0.0`; exact installed version not separately confirmed |
+| TypeScript | 5.9.3 confirmed locally |
+| Tailwind CSS | Package range `^4.0.0` |
+| `@tailwindcss/postcss` | 4.3.3 confirmed from npm resolution |
+| PostCSS | 8.5.26 resolved through npm overrides |
+| Prisma Client | 6.19.3 generated locally |
+| Prisma CLI | Package range `^6.19.3` |
+| Neon PostgreSQL | Connected and working |
+| Auth.js / next-auth | 5.0.0-beta.32 |
+| React Hook Form | 7.85.0 |
+| `@hookform/resolvers` | 5.7.1 |
+| Zod | 4.4.3 |
+| Recharts | 3.10.1 |
+| Framer Motion | Package range `^11.15.0`; used by the reusable Toast |
+| Lucide React | Package range `^0.468.0` |
+| date-fns | 4.4.0 |
+| Resend | 6.12.4 |
+| bcryptjs | 3.0.2 |
+| next-themes | Package range `^0.4.4` |
+| Geist | Package range `^1.3.1` |
+| clsx | Package range `^2.1.1` |
+| tailwind-merge | Package range `^2.6.0` |
+| dotenv | Package range `^16.4.7` |
+| tsx | Package range `^4.19.2` |
+| tw-animate-css | Package range `^1.0.1` |
+| sharp | 0.35.3 through npm overrides |
 
-No separate backend.
+Other dependency facts:
 
-No separate frontend.
+- `@react-pdf/renderer` is not installed.
+- No separate CSV library is installed.
+- Current npm overrides are PostCSS and sharp.
+- The last confirmed `npm audit` result was 0 vulnerabilities.
+- Do not run `npm audit fix --force` without a deliberate upgrade plan because it previously attempted to upgrade Next.js to version 16.
 
-No Express, Flask, Django, MongoDB, Firebase, or Supabase.
+## 3. Current Project Structure
 
-GitHub is used for persistent source control and backup.
+Important current files and directories:
 
-The developer maintains the actual implementation locally in VS Code.
-
-Current development status:
-
-Phases 1–4 are complete.
-
-Phase 5, Expenses, is in progress and mostly implemented.
-
-The immediate unfinished task is making successful expense notifications disappear after two seconds.
-
-Income and later modules are not implemented yet.
-
-2. Exact Technology Stack
-   Technology Current status/version
-   Next.js 15.5.23 confirmed from local build output
-   React Package range ^19.0.0; exact installed version not separately confirmed
-   React DOM Package range ^19.0.0; exact installed version not separately confirmed
-   TypeScript 5.9.3 confirmed locally
-   Tailwind CSS Package range ^4.0.0; exact tailwindcss package version not separately confirmed
-   @tailwindcss/postcss 4.3.3 confirmed from npm resolution
-   PostCSS 8.5.26 resolved through npm overrides
-   shadcn/ui components.json configured; generated shadcn components are NOT CONFIRMED — VERIFY IN LOCAL PROJECT
-   Prisma Client 6.19.3 generated locally
-   Prisma CLI Package range ^6.19.3
-   Neon PostgreSQL Connected and working
-   Auth.js / next-auth 5.0.0-beta.32
-   React Hook Form 7.85.0
-   @hookform/resolvers 5.7.1
-   Zod 4.4.3
-   Recharts 3.10.1
-   Framer Motion Package range ^11.15.0; exact installed version not separately confirmed
-   Lucide React Package range ^0.468.0; exact installed version not separately confirmed
-   date-fns 4.4.0
-   Resend 6.12.4
-   bcryptjs 3.0.2
-   next-themes Package range ^0.4.4
-   geist Package range ^1.3.1
-   clsx Package range ^2.1.1
-   tailwind-merge Package range ^2.6.0
-   dotenv Package range ^16.4.7
-   tsx Package range ^4.19.2
-   tw-animate-css Package range ^1.0.1
-   sharp 0.35.3 resolved through npm overrides
-   PDF library @react-pdf/renderer is not installed
-   CSV library No separate CSV library is installed
-   Current npm overrides:
-
-json
-"overrides": {
-"postcss": "^8.5.23",
-"sharp": "^0.35.3"
-}
-Security dependency status at the last confirmed check:
-
-text
-npm audit: found 0 vulnerabilities
-Do not run npm audit fix --force without a deliberate upgrade plan. It previously attempted to upgrade Next.js to version 16.
-
-3. Current Project Structure
-   Important current files and directories:
-
-text
+```text
 app/
 ├── api/
-│ └── auth/
-│ └── [...nextauth]/
-│ └── route.ts
+│   └── auth/
+│       └── [...nextauth]/
+│           └── route.ts
 ├── dashboard/
-│ ├── expenses/
-│ │ ├── error.tsx
-│ │ ├── loading.tsx
-│ │ └── page.tsx
-│ ├── error.tsx
-│ ├── layout.tsx
-│ ├── loading.tsx
-│ └── page.tsx
+│   ├── expenses/
+│   │   ├── error.tsx
+│   │   ├── loading.tsx
+│   │   ├── page.tsx
+│   │   └── (the Expense UI is rendered by the manager component)
+│   ├── income/
+│   │   └── page.tsx
+│   ├── transactions/
+│   │   └── page.tsx
+│   ├── error.tsx
+│   ├── layout.tsx
+│   ├── loading.tsx
+│   └── page.tsx
 ├── forgot-password/
-│ └── page.tsx
+│   └── page.tsx
 ├── reset-password/
-│ ├── page.tsx
-│ └── reset-password-form.tsx
+│   ├── page.tsx
+│   └── reset-password-form.tsx
 ├── login/
-│ └── page.tsx
+│   └── page.tsx
 ├── register/
-│ └── page.tsx
+│   └── page.tsx
 ├── globals.css
 ├── layout.tsx
 └── page.tsx
@@ -118,13 +99,20 @@ app/
 actions/
 ├── auth-actions.ts
 ├── expense-actions.ts
+├── income-actions.ts
 └── password-reset-actions.ts
 
 components/
 ├── dashboard/
-│ └── dashboard-charts.tsx
+│   └── dashboard-charts.tsx
 ├── expenses/
-│ └── expense-manager.tsx
+│   └── expense-manager.tsx
+├── income/
+│   └── income-manager.tsx
+├── transactions/
+│   └── transactions-manager.tsx
+├── ui/
+│   └── toast.tsx
 ├── theme-provider.tsx
 └── theme-toggle.tsx
 
@@ -136,7 +124,8 @@ lib/
 ├── prisma.ts
 ├── utils.ts
 └── validators/
-└── expense.ts
+    ├── expense.ts
+    └── income.ts
 
 prisma/
 ├── schema.prisma
@@ -159,1309 +148,751 @@ README.md
 tsconfig.json
 .env.example
 .gitignore
-public/ contents: NOT CONFIRMED — VERIFY IN LOCAL PROJECT.
+```
 
-Generated/ignored directories include node_modules/, .next/, and .vercel/; they must not be committed.
+Generated/ignored directories include `node_modules/`, `.next/`, and `.vercel/`. They must not be committed.
 
-middleware.ts was removed intentionally and should not be recreated without a specific reason.
+`middleware.ts` was intentionally removed and must not be recreated without a specific reason.
 
-4. Database Architecture
-   Prisma schema file:
+There is no shared sidebar, navbar, dashboard navigation, or mobile drawer component. Navigation was intentionally left untouched during Phases 5–7.
 
-text
-prisma/schema.prisma
-Datasource:
+## 4. Environment and Configuration
 
-text
-datasource db {
-provider = "postgresql"
-url = env("DATABASE_URL")
-directUrl = env("DIRECT_URL")
-}
-Generator:
+Environment variable names only; never document or expose values:
 
-text
-generator client {
-provider = "prisma-client-js"
-}
-Enums
-text
-enum CategoryType {
-EXPENSE
-INCOME
-BOTH
-}
-
-enum PaymentMethod {
-CASH
-UPI
-CREDIT_CARD
-DEBIT_CARD
-BANK_TRANSFER
-OTHER
-}
-
-enum IncomeSource {
-SALARY
-FREELANCE
-BUSINESS
-INVESTMENT
-GIFT
-OTHER
-}
-
-enum RecurringFrequency {
-WEEKLY
-MONTHLY
-YEARLY
-}
-
-enum NotificationType {
-BUDGET_APPROACHING
-BUDGET_EXCEEDED
-RECURRING_UPCOMING
-GOAL_MILESTONE
-FINANCIAL_EVENT
-SYSTEM
-}
-User
-Fields:
-
-text
-id String @id @default(cuid())
-name String?
-email String @unique
-passwordHash String
-image String?
-currency String @default("INR")
-theme String @default("system")
-dateFormat String @default("DD/MM/YYYY")
-emailVerified DateTime?
-createdAt DateTime @default(now())
-updatedAt DateTime @updatedAt
-Relations:
-
-text
-passwordResetTokens PasswordResetToken[]
-categories Category[]
-expenses Expense[]
-incomes Income[]
-budgets Budget[]
-goals Goal[]
-goalContributions GoalContribution[]
-recurringExpenses RecurringExpense[]
-notifications Notification[]
-Index:
-
-text
-@@index([createdAt])
-PasswordResetToken
-Fields:
-
-text
-id String @id @default(cuid())
-tokenHash String @unique
-userId String
-expiresAt DateTime
-usedAt DateTime?
-createdAt DateTime @default(now())
-Relation:
-
-text
-user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-Indexes:
-
-text
-@@index([userId])
-@@index([expiresAt])
-Only the hash is stored. Raw reset tokens are not stored in the database.
-
-Category
-Fields:
-
-text
-id String @id @default(cuid())
-userId String
-name String
-icon String @default("Tag")
-color String @default("#8B5CF6")
-type CategoryType @default(BOTH)
-isDefault Boolean @default(false)
-createdAt DateTime @default(now())
-updatedAt DateTime @updatedAt
-Relations:
-
-text
-user User
-expenses Expense[]
-incomes Income[]
-budgets Budget[]
-recurringExpenses RecurringExpense[]
-goals Goal[]
-Constraints/indexes:
-
-text
-@@unique([userId, name])
-@@index([userId, type])
-Default categories currently created:
-
-text
-Food & Dining
-Transport
-Shopping
-Bills & Utilities
-Entertainment
-Health
-Education
-Travel
-Rent
-Other
-Expense
-Fields:
-
-text
-id String @id @default(cuid())
-userId String
-categoryId String
-amount Decimal @db.Decimal(12, 2)
-description String
-paymentMethod PaymentMethod
-date DateTime @db.Date
-notes String?
-createdAt DateTime @default(now())
-updatedAt DateTime @updatedAt
-Relations:
-
-text
-user User
-category Category
-Foreign keys:
-
-text
-user onDelete: Cascade
-category onDelete: Restrict
-Indexes:
-
-text
-@@index([userId, date])
-@@index([userId, categoryId])
-@@index([userId, paymentMethod])
-@@index([userId, createdAt])
-Income
-Fields:
-
-text
-id String @id @default(cuid())
-userId String
-categoryId String?
-amount Decimal @db.Decimal(12, 2)
-description String
-source IncomeSource
-date DateTime @db.Date
-notes String?
-createdAt DateTime @default(now())
-updatedAt DateTime @updatedAt
-Relations: User and optional Category.
-
-Foreign keys: User cascades; Category uses SetNull.
-
-Indexes:
-
-text
-@@index([userId, date])
-@@index([userId, categoryId])
-@@index([userId, source])
-@@index([userId, createdAt])
-Budget
-Fields:
-
-text
-id String @id @default(cuid())
-userId String
-categoryId String?
-name String
-amount Decimal @db.Decimal(12, 2)
-periodStart DateTime @db.Date
-periodEnd DateTime @db.Date
-createdAt DateTime @default(now())
-updatedAt DateTime @updatedAt
-Relations: User and optional Category.
-
-Foreign keys: User cascades; Category restricts deletion.
-
-Indexes/constraints:
-
-text
-@@index([userId, periodStart, periodEnd])
-@@index([userId, categoryId])
-@@unique([userId, name, periodStart])
-Goal
-Fields:
-
-text
-id String @id @default(cuid())
-userId String
-categoryId String?
-name String
-description String?
-targetAmount Decimal @db.Decimal(12, 2)
-targetDate DateTime? @db.Date
-completedAt DateTime?
-createdAt DateTime @default(now())
-updatedAt DateTime @updatedAt
-Relations: User, optional Category, and GoalContribution[].
-
-Foreign keys: User cascades; Category uses SetNull.
-
-Indexes:
-
-text
-@@index([userId, targetDate])
-@@index([userId, completedAt])
-GoalContribution
-Fields:
-
-text
-id String @id @default(cuid())
-userId String
-goalId String
-amount Decimal @db.Decimal(12, 2)
-date DateTime @db.Date
-note String?
-createdAt DateTime @default(now())
-updatedAt DateTime @updatedAt
-Relations: User and Goal.
-
-Foreign keys: User cascades; Goal cascades.
-
-Indexes:
-
-text
-@@index([userId, goalId, date])
-@@index([userId, date])
-RecurringExpense
-Fields:
-
-text
-id String @id @default(cuid())
-userId String
-categoryId String
-amount Decimal @db.Decimal(12, 2)
-description String
-paymentMethod PaymentMethod
-frequency RecurringFrequency
-nextDueDate DateTime @db.Date
-isActive Boolean @default(true)
-notes String?
-createdAt DateTime @default(now())
-updatedAt DateTime @updatedAt
-Relations: User and required Category.
-
-Foreign keys: User cascades; Category restricts deletion.
-
-Indexes:
-
-text
-@@index([userId, nextDueDate])
-@@index([userId, isActive])
-@@index([userId, categoryId])
-Notification
-Fields:
-
-text
-id String @id @default(cuid())
-userId String
-type NotificationType
-title String
-message String
-link String?
-readAt DateTime?
-createdAt DateTime @default(now())
-Relation: User with cascade deletion.
-
-Indexes:
-
-text
-@@index([userId, readAt])
-@@index([userId, createdAt])
-@@index([userId, type])
-All monetary values use PostgreSQL Decimal/Numeric with Decimal(12,2). No financial database field uses JavaScript floating-point storage.
-
-5. Authentication
-   Auth.js files:
-
-text
-auth.ts
-auth.config.ts
-app/api/auth/[...nextauth]/route.ts
-Auth.js version: next-auth@5.0.0-beta.32.
-
-Implemented authentication:
-
-Credentials provider only.
-
-Registration at /register.
-
-Login at /login.
-
-Logout through Auth.js signOut.
-
-JWT sessions.
-
-bcryptjs password hashing.
-
-Session user ID extension through types/next-auth.d.ts.
-
-Protected dashboard through app/dashboard/layout.tsx.
-
-Forgot password at /forgot-password.
-
-Reset password at /reset-password.
-
-Resend email delivery.
-
-Secure random reset tokens.
-
-SHA-256 token hashes.
-
-One-hour expiry.
-
-Single-use tokens.
-
-Used tokens marked with usedAt.
-
-Other active tokens removed after successful reset.
-
-Generic forgot-password response.
-
-middleware.ts was removed because it caused an Edge Runtime warning involving Auth.js and jose. Route protection currently happens through the server-side dashboard layout.
-
-6. Security Architecture
-   The authentication pattern is:
-
-ts
-const session = await auth();
-
-if (!session?.user?.id) {
-// reject or redirect
-}
-
-const userId = session.user.id;
-Never trust userId supplied by the client.
-
-Expense Server Actions:
-
-Obtain the authenticated user ID from auth().
-
-Validate input server-side with Zod.
-
-Verify category ownership using the authenticated user ID.
-
-Query expenses using both the record ID and authenticated user ID for updates/deletes.
-
-Create records with the server-derived user ID.
-
-Revalidate dashboard and expense routes after mutations.
-
-Dashboard reads:
-
-Obtain user ID from the server session.
-
-Scope all Prisma queries by userId.
-
-Convert Decimal values to regular numbers only at the server-to-client display boundary.
-
-Default categories:
-
-ensureDefaultCategories(userId) uses a server-derived user ID.
-
-Registration creates categories nested under the newly created user.
-
-Existing users receive missing defaults when opening Expenses.
-
-Cross-user access prevention:
-
-Every user-owned query includes userId.
-
-Update/delete operations verify ownership before changing data.
-
-Required category relations restrict unsafe deletion.
-
-Client-provided IDs are never treated as proof of ownership.
-
-7. Routes
-   Route Visibility Status Purpose
-   / Public Implemented Spendly landing page
-   /login Public Implemented Credentials login
-   /register Public Implemented Account registration
-   /forgot-password Public Implemented Password reset request
-   /reset-password Public Implemented Password replacement
-   /dashboard Protected Implemented Data-driven financial dashboard
-   /dashboard/expenses Protected Implemented Expense CRUD and filtering
-   /api/auth/[...nextauth] Auth route Implemented Auth.js GET/POST handlers
-   /dashboard/income Protected Not implemented Planned income module
-   /dashboard/transactions Protected Not implemented Planned combined transactions
-   /dashboard/budgets Protected Not implemented Planned budget module
-   /dashboard/goals Protected Not implemented Planned goals module
-   /dashboard/recurring Protected Not implemented Planned recurring module
-   /dashboard/analytics Protected Not implemented Planned analytics module
-   /dashboard/reports Protected Not implemented Planned reports module
-   /dashboard/categories Protected Not implemented Planned category management
-   /dashboard/settings Protected Not implemented Planned settings module
-   Known dead/planned links may currently point to routes that do not exist yet, including /dashboard/expenses/new, /dashboard/transactions, /dashboard/budgets, /dashboard/goals, and /dashboard/recurring.
-
-8. Completed Development Phases
-   Phase 1 — Project foundation
-   COMPLETE
-
-Implemented:
-
-Next.js App Router.
-
-TypeScript strict configuration.
-
-Tailwind CSS v4.
-
-Glassmorphism design tokens.
-
-Dark/light/system theme support.
-
-Theme persistence.
-
-Geist fonts.
-
-Framer Motion.
-
-Lucide icons.
-
-Initial landing page.
-
-shadcn configuration.
-
-Phase 2 — Prisma + Neon
-COMPLETE
-
-Implemented:
-
-Prisma schema.
-
-Neon PostgreSQL connection.
-
-Prisma migration.
-
-Prisma seed script.
-
-Decimal financial fields.
-
-Relationships.
-
-Foreign keys.
-
-Cascades/restrictions.
-
-Indexes.
-
-Reusable Prisma client.
-
-Phase 3 — Authentication
-COMPLETE
-
-Includes both the former Phase 3A and Phase 3B work:
-
-Auth.js Credentials authentication.
-
-Registration.
-
-Login.
-
-Logout.
-
-JWT session handling.
-
-bcrypt password hashing.
-
-Protected dashboard layout.
-
-Forgot password.
-
-Reset password.
-
-Resend.
-
-Secure hashed reset tokens.
-
-Expiration and single-use invalidation.
-
-Phase 4 — Dashboard
-COMPLETE
-
-Implemented:
-
-Current-month income.
-
-Current-month expenses.
-
-Balance.
-
-Budget usage.
-
-Expense trend chart.
-
-Income versus expenses chart.
-
-Top spending categories.
-
-Recent transactions.
-
-Budget status.
-
-Goal progress.
-
-Upcoming recurring payments.
-
-Loading/error states.
-
-Empty states.
-
-Responsive charts.
-
-Empty-chart visual polish.
-
-Phase 5 — Expenses
-IN PROGRESS / PARTIALLY COMPLETE
-
-Implemented:
-
-Expense listing.
-
-Add expense.
-
-Edit expense.
-
-Delete expense.
-
-Delete confirmation.
-
-Search.
-
-Category filtering.
-
-Payment-method filtering.
-
-Sorting.
-
-Pagination.
-
-React Hook Form.
-
-Zod validation.
-
-Server Actions.
-
-Ownership checks.
-
-Desktop table.
-
-Mobile cards.
-
-Loading state.
-
-Empty state.
-
-Error state.
-
-Success/error feedback.
-
-Default categories for new users.
-
-Backfill of missing defaults for existing users.
-
-Remaining:
-
-Successful feedback must auto-dismiss after two seconds.
-
-Final manual test checklist must be completed.
-
-Phase 5 commit must be made after final tests.
-
-Shared dashboard navigation is not yet implemented.
-
-Custom category management is not yet implemented.
-
-Phase 6 — Income
-NOT STARTED
-
-Phase 7 — Combined Transactions
-NOT STARTED
-
-Phase 8 — Budgets
-NOT STARTED
-
-Phase 9 — Savings Goals and Contributions
-NOT STARTED
-
-Phase 10 — Recurring Expenses
-NOT STARTED
-
-Phase 11 — Analytics and Charts
-NOT STARTED as a dedicated module. Dashboard charts exist, but /dashboard/analytics does not.
-
-Phase 12 — Reports, PDF download, and CSV export
-NOT STARTED. @react-pdf/renderer is not installed.
-
-Phase 13 — Categories and safe category deletion
-PARTIALLY COMPLETE only because default categories and the helper exist. The full category management module is not implemented.
-
-Not implemented:
-
-/dashboard/categories.
-
-Custom category creation.
-
-Custom category editing.
-
-Icon/color management UI.
-
-Safe category deletion UI.
-
-Reassignment workflow.
-
-Phase 14 — Notifications and alerts
-NOT STARTED. The Prisma model and seed notifications exist, but notification generation and UI do not.
-
-Phase 15 — Account settings and preferences
-NOT STARTED. User preference fields exist, but settings pages/actions do not.
-
-Phase 16 — Final UI/UX, responsive, and accessibility polish
-PARTIALLY COMPLETE. Glassmorphism, themes, responsive charts/cards, and empty states exist. Shared sidebar, navbar, mobile drawer, and complete accessibility review do not.
-
-Phase 17 — Security, performance, testing, and production-quality review
-NOT STARTED.
-
-9. Current Phase
-   Current phase:
-
-text
-Phase 5 — Expenses
-Last completed task:
-
-Added default categories for new users and existing users.
-
-Upgraded @hookform/resolvers to version 5.7.1 for Zod 4 compatibility.
-
-Confirmed TypeScript, lint, build, and audit pass.
-
-Current task:
-
-text
-Auto-dismiss successful expense notifications after two seconds.
-Likely file:
-
-text
-components/expenses/expense-manager.tsx
-Expected behavior:
-
-text
-Expense added successfully → disappears after 2 seconds
-Expense updated successfully → disappears after 2 seconds
-Expense deleted successfully → disappears after 2 seconds
-Errors → remain visible until another action or dismissal
-Remaining work:
-
-Implement the success feedback timeout with cleanup.
-
-Run local TypeScript/lint/build checks.
-
-Manually test add/edit/delete and timeout behavior.
-
-Commit Phase 5.
-
-Recommended next task after Phase 5 confirmation:
-
-Build the shared dashboard shell/navigation before or during Phase 6 so users no longer need to type routes manually.
-
-10. UI/UX Design System
-    The supplied Spendly dashboard reference is the visual source of truth.
-
-Implemented visual direction:
-
-Dark midnight navy background.
-
-Violet/purple primary accents.
-
-Blue/cyan secondary accents.
-
-Glassmorphic translucent surfaces.
-
-Backdrop blur.
-
-Thin borders.
-
-Soft shadows.
-
-Rounded cards.
-
-Restrained neon glow.
-
-Clean Geist typography.
-
-Spacious layouts.
-
-High-contrast financial values.
-
-CSS design tokens and utilities are in:
-
-text
-app/globals.css
-Important classes:
-
-text
-.glass-panel
-.glass-panel-strong
-.glow-primary
-Current styles include:
-
-Dark theme as the primary theme.
-
-A separately designed light theme, not a simple inversion.
-
-System theme support.
-
-Violet gradient primary buttons.
-
-Green success state.
-
-Red destructive state.
-
-Blue accent state.
-
-Rounded corners based on CSS custom properties.
-
-Tailwind v4 @theme inline variables.
-
-@custom-variant dark.
-
-Responsive cards and charts.
-
-Mobile expense cards instead of a horizontally overflowing table.
-
-Not yet implemented:
-
-Fixed/collapsible sidebar.
-
-Mobile drawer navigation.
-
-Shared dashboard navbar.
-
-Notification panel.
-
-Profile menu.
-
-Global search header.
-
-11. Reusable Components
-    components/theme-provider.tsx
-    Wraps next-themes and enables persisted light/dark/system themes.
-
-components/theme-toggle.tsx
-Cycles through light, dark, and system themes.
-
-components/dashboard/dashboard-charts.tsx
-Client component using Recharts for:
-
-Expense trend.
-
-Income versus expense comparison.
-
-Responsive chart sizing.
-
-Currency formatting.
-
-Empty chart states.
-
-components/expenses/expense-manager.tsx
-Client component responsible for:
-
-Expense listing.
-
-Desktop table.
-
-Mobile cards.
-
-Add/edit form.
-
-React Hook Form.
-
-Zod resolver.
-
-Search controls.
-
-Filters.
-
-Sorting.
-
-Pagination.
-
-Delete confirmation.
-
-Success/error feedback.
-
-Known pending change: successful feedback should automatically disappear after two seconds.
-
-12. Server Actions and Route Handlers
-    actions/auth-actions.ts
-    registerUser(formData)
-    Validates name, email, and password with Zod.
-
-Normalizes email to lowercase.
-
-Rejects duplicate email.
-
-Hashes password with bcryptjs.
-
-Creates User.
-
-Creates default Category records.
-
-Returns { error?: string; success?: string }.
-
-loginUser(formData)
-Reads email, password, and callback URL.
-
-Normalizes email.
-
-Delegates to Auth.js signIn.
-
-Redirects to dashboard on success.
-
-Redirects to login on authentication failure.
-
-actions/password-reset-actions.ts
-requestPasswordReset(formData)
-Validates email with Zod.
-
-Returns a generic message.
-
-Finds the user server-side.
-
-Deletes previous active reset tokens.
-
-Creates a secure random token.
-
-Stores only a SHA-256 hash.
-
-Sends a Resend email.
-
-Deletes the token if email delivery fails.
-
-resetPassword(formData)
-Validates token, new password, and confirmation.
-
-Hashes the submitted token.
-
-Checks token existence, expiry, and used status.
-
-Updates the password with bcryptjs.
-
-Marks the token as used.
-
-Deletes other reset tokens for that user.
-
-actions/expense-actions.ts
-createExpense(input)
-Input:
-
-text
-amount
-description
-categoryId
-paymentMethod
-date
-notes
-Calls auth().
-
-Gets userId from the session.
-
-Validates input with expenseSchema.
-
-Verifies the category belongs to the user.
-
-Accepts only EXPENSE or BOTH categories.
-
-Creates the expense with Decimal amount.
-
-Revalidates dashboard and expenses pages.
-
-updateExpense(id, input)
-Authenticates with auth().
-
-Validates input.
-
-Verifies category ownership.
-
-Finds the expense by both id and userId.
-
-Updates only the authenticated user’s record.
-
-Revalidates relevant pages.
-
-deleteExpense(id)
-Authenticates with auth().
-
-Finds the expense by both id and userId.
-
-Deletes only the authenticated user’s record.
-
-Revalidates relevant pages.
-
-app/api/auth/[...nextauth]/route.ts
-Exports Auth.js GET and POST handlers.
-
-13. Validation
-    Expense validation file:
-
-text
-lib/validators/expense.ts
-Current Expense schema fields:
-
-text
-amount
-description
-categoryId
-paymentMethod
-date
-notes
-Validation includes:
-
-Amount must be numeric with up to two decimal places.
-
-Amount must be greater than zero.
-
-Description must be 2–120 characters.
-
-Category is required.
-
-Payment method must be an allowed enum value.
-
-Date must use YYYY-MM-DD format.
-
-Notes are optional and limited in length.
-
-Payment methods:
-
-text
-CASH
-UPI
-CREDIT_CARD
-DEBIT_CARD
-BANK_TRANSFER
-OTHER
-React Hook Form uses:
-
-ts
-zodResolver(expenseSchema)
-Current compatible versions:
-
-text
-zod@4.4.3
-@hookform/resolvers@5.7.1 14. Current Dependencies
-Relevant current package.json content:
-
-json
-{
-"name": "spendly",
-"version": "0.1.0",
-"private": true,
-"engines": {
-"node": ">=20.11.0"
-},
-"overrides": {
-"postcss": "^8.5.23",
-"sharp": "^0.35.3"
-},
-"scripts": {
-"dev": "next dev --turbopack",
-"build": "next build",
-"start": "next start",
-"lint": "eslint .",
-"typecheck": "tsc --noEmit",
-"db:generate": "prisma generate",
-"db:validate": "prisma validate",
-"db:migrate": "prisma migrate dev",
-"db:push": "prisma db push",
-"db:seed": "prisma db seed",
-"db:studio": "prisma studio"
-},
-"prisma": {
-"seed": "tsx prisma/seed.ts"
-},
-"dependencies": {
-"@hookform/resolvers": "^5.7.1",
-"@prisma/client": "^6.19.3",
-"bcryptjs": "^3.0.2",
-"clsx": "^2.1.1",
-"date-fns": "^4.4.0",
-"framer-motion": "^11.15.0",
-"geist": "^1.3.1",
-"lucide-react": "^0.468.0",
-"next": "^15.5.23",
-"next-auth": "5.0.0-beta.32",
-"next-themes": "^0.4.4",
-"react": "^19.0.0",
-"react-dom": "^19.0.0",
-"react-hook-form": "^7.85.0",
-"recharts": "^3.10.1",
-"resend": "^6.12.4",
-"tailwind-merge": "^2.6.0",
-"zod": "^4.4.3"
-},
-"devDependencies": {
-"@eslint/eslintrc": "^3.2.0",
-"@tailwindcss/postcss": "^4.0.0",
-"@types/node": "^22.10.2",
-"@types/react": "^19.0.2",
-"@types/react-dom": "^19.0.2",
-"dotenv": "^16.4.7",
-"eslint": "^9.17.0",
-"eslint-config-next": "^15.5.23",
-"prisma": "^6.19.3",
-"tailwindcss": "^4.0.0",
-"tsx": "^4.19.2",
-"tw-animate-css": "^1.0.1",
-"typescript": "^5.9.3"
-}
-} 15. Environment Variables
-Names only; never include values:
-
-text
+```text
 DATABASE_URL=
 DIRECT_URL=
 AUTH_SECRET=
 RESEND_API_KEY=
 RESEND_FROM_EMAIL=
 NEXT_PUBLIC_APP_URL=
-.env must remain ignored and untracked. .env.example may be committed.
+```
 
-16. Current Known Issues
-    Actual unfinished issues
-    Successful Expense notifications remain visible permanently and need a two-second timeout.
+Rules:
 
-Shared dashboard navigation is not implemented.
+- `.env` must remain ignored and untracked.
+- `.env.example` may be committed with names only.
+- Never include credentials, API keys, database URLs, passwords, or secret values in AI responses, commits, or continuity documents.
+- Prisma uses `DATABASE_URL` and `DIRECT_URL` for Neon PostgreSQL.
+- The application uses `npm run dev` with Turbopack.
 
-Users must type routes manually for modules that do not exist yet.
+## 5. Prisma and Database Architecture
 
-Some dashboard links point to future/nonexistent routes.
+Datasource and generator:
 
-Custom category management is not implemented.
+```prisma
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
 
-Income is not implemented.
+generator client {
+  provider = "prisma-client-js"
+}
+```
 
-Combined transactions are not implemented.
+Actual enums:
 
-Budgets are not implemented.
+```prisma
+enum CategoryType {
+  EXPENSE
+  INCOME
+  BOTH
+}
 
-Goals are not implemented as a dedicated UI module.
+enum PaymentMethod {
+  CASH
+  UPI
+  CREDIT_CARD
+  DEBIT_CARD
+  BANK_TRANSFER
+  OTHER
+}
 
-Recurring expenses are not implemented as a dedicated UI module.
+enum IncomeSource {
+  SALARY
+  FREELANCE
+  BUSINESS
+  INVESTMENT
+  INTEREST
+  RENTAL_INCOME
+  GIFT
+  OTHER
+}
 
-Analytics is not implemented as a dedicated route.
+enum RecurringFrequency {
+  WEEKLY
+  MONTHLY
+  YEARLY
+}
 
-Reports, PDF, and CSV exports are not implemented.
+enum NotificationType {
+  BUDGET_APPROACHING
+  BUDGET_EXCEEDED
+  RECURRING_UPCOMING
+  GOAL_MILESTONE
+  FINANCIAL_EVENT
+  SYSTEM
+}
+```
 
-Notification generation/UI is not implemented.
+Actual Prisma models:
 
-Settings are not implemented.
+- `User`: identity, credentials, currency, theme, date format, and relations to all financial entities.
+- `PasswordResetToken`: hashed, expiring, single-use password reset records.
+- `Category`: user-owned categories with `EXPENSE`, `INCOME`, or `BOTH` type.
+- `Expense`: required category, Decimal amount, payment method, date, description, notes, and ownership indexes.
+- `Income`: optional `categoryId`, Decimal amount, source enum, date, description, and notes.
+- `Budget`: user-owned budget records with optional category and date period.
+- `Goal`: savings goal records with optional category and contributions.
+- `GoalContribution`: user-owned contributions linked to goals.
+- `RecurringExpense`: recurring expense definitions with category, payment method, frequency, and due date.
+- `Notification`: notification model exists, but generation/UI is not implemented.
 
-Final accessibility/performance/security review is not complete.
+Important Income schema decision:
 
-Warnings
-Prisma prints a non-blocking warning that package.json#prisma is deprecated and will be removed in Prisma 7. The project currently uses Prisma 6.19.3.
+```prisma
+model Income {
+  id          String        @id @default(cuid())
+  userId      String
+  categoryId  String?
+  amount      Decimal       @db.Decimal(12, 2)
+  description String
+  source      IncomeSource
+  date        DateTime      @db.Date
+  notes       String?
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
 
-Resolved errors/issues
-CSS side-effect TypeScript error.
+  user     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  category Category? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+}
+```
 
-Unnecessary @ts-ignore ESLint error.
+`Income.categoryId` and the optional relation remain in Prisma for compatibility and preservation of existing data. Category was removed from the Income UI, filters, validation, actions, types, table, mobile cards, and edit/reset logic. Do not remove the database field casually.
 
-Auth.js Edge Runtime warning caused by middleware.
+All monetary database values use PostgreSQL Decimal/Numeric, generally `Decimal(12,2)`. Decimal values are converted to regular numbers only at server-to-client display boundaries.
 
-Windows Prisma EPERM generation error.
+## 6. Auth.js and Security
 
-Zod 4 and old resolver compatibility problem.
+Authentication files:
 
-PostCSS vulnerability.
+```text
+auth.ts
+auth.config.ts
+app/api/auth/[...nextauth]/route.ts
+types/next-auth.d.ts
+```
 
-Sharp vulnerability.
+Current authentication:
 
-Missing default categories for existing/new users.
+- Auth.js Credentials provider only.
+- JWT sessions.
+- bcryptjs password hashing.
+- Registration, login, logout, forgot password, and reset password are implemented.
+- Resend is used for password reset email delivery.
+- Reset tokens are cryptographically random, SHA-256 hashed in storage, expiring after one hour, and single-use.
+- Generic forgot-password responses are used.
+- Dashboard protection occurs in `app/dashboard/layout.tsx` through a server-side session check.
+- `middleware.ts` is intentionally absent because it previously caused an Auth.js/jose Edge Runtime warning.
 
-Undefined paymentMethod TypeScript error.
+Required ownership pattern:
 
-Unused Link warning.
+```ts
+const session = await auth();
 
-Dashboard zero-data chart axis issue.
+if (!session?.user?.id) {
+  // reject or redirect
+}
 
-Tailwind IntelliSense
-Tailwind-specific warnings such as unknown @theme, @custom-variant, or @apply in the VS Code CSS language service are editor warnings, not necessarily application errors. The project currently builds successfully. Do not treat IntelliSense warnings as build failures without confirming with npx tsc --noEmit, npm run lint, or npm run build.
+const userId = session.user.id;
+```
 
-17. Development Workflow
-    The actual project is maintained locally in VS Code.
+Rules:
 
-Perplexity is used as the coding assistant.
+- Never trust a client-provided `userId`.
+- Every user-owned Prisma query must include the authenticated `userId`.
+- Update and delete operations must verify both the record ID and authenticated user ID.
+- Category ownership must be checked before Expense operations.
+- Income actions no longer validate or write category IDs, but the optional Prisma relation remains.
+- Combined Transactions scopes both Income and Expense queries to the authenticated user.
+- Never expose another user’s records.
 
-The developer manually copies complete files from Perplexity into VS Code.
+## 7. Design System
 
-The Perplexity sandbox is not the source of truth.
+The current UI uses a dark midnight navy and violet glassmorphism style:
 
-No ZIP files are required.
+- Dark midnight navy background.
+- Violet/purple primary accents.
+- Blue/cyan secondary accents.
+- Translucent glass panels.
+- Backdrop blur.
+- Thin borders and soft shadows.
+- Rounded cards and controls.
+- Restrained neon glow.
+- Geist typography.
+- High-contrast financial values.
+- Responsive desktop tables and mobile cards.
+- Green success states and red destructive states.
 
-GitHub is persistent source control and backup.
+Primary design styles are in `app/globals.css`. Important existing classes include:
 
-Neon is the persistent database.
+```text
+.glass-panel
+.glass-panel-strong
+.glow-primary
+```
 
-Local PowerShell is used for commands.
+Do not replace the design system with a new UI library for a small feature. Reuse the existing tokens, spacing, rounded controls, colors, and responsive patterns.
 
-Do not claim commands passed unless the developer provides local output showing success.
+## 8. Completed Phases
 
-18. Coding Rules
-    Future AI sessions must:
+### Phase 1 — Project Foundation
 
-Never rebuild the project from scratch.
+Complete. Includes Next.js App Router, strict TypeScript, Tailwind v4, theme support, Geist fonts, Framer Motion, Lucide, initial landing page, glassmorphism tokens, and shadcn configuration.
 
-Never regenerate completed modules unnecessarily.
+### Phase 2 — Prisma and Neon
 
-Never unnecessarily rewrite existing files.
+Complete. Includes the current Prisma schema, Neon PostgreSQL, migrations, seed script, Decimal financial fields, relations, foreign keys, indexes, and reusable Prisma client.
 
-Preserve the current architecture.
+### Phase 3 — Authentication
 
-Preserve the existing database schema unless a genuine change is required.
+Complete. Includes Auth.js Credentials authentication, registration, login, logout, JWT sessions, password hashing, protected dashboard, password reset, Resend, secure token hashing, expiration, and single-use invalidation.
 
-Preserve Auth.js and session-derived ownership patterns.
+### Phase 4 — Dashboard
 
-Preserve the existing UI design system.
+Complete. Includes current-month income/expenses, balance, budget usage, savings rate, charts, top spending categories, recent transactions, budget status, goal progress, upcoming recurring payments, loading/error states, empty states, and responsive charts.
 
-Reuse existing components and utilities.
+### Phase 5 — Expenses
 
-Provide complete files for every created/modified file.
+Complete and verified. Includes:
 
-Never provide partial snippets.
+- Expense listing.
+- Add, edit, and delete Expense.
+- Delete confirmation.
+- Search.
+- Category and payment-method filtering.
+- Sorting.
+- Pagination.
+- React Hook Form and Zod validation.
+- Server Actions with ownership checks.
+- Desktop table and mobile cards.
+- Loading and empty states.
+- Success/error feedback.
+- Default category creation/backfill.
+- Floating Toast feedback with success auto-dismissal and persistent errors.
+- Edit form reset behavior restored and manually verified.
 
-Never provide pseudocode.
+Expense categories must remain untouched when working on unrelated modules.
 
-Never use ...rest of code....
+### Phase 6 — Income
 
-Ask the developer to paste an existing file when its current contents are unknown.
+Complete and verified. Includes:
 
-Never guess an unknown file’s contents.
+- Income listing.
+- Add, edit, and delete Income.
+- Income sources: Salary, Freelance, Business, Investment, Interest, Rental Income, Gift, and Other.
+- Source filtering.
+- Search.
+- Sorting.
+- Pagination.
+- React Hook Form and Zod validation.
+- Server Actions with authenticated ownership checks.
+- Optional category retained only in Prisma for compatibility; removed from Income UI and application logic.
+- Desktop table and mobile cards.
+- Floating Toast feedback.
+- Edit form reset behavior restored and manually verified.
+- Dashboard recent-income display uses neutral `Income` rather than the Income category relation.
 
-Clearly identify created and modified files.
+### Phase 7 — Combined Transactions
 
-Provide exact install commands.
+Implemented and verified by the developer. Details are documented below.
 
-Provide exact database commands.
+## 9. Current Implemented Features
 
-Provide exact TypeScript/lint/build commands.
+Current public/protected features:
 
-Provide browser-level manual tests.
+- Landing page.
+- Credentials registration and login.
+- Logout.
+- Forgot password and reset password.
+- Protected dashboard.
+- Current-month financial summaries.
+- Six-month income/expense charts.
+- Expense CRUD.
+- Income CRUD.
+- Combined read-only transactions view.
+- Responsive desktop and mobile layouts.
+- Themes through next-themes.
+- Glassmorphism visual system.
+- Floating success/error Toast.
 
-Work module-by-module.
+The following are planned or incomplete: shared navigation, custom category management, budgets, goals UI, recurring expense UI, analytics route, reports, exports, notifications UI, settings, and final production review.
 
-Wait for confirmation before moving to the next major phase.
+## 10. Current Routes
 
-Never include credentials, API keys, database URLs, passwords, or secret values.
+| Route | Visibility | Status | Purpose |
+|---|---|---|---|
+| `/` | Public | Implemented | Landing page |
+| `/login` | Public | Implemented | Credentials login |
+| `/register` | Public | Implemented | Account registration |
+| `/forgot-password` | Public | Implemented | Password reset request |
+| `/reset-password` | Public | Implemented | Password replacement |
+| `/dashboard` | Protected | Implemented | Data-driven dashboard |
+| `/dashboard/expenses` | Protected | Implemented | Expense CRUD and filters |
+| `/dashboard/income` | Protected | Implemented | Income CRUD and source filters |
+| `/dashboard/transactions` | Protected | Implemented | Combined read-only transactions |
+| `/api/auth/[...nextauth]` | Auth route | Implemented | Auth.js GET/POST handlers |
 
-Never create ZIP files.
+Known planned/nonexistent routes include:
 
-19. Local Verification
-    Recommended commands:
+```text
+/dashboard/expenses/new
+/dashboard/budgets
+/dashboard/goals
+/dashboard/recurring
+/dashboard/analytics
+/dashboard/reports
+/dashboard/categories
+/dashboard/settings
+```
 
-powershell
-npm install
-npm run dev
+`/dashboard/transactions` is now implemented, but the dashboard/navigation still contains links to future routes. Do not build a navigation system unless that is the explicitly approved task.
+
+## 11. Reusable Components
+
+### `components/theme-provider.tsx`
+
+Wraps next-themes and enables persisted light/dark/system themes.
+
+### `components/theme-toggle.tsx`
+
+Cycles through light, dark, and system themes.
+
+### `components/dashboard/dashboard-charts.tsx`
+
+Client Recharts component for Expense trend and Income-versus-Expense data, responsive sizing, currency formatting, and empty chart states.
+
+### `components/expenses/expense-manager.tsx`
+
+Client Expense manager with listing, filters, sorting, pagination, CRUD form, delete confirmation, responsive table/cards, form reset on edit, and floating Toast.
+
+### `components/income/income-manager.tsx`
+
+Client Income manager with listing, source filter, sorting, pagination, CRUD form, responsive table/cards, form reset on edit, and floating Toast. Category is intentionally absent from the Income UI.
+
+### `components/transactions/transactions-manager.tsx`
+
+Client read-only combined transaction view with server-provided records, search/type/sort filter controls, pagination navigation, loading state through `useTransition`, responsive desktop table, mobile cards, empty state, source/category/payment-method labels, and currency formatting.
+
+### `components/ui/toast.tsx`
+
+Reusable client Toast implemented with Framer Motion and Lucide icons. It is fixed to the viewport, has a high z-index, does not occupy document flow, supports success/error variants, includes an optional dismiss button, uses glassmorphism styling, and is responsive on mobile.
+
+## 12. Current Server Actions
+
+### `actions/auth-actions.ts`
+
+- `registerUser(formData)`
+- `loginUser(formData)`
+
+Registration validates input, normalizes email, rejects duplicates, hashes passwords, creates the User, and creates default categories.
+
+### `actions/password-reset-actions.ts`
+
+- `requestPasswordReset(formData)`
+- `resetPassword(formData)`
+
+Implements generic responses, secure token generation, hashed storage, expiry, email delivery, password replacement, and single-use invalidation.
+
+### `actions/expense-actions.ts`
+
+- `createExpense(input)`
+- `updateExpense(id, input)`
+- `deleteExpense(id)`
+
+Actions authenticate, validate with Zod, verify category ownership, create Decimal amounts, verify record ownership, revalidate `/dashboard` and `/dashboard/expenses`, and return success/error messages.
+
+### `actions/income-actions.ts`
+
+- `createIncome(input)`
+- `updateIncome(id, input)`
+- `deleteIncome(id)`
+
+Actions authenticate, validate with Zod, create Decimal amounts, verify record ownership, revalidate `/dashboard` and `/dashboard/income`, and return success/error messages. They no longer validate or write `categoryId` because Category was removed from Income application logic.
+
+### Transactions
+
+There is intentionally no `actions/transaction-actions.ts`. Combined Transactions is read-only and uses server-side Prisma raw SQL in `app/dashboard/transactions/page.tsx`.
+
+## 13. Validators and Utilities
+
+### `lib/validators/expense.ts`
+
+Defines `paymentMethodValues`, `expenseSchema`, and `ExpenseInput`. Expense validation includes amount precision/positivity, description length, required category, payment method, date format, and optional notes.
+
+### `lib/validators/income.ts`
+
+Defines `incomeSourceValues`, `incomeSchema`, and `IncomeInput`. Current source values are:
+
+```text
+SALARY
+FREELANCE
+BUSINESS
+INVESTMENT
+INTEREST
+RENTAL_INCOME
+GIFT
+OTHER
+```
+
+Income validation includes amount precision/positivity, description length, source, date format, and optional notes. It does not include `categoryId`.
+
+### `lib/default-categories.ts`
+
+Defines default Expense/BOTH categories and `ensureDefaultCategories(userId)`. Expense category behavior must not be changed when working on Income or Transactions.
+
+### `lib/format.ts`
+
+Provides `formatCurrency(amount, currency)` and `formatCompactCurrency(amount, currency)`. The user’s stored currency is passed from server components to client display components.
+
+### `lib/prisma.ts`
+
+Provides the reusable Prisma client.
+
+## 14. Income Architecture
+
+Income is implemented as its own protected module:
+
+```text
+app/dashboard/income/page.tsx
+components/income/income-manager.tsx
+actions/income-actions.ts
+lib/validators/income.ts
+```
+
+The server page authenticates through `auth()`, derives `userId` from the session, parses search/source/sort/page parameters, queries only that user’s Income records, serializes Decimal and Date values, and passes them to the client manager.
+
+Income’s primary classification is `source`, not Category. The UI has:
+
+- Amount.
+- Description.
+- Source.
+- Date.
+- Notes.
+
+The Income UI does not show Category in filters, forms, tables, mobile cards, types, or edit/reset logic. The Prisma `categoryId` field and relation remain unchanged for data compatibility.
+
+## 15. Expense Architecture
+
+Expense is implemented as its own protected module:
+
+```text
+app/dashboard/expenses/page.tsx
+components/expenses/expense-manager.tsx
+actions/expense-actions.ts
+lib/validators/expense.ts
+```
+
+Expense requires a category, supports payment methods, validates ownership server-side, uses Decimal storage, and supports search, category/payment filters, sorting, pagination, CRUD, delete confirmation, desktop tables, and mobile cards.
+
+Do not modify Expense functionality while working on Income, Transactions, Budgets, or other unrelated modules.
+
+## 16. Floating Toast Implementation
+
+File:
+
+```text
+components/ui/toast.tsx
+```
+
+The Toast uses:
+
+- Framer Motion `AnimatePresence` and `motion.div`.
+- Lucide `CheckCircle2`, `AlertCircle`, and `X` icons.
+- `position: fixed` through Tailwind classes.
+- Top-right desktop placement.
+- Responsive mobile width with horizontal margins.
+- High z-index.
+- Glassmorphism border/background/backdrop blur.
+- Accessible `role` and `aria-live` behavior.
+- Optional manual dismiss button.
+
+Both managers render it as an overlay:
+
+```tsx
+<Toast
+  message={feedback?.error ?? feedback?.success ?? null}
+  variant={feedback?.error ? "error" : "success"}
+  onDismiss={() => setFeedback(null)}
+/>
+```
+
+Behavior:
+
+- Success messages auto-dismiss after 2 seconds.
+- Error messages remain visible until manually dismissed or replaced by another action.
+- The timer is created and cleaned up inside the Toast component.
+- The Toast never occupies document flow, so tables and filters do not shift.
+- The edit reset effects in both managers must be preserved alongside the Toast.
+
+## 17. Combined Transactions Module
+
+Files:
+
+```text
+app/dashboard/transactions/page.tsx
+components/transactions/transactions-manager.tsx
+```
+
+There is no Transaction Prisma model and no transaction server action.
+
+The server page:
+
+- Authenticates using `auth()`.
+- Derives `userId` from the Auth.js session.
+- Queries Income and Expense records with Prisma raw SQL and `UNION ALL` at the application/query layer.
+- Scopes both tables to the authenticated user.
+- Does not fetch the complete Income/Expense tables into the client.
+- Applies server-side type filtering, search, sorting, count, limit, and offset pagination.
+- Uses Expense category and payment method values where relevant.
+- Uses Income source values as classification.
+- Converts Decimal amounts for client display.
+- Uses the stored User currency.
+
+The client manager provides:
+
+- All / Income only / Expenses only filtering.
+- Search over description and notes.
+- Newest, oldest, highest amount, lowest amount, and description sorting.
+- Pagination.
+- Desktop table.
+- Mobile cards without horizontal overflow.
+- Empty state.
+- Loading state while changing filters/pages via `useTransition`.
+- Positive green Income amounts.
+- Negative Expense amounts.
+- Source display for Income.
+- Category and payment method display for Expenses.
+
+Transaction route:
+
+```text
+/dashboard/transactions
+```
+
+Phase 7 is read-only. Do not add create/edit/delete actions unless a future phase explicitly requires it.
+
+## 18. Exact Current Phase 7 Status
+
+Phase 7 is implemented and verified by the developer.
+
+The developer confirmed that:
+
+- Income appears.
+- Expenses appear.
+- Positive and negative amounts display correctly.
+- Combined view works.
+- The route is protected.
+- Filtering, searching, sorting, and pagination were implemented.
+- Responsive desktop/mobile layouts were implemented.
+- Empty/loading states were implemented.
+- Cross-user isolation was implemented.
+- The screenshot showed the intended Spendly glassmorphism design and combined records.
+
+Do not proceed to Phase 8 until the developer explicitly asks to continue. If Phase 8 is requested, ask for the current relevant files first.
+
+## 19. Remaining Phases 8–17
+
+### Phase 8 — Budgets
+
+Not started. Planned budget CRUD, period validation, category/overall budgets, usage calculations, ownership checks, and UI.
+
+### Phase 9 — Savings Goals and Contributions
+
+Not started as a dedicated module. Prisma models exist; goals dashboard display exists, but dedicated CRUD/contribution UI is not implemented.
+
+### Phase 10 — Recurring Expenses
+
+Not started as a dedicated module. Prisma model exists and dashboard upcoming-payment display exists, but CRUD UI is not implemented.
+
+### Phase 11 — Analytics and Charts
+
+Not started as a dedicated route/module. Dashboard charts exist, but `/dashboard/analytics` does not.
+
+### Phase 12 — Reports, PDF, and CSV Export
+
+Not started. `@react-pdf/renderer` is not installed and no separate CSV library is installed.
+
+### Phase 13 — Categories and Safe Category Deletion
+
+Partially complete only because default categories and the helper exist. Custom category management, icon/color UI, safe deletion, and reassignment workflow are not implemented.
+
+### Phase 14 — Notifications and Alerts
+
+Not started. Prisma Notification model exists, but notification generation and UI do not.
+
+### Phase 15 — Account Settings and Preferences
+
+Not started. User preference fields exist, but settings pages/actions do not.
+
+### Phase 16 — Final UI/UX, Responsive, and Accessibility Polish
+
+Partially complete. Glassmorphism, themes, responsive charts/cards, mobile cards, and Toast accessibility exist. Shared sidebar, navbar, mobile drawer, complete accessibility review, and final polish do not.
+
+### Phase 17 — Security, Performance, Testing, and Production Review
+
+Not started as a dedicated final review. Some ownership and authentication protections already exist, but a complete production-quality review is pending.
+
+## 20. Known Issues and Safe Warnings
+
+Known issues:
+
+- Shared dashboard navigation is not implemented.
+- Some dashboard links point to planned/nonexistent routes, including budgets, goals, recurring, transactions history links in future contexts, and other future modules. `/dashboard/transactions` is now implemented.
+- Custom category management is not implemented.
+- Budgets, dedicated goals, recurring expenses, analytics, reports, exports, notifications, and settings are not implemented.
+- The dashboard still has hard-coded links to future modules.
+- The current Prisma `package.json#prisma` seed configuration produces a deprecation warning that will matter in Prisma 7; the project remains on Prisma 6.19.3.
+- Tailwind IntelliSense may warn about `@theme`, `@custom-variant`, or `@apply`; confirm with actual TypeScript, lint, and build commands before treating these as failures.
+
+Previously resolved issues that must not be reintroduced:
+
+- CSS side-effect TypeScript error.
+- Unnecessary `@ts-ignore` lint error.
+- Auth.js Edge Runtime warning caused by middleware.
+- Windows Prisma EPERM generation issue.
+- Zod 4 and resolver compatibility issue.
+- PostCSS and sharp vulnerability issues.
+- Missing default categories.
+- Undefined payment method TypeScript error.
+- Dashboard zero-data chart axis issue.
+
+## 21. Important Architectural Decisions
+
+- One Next.js App Router full-stack app; no separate backend.
+- Server Components for database-backed reads.
+- Server Actions for CRUD mutations.
+- Prisma ORM with Neon PostgreSQL.
+- Auth.js Credentials authentication.
+- Session-derived ownership checks.
+- Decimal storage for financial amounts.
+- No Transaction database model; Combined Transactions is a query-level union.
+- Income Category remains in Prisma but is intentionally absent from Income application logic/UI.
+- Income Source is the primary Income classification.
+- Expenses retain their required Category system.
+- No middleware unless there is a deliberate, tested reason.
+- Fixed Toast overlays must not occupy layout space.
+- Existing modules should be changed only when the task genuinely requires it.
+- Navigation is currently intentionally untouched.
+
+## 22. Files That Must Not Be Unnecessarily Modified
+
+Do not unnecessarily modify:
+
+```text
+prisma/schema.prisma
+app/dashboard/layout.tsx
+auth.ts
+auth.config.ts
+actions/expense-actions.ts
+lib/validators/expense.ts
+components/expenses/expense-manager.tsx
+app/dashboard/expenses/page.tsx
+components/income/income-manager.tsx
+app/dashboard/income/page.tsx
+components/ui/toast.tsx
+```
+
+The Expense module and category system must remain untouched when working on unrelated features. Do not rewrite the dashboard or completed modules merely to match a preferred style.
+
+## 23. Exact Next Recommended Task
+
+The next recommended task is **Phase 8 — Budgets**.
+
+Before implementing Phase 8:
+
+- Ask the developer for the current exact files relevant to Budgets.
+- Inspect the current Budget Prisma model and existing dashboard budget-status logic.
+- Confirm the intended budget scope before coding.
+- Do not assume the old project structure or this conversation is more accurate than local files.
+- Do not modify Income, Expense, Transactions, or Toast files unless the budget feature genuinely requires a shared change.
+
+Likely new files may include a protected budget route, a budget manager component, a budget validator, and budget server actions, but these paths must be confirmed against the local project before creation.
+
+## 24. Safe Development Workflow
+
+Before changes:
+
+```powershell
+git status
+```
+
+After copying any changes, run:
+
+```powershell
 npm run lint
 npx tsc --noEmit
-npx prisma validate
-npx prisma generate
 npm run build
-Database commands when schema changes are intentionally made:
+```
 
-powershell
+For intentional Prisma schema changes only:
+
+```powershell
 npx prisma validate
-npx prisma generate
 npx prisma migrate dev --name descriptive_migration_name
-npx prisma db seed
-npx prisma studio
-Do not claim any command passed unless the developer supplies successful local output.
+npx prisma generate
+```
 
-20. Git Workflow
-    Before changes:
+Do not claim a command passed unless the developer supplies successful local output. The AI cannot run commands against the developer’s local VS Code project.
 
-powershell
-git status
+Manual testing should cover authenticated and unauthenticated access, ownership isolation, desktop/mobile behavior, empty/loading/error states, and regression testing of completed modules.
+
 After testing:
 
-powershell
+```powershell
+git status
 git add .
 git commit -m "Describe the completed change"
 git push
-Recommended current Phase 5 commit after the toast fix and functional testing:
+```
 
-powershell
-git add .
-git commit -m "Phase 5: add complete expenses management"
-git push
-GitHub is the persistent code backup and source-control location.
+Do not include `.env`, credentials, secrets, `node_modules`, `.next`, or `.vercel` in commits.
 
-21. INSTRUCTIONS FOR A NEW AI SESSION
-    This is an existing Spendly project. Do not create a new project, do not rebuild it, and do not initialize a second architecture.
+## 25. Coding Rules for Future AI Sessions
 
-Read SPENDLY-CONTINUITY.md first and use it as the technical context. The actual local VS Code project is the source of truth. Do not rely on the previous Perplexity sandbox.
+- Read this entire document before doing anything.
+- Treat the local VS Code project as the source of truth.
+- Ask the developer to paste the exact current contents of existing files before modifying them.
+- Never reconstruct large existing files from memory.
+- Never assume a previous AI-generated file is still the local file.
+- Never rebuild the project from scratch.
+- Never initialize a second architecture.
+- Do not regenerate completed modules unnecessarily.
+- Preserve the current architecture, dependencies, schema, security model, and design system.
+- Provide complete replacement files when the developer requests complete files.
+- Do not provide partial snippets when complete files are required.
+- Do not use pseudocode or `...rest of code...`.
+- Clearly identify created and modified files.
+- Never expose secrets.
+- Work module-by-module.
+- Wait for explicit confirmation before moving to the next major phase.
+- Do not mark a feature complete based only on generated code; require local verification and developer confirmation.
 
-Continue from:
+# CONTINUATION INSTRUCTIONS FOR NEW CHAT
 
-text
-Phase 5 — Expenses is in progress and mostly implemented.
-The immediate task is:
-
-text
-Make successful Expense notifications disappear automatically after 2 seconds.
-Before modifying any existing file:
-
-Ask the developer to paste the current file if its exact contents are not available.
-
-Provide complete replacement contents for every modified file.
-
-Do not provide partial code.
-
-Do not rewrite unrelated completed modules.
-
-Preserve the current Prisma schema.
-
-Preserve Auth.js Credentials authentication.
-
-Preserve session-derived ownership checks.
-
-Preserve the glassmorphic Spendly UI.
-
-Preserve the current dependency versions unless a change is genuinely required.
-
-After implementing the toast fix, provide:
-
-Files created.
-
-Files modified.
-
-Complete source code.
-
-Dependencies.
-
-Environment variables.
-
-Database commands, if any.
-
-TypeScript, lint, and build commands.
-
-Manual browser test checklist.
-
-Recommended Git commit message.
-
-Do not start Phase 6 until the developer explicitly confirms Phase 5 is complete.
+1. Read `SPENDLY-CONTINUITY.md` completely before doing anything.
+2. Treat the actual local VS Code project as the source of truth.
+3. Ask the developer for the current exact contents of relevant existing files before modifying any existing code.
+4. Never reconstruct large existing files from memory or from an old conversation.
+5. Never rebuild completed modules unnecessarily.
+6. Continue from the exact current phase documented here: Phase 7 is complete; Phase 8 — Budgets is next but has not started.
+7. Do not assume anything from the previous Perplexity conversation beyond what is documented in this file and confirmed by current local files.
+8. Preserve Expense functionality and categories when working on unrelated modules.
+9. Preserve the Income Prisma category field while keeping Category out of the Income UI unless the developer explicitly changes that decision.
+10. Preserve the fixed floating Toast behavior and edit-form reset effects.
+11. Preserve the read-only query-level Combined Transactions architecture.
+12. Before Phase 8 implementation, request and inspect the exact current budget-related files and confirm the intended scope.
+13. Provide complete files when requested, run no local commands yourself, and never claim local verification without developer-provided output.

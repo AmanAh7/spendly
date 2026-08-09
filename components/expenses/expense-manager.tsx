@@ -28,6 +28,7 @@ import {
   type ExpenseInput,
 } from "@/lib/validators/expense";
 import { formatCurrency } from "@/lib/format";
+import { Toast } from "@/components/ui/toast";
 
 type ExpenseRecord = {
   id: string;
@@ -104,7 +105,6 @@ export function ExpenseManager({
     resolver: zodResolver(expenseSchema),
     defaultValues,
   });
-
   useEffect(() => {
     if (editingExpense) {
       form.reset({
@@ -120,21 +120,6 @@ export function ExpenseManager({
       form.reset(defaultValues);
     }
   }, [editingExpense, form]);
-
-  useEffect(() => {
-    if (!feedback?.success) {
-      return;
-    }
-
-    const timeoutId = window.setTimeout(() => {
-      setFeedback(null);
-    }, 2000);
-
-    return () => {
-      window.clearTimeout(timeoutId);
-    };
-  }, [feedback]);
-
   function openCreateForm() {
     setEditingExpense(null);
     setFeedback(null);
@@ -247,6 +232,12 @@ export function ExpenseManager({
 
   return (
     <div className="space-y-6">
+      <Toast
+        message={feedback?.error ?? feedback?.success ?? null}
+        variant={feedback?.error ? "error" : "success"}
+        onDismiss={() => setFeedback(null)}
+      />
+
       <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
         <div>
           <p className="text-sm text-muted-foreground">Finance</p>
@@ -267,19 +258,6 @@ export function ExpenseManager({
           Add expense
         </button>
       </div>
-
-      {feedback ? (
-        <div
-          role={feedback.error ? "alert" : "status"}
-          className={`rounded-xl border px-4 py-3 text-sm ${
-            feedback.error
-              ? "border-destructive/30 bg-destructive/10 text-destructive"
-              : "border-success/30 bg-success/10 text-success"
-          }`}
-        >
-          {feedback.error ?? feedback.success}
-        </div>
-      ) : null}
 
       <form
         className="glass-panel-strong rounded-2xl p-4"
@@ -521,6 +499,7 @@ export function ExpenseManager({
                 ? "Try changing your search or filters."
                 : "Add your first expense to start tracking your spending."}
             </p>
+
             {!search && !categoryId && !paymentMethod ? (
               <button
                 type="button"
@@ -686,7 +665,7 @@ export function ExpenseManager({
                   <select
                     id="paymentMethod"
                     {...form.register("paymentMethod")}
-                    className="h-11 w-full rounded-xl border border-input bg-background/40 px-3 text-sm outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/30"
+                    className="h-11 w-full rounded-xl border border-input bg-background/40 px-3 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/30"
                   >
                     {paymentMethodValues.map((method) => (
                       <option key={method} value={method}>

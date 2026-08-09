@@ -26,30 +26,6 @@ function toUtcDate(date: string) {
   return new Date(`${date}T00:00:00.000Z`);
 }
 
-async function validateCategoryOwnership(
-  userId: string,
-  categoryId: string | undefined,
-) {
-  if (!categoryId) {
-    return true;
-  }
-
-  const category = await prisma.category.findFirst({
-    where: {
-      id: categoryId,
-      userId,
-      type: {
-        in: ["INCOME", "BOTH"],
-      },
-    },
-    select: {
-      id: true,
-    },
-  });
-
-  return Boolean(category);
-}
-
 export async function createIncome(
   input: IncomeInput,
 ): Promise<IncomeActionResult> {
@@ -64,21 +40,9 @@ export async function createIncome(
       };
     }
 
-    const categoryOwned = await validateCategoryOwnership(
-      userId,
-      parsed.data.categoryId || undefined,
-    );
-
-    if (!categoryOwned) {
-      return {
-        error: "The selected category is invalid.",
-      };
-    }
-
     await prisma.income.create({
       data: {
         userId,
-        categoryId: parsed.data.categoryId || null,
         amount: new Prisma.Decimal(parsed.data.amount),
         description: parsed.data.description,
         source: parsed.data.source,
@@ -130,17 +94,6 @@ export async function updateIncome(
       };
     }
 
-    const categoryOwned = await validateCategoryOwnership(
-      userId,
-      parsed.data.categoryId || undefined,
-    );
-
-    if (!categoryOwned) {
-      return {
-        error: "The selected category is invalid.",
-      };
-    }
-
     const existingIncome = await prisma.income.findFirst({
       where: {
         id,
@@ -162,7 +115,6 @@ export async function updateIncome(
         id: existingIncome.id,
       },
       data: {
-        categoryId: parsed.data.categoryId || null,
         amount: new Prisma.Decimal(parsed.data.amount),
         description: parsed.data.description,
         source: parsed.data.source,

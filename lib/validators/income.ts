@@ -5,6 +5,8 @@ export const incomeSourceValues = [
   "FREELANCE",
   "BUSINESS",
   "INVESTMENT",
+  "INTEREST",
+  "RENTAL_INCOME",
   "GIFT",
   "OTHER",
 ] as const;
@@ -20,7 +22,6 @@ export const incomeSchema = z.object({
     .trim()
     .min(2, "Description must contain at least 2 characters.")
     .max(120, "Description must be 120 characters or fewer."),
-  categoryId: z.string().optional().or(z.literal("")),
   source: z.enum(incomeSourceValues),
   date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Select a valid date."),
   notes: z

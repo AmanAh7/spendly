@@ -13,7 +13,6 @@ type IncomePageProps = {
   searchParams: Promise<{
     page?: string;
     search?: string;
-    categoryId?: string;
     source?: string;
     sort?: string;
   }>;
@@ -35,7 +34,6 @@ export default async function IncomePage({ searchParams }: IncomePageProps) {
   const page = Number.isFinite(pageValue) && pageValue > 0 ? pageValue : 1;
 
   const search = params.search?.trim() ?? "";
-  const categoryId = params.categoryId ?? "";
 
   const source = incomeSourceValues.includes(
     params.source as (typeof incomeSourceValues)[number],
@@ -71,22 +69,7 @@ export default async function IncomePage({ searchParams }: IncomePageProps) {
           mode: "insensitive",
         },
       },
-      {
-        category: {
-          name: {
-            contains: search,
-            mode: "insensitive",
-          },
-          userId,
-        },
-      },
     ];
-  }
-
-  if (categoryId === "none") {
-    where.categoryId = null;
-  } else if (categoryId) {
-    where.categoryId = categoryId;
   }
 
   if (source) {
@@ -104,30 +87,13 @@ export default async function IncomePage({ searchParams }: IncomePageProps) {
             ? { description: "asc" }
             : { date: "desc" };
 
-  const [user, categories, totalCount, incomes] = await Promise.all([
+  const [user, totalCount, incomes] = await Promise.all([
     prisma.user.findUnique({
       where: {
         id: userId,
       },
       select: {
         currency: true,
-      },
-    }),
-
-    prisma.category.findMany({
-      where: {
-        userId,
-        type: {
-          in: ["INCOME", "BOTH"],
-        },
-      },
-      orderBy: {
-        name: "asc",
-      },
-      select: {
-        id: true,
-        name: true,
-        color: true,
       },
     }),
 
@@ -147,13 +113,6 @@ export default async function IncomePage({ searchParams }: IncomePageProps) {
         source: true,
         date: true,
         notes: true,
-        category: {
-          select: {
-            id: true,
-            name: true,
-            color: true,
-          },
-        },
       },
     }),
   ]);
@@ -172,7 +131,6 @@ export default async function IncomePage({ searchParams }: IncomePageProps) {
     source: income.source,
     date: income.date.toISOString(),
     notes: income.notes,
-    category: income.category,
   }));
 
   return (
@@ -180,13 +138,11 @@ export default async function IncomePage({ searchParams }: IncomePageProps) {
       <div className="mx-auto max-w-7xl">
         <IncomeManager
           incomes={serializedIncome}
-          categories={categories}
           currency={user.currency}
           page={safePage}
           totalPages={totalPages}
           totalCount={totalCount}
           search={search}
-          categoryId={categoryId}
           source={source}
           sort={sort}
         />

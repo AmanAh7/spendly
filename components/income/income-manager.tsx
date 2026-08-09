@@ -28,6 +28,7 @@ import {
   type IncomeInput,
 } from "@/lib/validators/income";
 import { formatCurrency } from "@/lib/format";
+import { Toast } from "@/components/ui/toast";
 
 type IncomeRecord = {
   id: string;
@@ -36,28 +37,15 @@ type IncomeRecord = {
   source: string;
   date: string;
   notes: string | null;
-  category: {
-    id: string;
-    name: string;
-    color: string;
-  } | null;
-};
-
-type CategoryOption = {
-  id: string;
-  name: string;
-  color: string;
 };
 
 type IncomeManagerProps = {
   incomes: IncomeRecord[];
-  categories: CategoryOption[];
   currency: string;
   page: number;
   totalPages: number;
   totalCount: number;
   search: string;
-  categoryId: string;
   source: string;
   sort: string;
 };
@@ -67,6 +55,8 @@ const incomeSourceLabels: Record<string, string> = {
   FREELANCE: "Freelance",
   BUSINESS: "Business",
   INVESTMENT: "Investment",
+  INTEREST: "Interest",
+  RENTAL_INCOME: "Rental Income",
   GIFT: "Gift",
   OTHER: "Other",
 };
@@ -74,7 +64,6 @@ const incomeSourceLabels: Record<string, string> = {
 const defaultValues: IncomeInput = {
   amount: "",
   description: "",
-  categoryId: "",
   source: "SALARY",
   date: new Date().toISOString().slice(0, 10),
   notes: "",
@@ -82,13 +71,11 @@ const defaultValues: IncomeInput = {
 
 export function IncomeManager({
   incomes,
-  categories,
   currency,
   page,
   totalPages,
   totalCount,
   search,
-  categoryId,
   source,
   sort,
 }: IncomeManagerProps) {
@@ -102,13 +89,11 @@ export function IncomeManager({
     resolver: zodResolver(incomeSchema),
     defaultValues,
   });
-
   useEffect(() => {
     if (editingIncome) {
       form.reset({
         amount: editingIncome.amount.toFixed(2),
         description: editingIncome.description,
-        categoryId: editingIncome.category?.id ?? "",
         source: editingIncome.source as IncomeInput["source"],
         date: editingIncome.date.slice(0, 10),
         notes: editingIncome.notes ?? "",
@@ -117,21 +102,6 @@ export function IncomeManager({
       form.reset(defaultValues);
     }
   }, [editingIncome, form]);
-
-  useEffect(() => {
-    if (!feedback?.success) {
-      return;
-    }
-
-    const timeoutId = window.setTimeout(() => {
-      setFeedback(null);
-    }, 2000);
-
-    return () => {
-      window.clearTimeout(timeoutId);
-    };
-  }, [feedback]);
-
   function openCreateForm() {
     setEditingIncome(null);
     setFeedback(null);
@@ -195,16 +165,11 @@ export function IncomeManager({
     const params = new URLSearchParams();
 
     const nextSearch = String(formData.get("search") ?? "").trim();
-    const nextCategory = String(formData.get("categoryId") ?? "");
     const nextSource = String(formData.get("source") ?? "");
     const nextSort = String(formData.get("sort") ?? "date-desc");
 
     if (nextSearch) {
       params.set("search", nextSearch);
-    }
-
-    if (nextCategory) {
-      params.set("categoryId", nextCategory);
     }
 
     if (nextSource) {
@@ -225,10 +190,6 @@ export function IncomeManager({
       params.set("search", search);
     }
 
-    if (categoryId) {
-      params.set("categoryId", categoryId);
-    }
-
     if (source) {
       params.set("source", source);
     }
@@ -244,6 +205,12 @@ export function IncomeManager({
 
   return (
     <div className="space-y-6">
+      <Toast
+        message={feedback?.error ?? feedback?.success ?? null}
+        variant={feedback?.error ? "error" : "success"}
+        onDismiss={() => setFeedback(null)}
+      />
+
       <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
         <div>
           <p className="text-sm text-muted-foreground">Finance</p>
@@ -263,19 +230,6 @@ export function IncomeManager({
         </button>
       </div>
 
-      {feedback ? (
-        <div
-          role={feedback.error ? "alert" : "status"}
-          className={`rounded-xl border px-4 py-3 text-sm ${
-            feedback.error
-              ? "border-destructive/30 bg-destructive/10 text-destructive"
-              : "border-success/30 bg-success/10 text-success"
-          }`}
-        >
-          {feedback.error ?? feedback.success}
-        </div>
-      ) : null}
-
       <form
         className="glass-panel-strong rounded-2xl p-4"
         onSubmit={(event) => {
@@ -283,7 +237,7 @@ export function IncomeManager({
           updateFilters(event.currentTarget);
         }}
       >
-        <div className="grid gap-3 lg:grid-cols-[1fr_180px_180px_180px_auto]">
+        <div className="grid gap-3 lg:grid-cols-[1fr_180px_180px_auto]">
           <label className="relative block">
             <span className="sr-only">Search income</span>
             <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
@@ -293,23 +247,6 @@ export function IncomeManager({
               placeholder="Search income..."
               className="h-10 w-full rounded-xl border border-input bg-background/40 pl-9 pr-3 text-sm outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/30"
             />
-          </label>
-
-          <label>
-            <span className="sr-only">Filter by category</span>
-            <select
-              name="categoryId"
-              defaultValue={categoryId}
-              className="h-10 w-full rounded-xl border border-input bg-background/40 px-3 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/30"
-            >
-              <option value="">All categories</option>
-              <option value="none">No category</option>
-              {categories.map((category) => (
-                <option key={category.id} value={category.id}>
-                  {category.name}
-                </option>
-              ))}
-            </select>
           </label>
 
           <label>
@@ -370,7 +307,6 @@ export function IncomeManager({
                 <thead className="border-b border-border/50 text-xs text-muted-foreground">
                   <tr>
                     <th className="px-5 py-4 font-medium">Income</th>
-                    <th className="px-5 py-4 font-medium">Category</th>
                     <th className="px-5 py-4 font-medium">Source</th>
                     <th className="px-5 py-4 font-medium">Date</th>
                     <th className="px-5 py-4 text-right font-medium">Amount</th>
@@ -393,26 +329,6 @@ export function IncomeManager({
                             {income.notes}
                           </p>
                         ) : null}
-                      </td>
-
-                      <td className="px-5 py-4">
-                        <span className="inline-flex items-center gap-2 text-sm">
-                          {income.category ? (
-                            <>
-                              <span
-                                className="h-2.5 w-2.5 rounded-full"
-                                style={{
-                                  backgroundColor: income.category.color,
-                                }}
-                              />
-                              {income.category.name}
-                            </>
-                          ) : (
-                            <span className="text-muted-foreground">
-                              No category
-                            </span>
-                          )}
-                        </span>
                       </td>
 
                       <td className="px-5 py-4 text-sm text-muted-foreground">
@@ -465,20 +381,8 @@ export function IncomeManager({
                       <h3 className="truncate font-medium">
                         {income.description}
                       </h3>
-                      <p className="mt-1 flex items-center gap-2 text-xs text-muted-foreground">
-                        {income.category ? (
-                          <>
-                            <span
-                              className="h-2 w-2 rounded-full"
-                              style={{
-                                backgroundColor: income.category.color,
-                              }}
-                            />
-                            {income.category.name}
-                          </>
-                        ) : (
-                          "No category"
-                        )}
+                      <p className="mt-1 text-xs text-muted-foreground">
+                        {incomeSourceLabels[income.source]}
                       </p>
                     </div>
 
@@ -527,12 +431,12 @@ export function IncomeManager({
             </div>
             <h3 className="mt-5 text-lg font-semibold">No income found</h3>
             <p className="mx-auto mt-2 max-w-sm text-sm text-muted-foreground">
-              {search || categoryId || source
+              {search || source
                 ? "Try changing your search or filters."
                 : "Add your first income record to start tracking your earnings."}
             </p>
 
-            {!search && !categoryId && !source ? (
+            {!search && !source ? (
               <button
                 type="button"
                 onClick={openCreateForm}
@@ -660,50 +564,24 @@ export function IncomeManager({
                 ) : null}
               </div>
 
-              <div className="grid gap-5 sm:grid-cols-2">
-                <div>
-                  <label
-                    htmlFor="income-source"
-                    className="mb-2 block text-sm font-medium"
-                  >
-                    Source
-                  </label>
-                  <select
-                    id="income-source"
-                    {...form.register("source")}
-                    className="h-11 w-full rounded-xl border border-input bg-background/40 px-3 text-sm outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/30"
-                  >
-                    {incomeSourceValues.map((incomeSource) => (
-                      <option key={incomeSource} value={incomeSource}>
-                        {incomeSourceLabels[incomeSource]}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                <div>
-                  <label
-                    htmlFor="income-category"
-                    className="mb-2 block text-sm font-medium"
-                  >
-                    Category
-                    <span className="ml-1 text-xs font-normal text-muted-foreground">
-                      Optional
-                    </span>
-                  </label>
-                  <select
-                    id="income-category"
-                    {...form.register("categoryId")}
-                    className="h-11 w-full rounded-xl border border-input bg-background/40 px-3 text-sm outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/30"
-                  >
-                    <option value="">No category</option>
-                    {categories.map((category) => (
-                      <option key={category.id} value={category.id}>
-                        {category.name}
-                      </option>
-                    ))}
-                  </select>
-                </div>
+              <div>
+                <label
+                  htmlFor="income-source"
+                  className="mb-2 block text-sm font-medium"
+                >
+                  Source
+                </label>
+                <select
+                  id="income-source"
+                  {...form.register("source")}
+                  className="h-11 w-full rounded-xl border border-input bg-background/40 px-3 text-sm outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/30"
+                >
+                  {incomeSourceValues.map((incomeSource) => (
+                    <option key={incomeSource} value={incomeSource}>
+                      {incomeSourceLabels[incomeSource]}
+                    </option>
+                  ))}
+                </select>
               </div>
 
               <div>

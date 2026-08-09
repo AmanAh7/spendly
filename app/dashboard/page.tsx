@@ -66,204 +66,111 @@ export default async function DashboardPage() {
     upcomingRecurring,
   ] = await Promise.all([
     prisma.user.findUnique({
-      where: {
-        id: userId,
-      },
-      select: {
-        name: true,
-        email: true,
-        currency: true,
-      },
+      where: { id: userId },
+      select: { name: true, email: true, currency: true },
     }),
 
     prisma.expense.aggregate({
       where: {
         userId,
-        date: {
-          gte: monthStart,
-          lte: monthEnd,
-        },
+        date: { gte: monthStart, lte: monthEnd },
       },
-      _sum: {
-        amount: true,
-      },
+      _sum: { amount: true },
     }),
 
     prisma.income.aggregate({
       where: {
         userId,
-        date: {
-          gte: monthStart,
-          lte: monthEnd,
-        },
+        date: { gte: monthStart, lte: monthEnd },
       },
-      _sum: {
-        amount: true,
-      },
+      _sum: { amount: true },
     }),
 
     prisma.expense.findMany({
       where: {
         userId,
-        date: {
-          gte: monthStart,
-          lte: monthEnd,
-        },
+        date: { gte: monthStart, lte: monthEnd },
       },
-      select: {
-        amount: true,
-      },
+      select: { amount: true },
     }),
 
     prisma.expense.findMany({
       where: {
         userId,
-        date: {
-          gte: chartStart,
-          lte: chartEnd,
-        },
+        date: { gte: chartStart, lte: chartEnd },
       },
-      select: {
-        amount: true,
-        date: true,
-      },
+      select: { amount: true, date: true },
     }),
 
     prisma.income.findMany({
       where: {
         userId,
-        date: {
-          gte: chartStart,
-          lte: chartEnd,
-        },
+        date: { gte: chartStart, lte: chartEnd },
       },
-      select: {
-        amount: true,
-        date: true,
-      },
+      select: { amount: true, date: true },
     }),
 
     prisma.budget.findMany({
       where: {
         userId,
-        periodStart: {
-          lte: monthStart,
-        },
-        periodEnd: {
-          gte: monthEnd,
-        },
+        periodStart: { lte: monthStart },
+        periodEnd: { gte: monthEnd },
       },
       select: {
         id: true,
         name: true,
         amount: true,
         categoryId: true,
-        category: {
-          select: {
-            name: true,
-          },
-        },
+        category: { select: { name: true } },
       },
-      orderBy: {
-        amount: "desc",
-      },
+      orderBy: { amount: "desc" },
     }),
 
     prisma.expense.groupBy({
       by: ["categoryId"],
       where: {
         userId,
-        date: {
-          gte: monthStart,
-          lte: monthEnd,
-        },
+        date: { gte: monthStart, lte: monthEnd },
       },
-      _sum: {
-        amount: true,
-      },
-      orderBy: {
-        _sum: {
-          amount: "desc",
-        },
-      },
+      _sum: { amount: true },
+      orderBy: { _sum: { amount: "desc" } },
       take: 5,
     }),
 
     prisma.expense.findMany({
-      where: {
-        userId,
-      },
-      orderBy: [
-        {
-          date: "desc",
-        },
-        {
-          createdAt: "desc",
-        },
-      ],
+      where: { userId },
+      orderBy: [{ date: "desc" }, { createdAt: "desc" }],
       take: 6,
       select: {
         id: true,
         description: true,
         date: true,
         amount: true,
-        category: {
-          select: {
-            name: true,
-          },
-        },
+        category: { select: { name: true } },
       },
     }),
 
     prisma.income.findMany({
-      where: {
-        userId,
-      },
-      orderBy: [
-        {
-          date: "desc",
-        },
-        {
-          createdAt: "desc",
-        },
-      ],
+      where: { userId },
+      orderBy: [{ date: "desc" }, { createdAt: "desc" }],
       take: 6,
       select: {
         id: true,
         description: true,
         date: true,
         amount: true,
-        category: {
-          select: {
-            name: true,
-          },
-        },
       },
     }),
 
     prisma.goal.findFirst({
-      where: {
-        userId,
-        completedAt: null,
-      },
-      orderBy: [
-        {
-          targetDate: "asc",
-        },
-        {
-          createdAt: "asc",
-        },
-      ],
+      where: { userId, completedAt: null },
+      orderBy: [{ targetDate: "asc" }, { createdAt: "asc" }],
       select: {
         id: true,
         name: true,
         targetAmount: true,
         targetDate: true,
-        contributions: {
-          select: {
-            amount: true,
-          },
-        },
+        contributions: { select: { amount: true } },
       },
     }),
 
@@ -271,24 +178,16 @@ export default async function DashboardPage() {
       where: {
         userId,
         isActive: true,
-        nextDueDate: {
-          gte: now,
-        },
+        nextDueDate: { gte: now },
       },
-      orderBy: {
-        nextDueDate: "asc",
-      },
+      orderBy: { nextDueDate: "asc" },
       take: 5,
       select: {
         id: true,
         description: true,
         amount: true,
         nextDueDate: true,
-        category: {
-          select: {
-            name: true,
-          },
-        },
+        category: { select: { name: true } },
       },
     }),
   ]);
@@ -329,15 +228,9 @@ export default async function DashboardPage() {
   const categoryRecords = await prisma.category.findMany({
     where: {
       userId,
-      id: {
-        in: categoryIds,
-      },
+      id: { in: categoryIds },
     },
-    select: {
-      id: true,
-      name: true,
-      color: true,
-    },
+    select: { id: true, name: true, color: true },
   });
 
   const categoryMap = new Map(
@@ -395,12 +288,10 @@ export default async function DashboardPage() {
       date: incomeItem.date,
       amount: decimalToNumber(incomeItem.amount),
       type: "income" as const,
-      category: incomeItem.category?.name ?? "Income",
+      category: "Income",
     })),
   ]
-    .sort((first, second) => {
-      return second.date.getTime() - first.date.getTime();
-    })
+    .sort((first, second) => second.date.getTime() - first.date.getTime())
     .slice(0, 6);
 
   const goalSaved = activeGoal
@@ -510,7 +401,6 @@ export default async function DashboardPage() {
                   Based on your expenses this month.
                 </p>
               </div>
-
               <TrendingUp className="h-5 w-5 text-primary" />
             </div>
 
@@ -528,13 +418,10 @@ export default async function DashboardPage() {
                         <div className="flex min-w-0 items-center gap-2">
                           <span
                             className="h-2.5 w-2.5 shrink-0 rounded-full"
-                            style={{
-                              backgroundColor: category.color,
-                            }}
+                            style={{ backgroundColor: category.color }}
                           />
                           <span className="truncate">{category.name}</span>
                         </div>
-
                         <span className="shrink-0 font-medium">
                           {formatCurrency(category.amount, currency)}
                         </span>
@@ -571,7 +458,6 @@ export default async function DashboardPage() {
                   Your active monthly budget.
                 </p>
               </div>
-
               <PiggyBank className="h-5 w-5 text-primary" />
             </div>
 
@@ -597,9 +483,7 @@ export default async function DashboardPage() {
                           ? "bg-warning"
                           : "bg-success"
                     }`}
-                    style={{
-                      width: `${Math.max(budgetUsage, 2)}%`,
-                    }}
+                    style={{ width: `${Math.max(budgetUsage, 2)}%` }}
                   />
                 </div>
 
@@ -706,7 +590,6 @@ export default async function DashboardPage() {
                     Keep moving toward your target.
                   </p>
                 </div>
-
                 <Goal className="h-5 w-5 text-primary" />
               </div>
 
@@ -724,9 +607,7 @@ export default async function DashboardPage() {
                   <div className="mt-3 h-2.5 overflow-hidden rounded-full bg-muted/50">
                     <div
                       className="h-full rounded-full bg-linear-to-r from-primary to-accent"
-                      style={{
-                        width: `${Math.max(goalProgress, 2)}%`,
-                      }}
+                      style={{ width: `${Math.max(goalProgress, 2)}%` }}
                     />
                   </div>
 
@@ -760,7 +641,6 @@ export default async function DashboardPage() {
                     Active recurring expenses.
                   </p>
                 </div>
-
                 <CalendarClock className="h-5 w-5 text-primary" />
               </div>
 
