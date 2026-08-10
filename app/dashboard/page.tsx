@@ -19,6 +19,7 @@ import { auth, signOut } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { formatCurrency } from "@/lib/format";
 import { DashboardCharts } from "@/components/dashboard/dashboard-charts";
+import { BudgetCarousel } from "@/components/dashboard/budget-carousel";
 
 type TransactionItem = {
   id: string;
@@ -27,6 +28,17 @@ type TransactionItem = {
   amount: number;
   type: "income" | "expense";
   category: string;
+};
+
+type SerializedBudget = {
+  id: string;
+  name: string;
+  typeLabel: string;
+  amount: number;
+  spent: number;
+  remaining: number;
+  usage: number;
+  exceededAmount: number;
 };
 
 function decimalToNumber(value: Prisma.Decimal | null | undefined) {
@@ -46,6 +58,9 @@ export default async function DashboardPage() {
 
   const userId = session.user.id;
   const now = new Date();
+  const today = new Date(
+    Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()),
+  );
   const monthStart = startOfMonth(now);
   const monthEnd = endOfMonth(now);
   const chartStart = startOfMonth(subMonths(monthStart, 5));
@@ -113,14 +128,16 @@ export default async function DashboardPage() {
     prisma.budget.findMany({
       where: {
         userId,
-        periodStart: { lte: monthStart },
-        periodEnd: { gte: monthEnd },
+        periodStart: { lte: today },
+        periodEnd: { gte: today },
       },
       select: {
         id: true,
         name: true,
         amount: true,
         categoryId: true,
+        periodStart: true,
+        periodEnd: true,
         category: { select: { name: true } },
       },
       orderBy: { amount: "desc" },
@@ -197,28 +214,120 @@ export default async function DashboardPage() {
   }
 
   const currency = user.currency;
+
   const currentExpensesTotal = decimalToNumber(
     currentExpenseAggregate._sum.amount,
   );
+
   const currentIncomeTotal = decimalToNumber(
     currentIncomeAggregate._sum.amount,
   );
+
   const balance = currentIncomeTotal - currentExpensesTotal;
 
-  const monthlyBudget =
-    budgets.find((budget) => budget.categoryId === null) ?? null;
+  const overallBudget = budgets
+    .filter((budget) => budget.categoryId === null)
+    .reduce<(typeof budgets)[number] | null>((selected, budget) => {
+      if (!selected) {
+        return budget;
+      }
 
-  const totalBudget = monthlyBudget
-    ? decimalToNumber(monthlyBudget.amount)
-    : budgets.reduce(
-        (total, budget) => total + decimalToNumber(budget.amount),
-        0,
-      );
+      if (budget.periodStart > selected.periodStart) {
+        return budget;
+      }
+
+      if (
+        budget.periodStart.getTime() === selected.periodStart.getTime() &&
+        budget.amount.greaterThan(selected.amount)
+      ) {
+        return budget;
+      }
+
+      return selected;
+    }, null);
+
+  const overallBudgetExpenses = overallBudget
+    ? await prisma.expense.findMany({
+        where: {
+          userId,
+          date: {
+            gte: overallBudget.periodStart,
+            lte: overallBudget.periodEnd,
+          },
+        },
+        select: { amount: true },
+      })
+    : [];
+
+  const activeBudgetExpenses = budgets.length
+    ? await prisma.expense.findMany({
+        where: {
+          userId,
+          date: {
+            gte: budgets.reduce(
+              (earliest, budget) =>
+                budget.periodStart < earliest ? budget.periodStart : earliest,
+              budgets[0].periodStart,
+            ),
+            lte: budgets.reduce(
+              (latest, budget) =>
+                budget.periodEnd > latest ? budget.periodEnd : latest,
+              budgets[0].periodEnd,
+            ),
+          },
+        },
+        select: {
+          amount: true,
+          date: true,
+          categoryId: true,
+        },
+      })
+    : [];
+
+  const totalBudget = overallBudget ? decimalToNumber(overallBudget.amount) : 0;
+
+  const overallBudgetExpensesTotal = overallBudgetExpenses.reduce(
+    (total, expense) => total + decimalToNumber(expense.amount),
+    0,
+  );
 
   const budgetUsage =
-    totalBudget > 0
-      ? Math.min((currentExpensesTotal / totalBudget) * 100, 100)
-      : 0;
+    totalBudget > 0 ? (overallBudgetExpensesTotal / totalBudget) * 100 : 0;
+
+  const exceededAmount =
+    totalBudget > 0 ? Math.max(overallBudgetExpensesTotal - totalBudget, 0) : 0;
+
+  const orderedBudgets = [
+    ...budgets.filter((budget) => budget.categoryId === null),
+    ...budgets.filter((budget) => budget.categoryId !== null),
+  ];
+
+  const serializedBudgets: SerializedBudget[] = orderedBudgets.map((budget) => {
+    const spent = activeBudgetExpenses
+      .filter(
+        (expense) =>
+          expense.date >= budget.periodStart &&
+          expense.date <= budget.periodEnd &&
+          (!budget.categoryId || expense.categoryId === budget.categoryId),
+      )
+      .reduce((total, expense) => total + decimalToNumber(expense.amount), 0);
+
+    const amount = decimalToNumber(budget.amount);
+    const remaining = Math.max(amount - spent, 0);
+    const usage = amount > 0 ? (spent / amount) * 100 : 0;
+    const exceeded = Math.max(spent - amount, 0);
+
+    return {
+      id: budget.id,
+      name: budget.name,
+      typeLabel: budget.category?.name ?? "Overall budget",
+      amount,
+      spent,
+      remaining,
+      usage,
+      exceededAmount: exceeded,
+    };
+  });
 
   const savingsRate =
     currentIncomeTotal > 0 ? (balance / currentIncomeTotal) * 100 : 0;
@@ -282,6 +391,7 @@ export default async function DashboardPage() {
       type: "expense" as const,
       category: expense.category.name,
     })),
+
     ...recentIncome.map((incomeItem) => ({
       id: incomeItem.id,
       description: incomeItem.description,
@@ -316,9 +426,11 @@ export default async function DashboardPage() {
             <p className="text-sm text-muted-foreground">
               {format(now, "EEEE, d MMMM yyyy")}
             </p>
+
             <h1 className="mt-1 text-3xl font-semibold tracking-tight sm:text-4xl">
               Good morning, {firstName}
             </h1>
+
             <p className="mt-2 text-sm text-muted-foreground">
               Here&apos;s your financial overview for {format(now, "MMMM yyyy")}
               .
@@ -332,6 +444,13 @@ export default async function DashboardPage() {
             >
               <ReceiptText className="h-4 w-4" />
               View expenses
+            </Link>
+            <Link
+              href="/dashboard/income"
+              className="inline-flex items-center gap-2 rounded-xl border border-border/70 px-4 py-2.5 text-sm font-medium transition hover:border-primary hover:text-primary"
+            >
+              <ArrowUpRight className="h-4 w-4" />
+              Add income
             </Link>
             <Link
               href="/dashboard/expenses/new"
@@ -373,11 +492,15 @@ export default async function DashboardPage() {
             value={totalBudget > 0 ? percentage(budgetUsage) : "Not set"}
             detail={
               totalBudget > 0
-                ? `${formatCurrency(currentExpensesTotal, currency)} of ${formatCurrency(totalBudget, currency)}`
-                : "Create your first budget"
+                ? exceededAmount > 0
+                  ? `${formatCurrency(exceededAmount, currency)} over budget`
+                  : `${formatCurrency(overallBudgetExpensesTotal, currency)} of ${formatCurrency(totalBudget, currency)}`
+                : "Create your first overall budget"
             }
             icon={<PiggyBank className="h-5 w-5" />}
-            tone={budgetUsage > 90 ? "red" : "purple"}
+            tone={
+              budgetUsage >= 100 ? "red" : budgetUsage >= 75 ? "purple" : "blue"
+            }
           />
         </section>
 
@@ -397,10 +520,12 @@ export default async function DashboardPage() {
                 <h2 className="text-base font-semibold">
                   Top spending categories
                 </h2>
+
                 <p className="mt-1 text-xs text-muted-foreground">
                   Based on your expenses this month.
                 </p>
               </div>
+
               <TrendingUp className="h-5 w-5 text-primary" />
             </div>
 
@@ -420,8 +545,10 @@ export default async function DashboardPage() {
                             className="h-2.5 w-2.5 shrink-0 rounded-full"
                             style={{ backgroundColor: category.color }}
                           />
+
                           <span className="truncate">{category.name}</span>
                         </div>
+
                         <span className="shrink-0 font-medium">
                           {formatCurrency(category.amount, currency)}
                         </span>
@@ -454,51 +581,21 @@ export default async function DashboardPage() {
             <div className="flex items-start justify-between gap-4">
               <div>
                 <h2 className="text-base font-semibold">Budget status</h2>
+
                 <p className="mt-1 text-xs text-muted-foreground">
-                  Your active monthly budget.
+                  Active overall and category budgets.
                 </p>
               </div>
+
               <PiggyBank className="h-5 w-5 text-primary" />
             </div>
 
-            {totalBudget > 0 ? (
-              <div className="mt-7">
-                <div className="flex items-end justify-between gap-4">
-                  <span className="text-3xl font-semibold">
-                    {percentage(budgetUsage)}
-                  </span>
-                  <span className="text-right text-xs text-muted-foreground">
-                    {formatCurrency(totalBudget, currency)}
-                    <br />
-                    planned
-                  </span>
-                </div>
-
-                <div className="mt-4 h-3 overflow-hidden rounded-full bg-muted/50">
-                  <div
-                    className={`h-full rounded-full ${
-                      budgetUsage > 90
-                        ? "bg-destructive"
-                        : budgetUsage > 70
-                          ? "bg-warning"
-                          : "bg-success"
-                    }`}
-                    style={{ width: `${Math.max(budgetUsage, 2)}%` }}
-                  />
-                </div>
-
-                <p className="mt-4 text-sm text-muted-foreground">
-                  {budgetUsage > 90
-                    ? "You are close to your budget limit."
-                    : budgetUsage > 70
-                      ? "Keep an eye on your spending."
-                      : "Your spending is within a comfortable range."}
-                </p>
-              </div>
+            {serializedBudgets.length > 0 ? (
+              <BudgetCarousel budgets={serializedBudgets} currency={currency} />
             ) : (
               <EmptyState
-                title="No budget set"
-                description="Set a monthly budget to track your progress."
+                title="No active budget set"
+                description="Set an overall or category budget to track spending progress."
                 href="/dashboard/budgets"
                 linkLabel="Create budget"
               />
@@ -511,6 +608,7 @@ export default async function DashboardPage() {
             <div className="flex items-center justify-between gap-4">
               <div>
                 <h2 className="text-base font-semibold">Recent transactions</h2>
+
                 <p className="mt-1 text-xs text-muted-foreground">
                   Your latest income and expenses.
                 </p>
@@ -551,6 +649,7 @@ export default async function DashboardPage() {
                         <p className="truncate text-sm font-medium">
                           {transaction.description}
                         </p>
+
                         <p className="mt-1 truncate text-xs text-muted-foreground">
                           {transaction.category} ·{" "}
                           {format(transaction.date, "d MMM yyyy")}
@@ -586,10 +685,12 @@ export default async function DashboardPage() {
               <div className="flex items-start justify-between gap-4">
                 <div>
                   <h2 className="text-base font-semibold">Financial goal</h2>
+
                   <p className="mt-1 text-xs text-muted-foreground">
                     Keep moving toward your target.
                   </p>
                 </div>
+
                 <Goal className="h-5 w-5 text-primary" />
               </div>
 
@@ -599,6 +700,7 @@ export default async function DashboardPage() {
                     <p className="truncate text-sm font-medium">
                       {activeGoal.name}
                     </p>
+
                     <span className="text-sm font-semibold">
                       {percentage(goalProgress)}
                     </span>
@@ -637,10 +739,12 @@ export default async function DashboardPage() {
               <div className="flex items-start justify-between gap-4">
                 <div>
                   <h2 className="text-base font-semibold">Upcoming payments</h2>
+
                   <p className="mt-1 text-xs text-muted-foreground">
                     Active recurring expenses.
                   </p>
                 </div>
+
                 <CalendarClock className="h-5 w-5 text-primary" />
               </div>
 
@@ -655,6 +759,7 @@ export default async function DashboardPage() {
                         <p className="truncate text-sm font-medium">
                           {recurring.description}
                         </p>
+
                         <p className="mt-1 text-xs text-muted-foreground">
                           {recurring.category.name} ·{" "}
                           {format(recurring.nextDueDate, "d MMM")}
@@ -757,6 +862,7 @@ function EmptyState({
     <div className="mt-6 rounded-2xl border border-dashed border-border/70 p-5 text-center">
       <p className="text-sm font-medium">{title}</p>
       <p className="mt-1 text-xs text-muted-foreground">{description}</p>
+
       <Link
         href={href}
         className="mt-4 inline-flex items-center gap-1 text-xs font-medium text-primary hover:underline"
