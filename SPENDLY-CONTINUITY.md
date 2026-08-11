@@ -1,71 +1,57 @@
 # Spendly Project Continuity
 
-**Document purpose:** This file records the current Spendly project state so development can continue safely in a fresh ChatGPT or Perplexity conversation.
+This document is for transferring Spendly project context into a new AI conversation. It records the latest project state established in the current conversation and must be read completely before continuing development.
 
-**Current milestone:** Phase 9 — Savings goals and contributions — COMPLETE
+## Project Status
 
-**Next milestone:** Phase 10 — Recurring expenses — NEXT
+- Latest completed phase: **Phase 9 — Savings goals and contributions**.
+- Next planned phase: **Phase 10 — Recurring expenses**.
+- Phase 10 has not started in this conversation.
+- The immediate next action is inspection, not implementation.
 
-**Important:** Phase 10 implementation must not begin from this document alone. The next conversation must first inspect the existing recurring-expense implementation and then prepare a plan for approval.
+## Project Overview
 
----
+Spendly is a personal-finance application for managing income, expenses, budgets, savings goals, goal contributions, combined transactions, and recurring expenses. The Dashboard provides a consolidated view of the user's current financial activity and progress.
 
-## 1. Project Overview
-
-### Purpose
-
-Spendly is a personal finance application for recording and reviewing income and expenses, monitoring budgets, managing savings goals and contributions, viewing combined transactions, and tracking recurring expenses.
-
-### Technology stack
-
-The current project uses the following technologies and libraries in the existing application:
+The project uses:
 
 - Next.js App Router.
-- TypeScript.
-- React.
+- React and TypeScript.
 - Prisma ORM.
-- A database accessed through Prisma.
-- NextAuth/Auth.js-style authentication through `auth` and `signOut` imported from `@/auth`.
+- A Prisma-backed database.
+- Auth.js/NextAuth-style authentication through `auth()` and `signOut()` imported from `@/auth`.
 - Tailwind CSS utility classes.
 - `lucide-react` for icons.
 - `date-fns` for date calculations and formatting.
-- Prisma `Decimal` values for monetary database fields.
+- Prisma `Decimal` values for monetary amounts.
 
-### Authentication
+The application uses server-rendered App Router pages for authenticated data loading. User-owned records are queried and mutated using the authenticated session user's ID.
 
-Authenticated pages obtain the current session through `auth()`. The Dashboard checks `session?.user?.id` and redirects unauthenticated users to `/login`. Server actions use the authenticated session and must not trust a client-provided `userId`.
+## Architecture Decisions
 
-### Database and Prisma
+- Authentication is checked on the server.
+- Unauthenticated Dashboard access redirects to `/login`.
+- Database access uses the shared Prisma client from `@/lib/prisma`.
+- Monetary database values remain Prisma `Decimal` values until they are converted for display or serialized component props.
+- Dashboard data is assembled on the server and passed into reusable UI components.
+- Existing pages and components use a glassmorphism visual style with rounded panels, muted borders, responsive Tailwind layouts, and existing Toast conventions.
+- Ownership is enforced through authenticated session data and Prisma query conditions.
+- Client-provided `userId` values must never be trusted.
+- Future changes should be small, isolated, and preserve unrelated code.
 
-Application data is accessed through the shared Prisma client imported from `@/lib/prisma`. User-owned records are queried using the authenticated user ID. Monetary values are stored and processed as Prisma `Decimal` values, with conversion to numbers only when preparing values for display or chart/component serialization.
+## Known Project Structure
 
-### UI and design system
-
-The application uses a glassmorphism-style interface with classes such as `glass-panel-strong`, rounded cards, muted borders, primary/accent colors, and responsive Tailwind layouts. Existing Toast patterns and visual conventions must be preserved. Icons are supplied by `lucide-react`.
-
-### Architectural patterns
-
-- Server-rendered App Router pages perform authentication and database reads on the server.
-- User ownership is enforced in Prisma `where` clauses using the authenticated session user ID.
-- Server actions are used for mutations such as sign-out and other existing CRUD flows.
-- Prisma `Decimal` values are serialized before passing data to client components.
-- Reusable dashboard UI is split into components, including charts, budget carousel, and goal carousel components.
-- Dashboard data is assembled server-side and passed to presentation components through typed props.
-- Existing functionality must be preserved through small, isolated changes.
-
----
-
-## 2. Project Structure
-
-Only files and folders currently established by the project context are listed below. Do not assume that additional files exist without inspecting the repository.
+Only paths established by the current conversation are listed here. The repository must be inspected before assuming additional files or exports.
 
 ### `app/`
 
-The Next.js App Router application directory. The known Dashboard page is:
+The Next.js App Router directory.
 
-- `app/dashboard/page.tsx` — authenticated financial overview page. It loads current-month income and expenses, six-month chart data, budgets, category spending, recent transactions, active goals, and upcoming recurring expenses.
+Known file:
 
-The Dashboard also links to routes including:
+- `app/dashboard/page.tsx` — authenticated Dashboard page. It loads and combines current financial data, serializes budget and goal data, and renders Dashboard sections.
+
+The Dashboard currently links to these routes:
 
 - `/login`
 - `/dashboard/expenses`
@@ -76,187 +62,83 @@ The Dashboard also links to routes including:
 - `/dashboard/goals`
 - `/dashboard/recurring`
 
-The existence and implementation of every route must be verified in the repository before modification.
+The existence and implementation of all routes must be verified in the repository before modifying them.
 
 ### `actions/`
 
-Contains existing server-side action modules for application mutations. Exact files and exports must be inspected before future implementation. Do not invent action filenames, routes, or APIs.
+Contains existing server-side mutation logic. Exact filenames and exports were not established in the conversation and must be inspected before implementation.
 
 ### `components/`
 
 Known Dashboard components:
 
-- `components/dashboard/dashboard-charts` — renders the Dashboard income/expense chart data.
-- `components/dashboard/budget-carousel` — renders active serialized budgets as a carousel.
-- `components/dashboard/goal-carousel` — renders active serialized savings goals as a carousel.
+- `components/dashboard/dashboard-charts` — renders the Dashboard chart data.
+- `components/dashboard/budget-carousel` — renders serialized active budgets.
+- `components/dashboard/goal-carousel` — renders serialized active savings goals.
 
-Other component files may exist and must be inspected before changing related UI.
+Exact file extensions and component APIs must be verified in the repository before changes.
 
 ### `lib/`
 
 Known shared files:
 
-- `lib/prisma` — shared Prisma client imported by the Dashboard.
-- `lib/format` — contains `formatCurrency`, used throughout the Dashboard for monetary display.
+- `lib/prisma` — shared Prisma client.
+- `lib/format` — contains `formatCurrency`, used for monetary display.
 
-Other utilities must be inspected rather than assumed.
+Other utilities must be inspected rather than invented.
 
 ### `prisma/`
 
-Contains the Prisma schema and database-related project files. The current context establishes models and relations for users, expenses, income, budgets, categories, goals, goal contributions, and recurring expenses, but the exact schema filename and complete model definitions must be inspected before making database changes.
+Contains the Prisma schema and database-related files. The current application uses user, expense, income, category, budget, goal, goal-contribution, and recurring-expense data. The exact schema filename and complete field definitions must be inspected before any database change.
 
----
+## Completed Work
 
-## 3. Completed Phases
+### Phases 1–5 — COMPLETE
 
-### Phase 1–5 — COMPLETE
+The early phases established the Spendly foundation, authenticated user-owned finance records, Prisma persistence, categories, the Dashboard, and the existing design system. The conversation does not contain a detailed historical changelog for each individual phase, so the repository remains the source of truth for exact implementation details.
 
-Phases 1 through 5 established the initial Spendly application foundation and the existing personal-finance workflows. The current context does not provide a phase-by-phase historical changelog for these phases, so future conversations must inspect the repository rather than infer undocumented implementation details.
-
-The established foundation includes authenticated user-owned data, Prisma-backed persistence, expense and income records, categories, the Dashboard, shared formatting utilities, and the existing visual design system.
-
-Important rules inherited by all phases:
-
-- User-owned records must be scoped to the authenticated session user.
-- Client input must not be allowed to choose another user's records.
-- Monetary values must preserve Prisma `Decimal` handling.
-- Existing routes and behavior must not be broken by later phases.
+All later features must preserve the foundation's authentication, ownership, monetary-value, routing, and UI conventions.
 
 ### Phase 6 — Income Management — COMPLETE
 
-Implemented income management and integrated income into the Dashboard.
+Income management is implemented and integrated into the Dashboard.
 
-Important behavior currently represented in the Dashboard:
+Current Dashboard behavior includes:
 
-- Current-month income is aggregated separately from expenses.
-- Income contributes positively to the current balance.
-- Recent income is included in the combined recent-transactions list.
-- Income is included in the six-month chart data.
-- The Dashboard provides an Add income button linking to `/dashboard/income`.
+- Current-month income aggregation.
+- Income included positively in the current balance.
+- Income included in the six-month chart data.
+- Recent income included in the combined recent-transactions list.
+- An Add income button linking to `/dashboard/income`.
 
-Security rules:
-
-- Income records are user-owned.
-- Reads and mutations must use the authenticated session user ID.
-- A client-provided `userId` must never be trusted.
-
-Important Dashboard integration:
-
-- `currentIncomeAggregate` supplies the Monthly income summary.
-- `monthlyIncome` supplies chart values.
-- `recentIncome` supplies recent transaction rows.
-- Income is represented with a positive amount and income styling.
+Income records are user-owned. Reads and mutations must use the authenticated session user ID.
 
 ### Phase 7 — Combined Transactions — COMPLETE
 
-The Dashboard combines recent expenses and recent income into one `transactions` array, sorts the combined records by date, and displays the latest six records.
+The Dashboard combines recent expenses and recent income into one transaction list.
 
-Important behavior:
+Current behavior:
 
-- Expense records are marked as `type: "expense"`.
-- Income records are marked as `type: "income"`.
-- Expense and income records use distinct icons and visual treatment.
-- Expense amounts display with a minus sign.
-- Income amounts display with a plus sign.
-- The combined list is sorted by descending transaction date.
+- Expenses use `type: "expense"`.
+- Income uses `type: "income"`.
+- The combined list is sorted by descending date.
+- The list is limited to the latest six records.
+- Expenses display with a minus sign and expense styling.
+- Income displays with a plus sign and income styling.
 
-Security rules:
-
-- Both expense and income queries are scoped to the authenticated user.
-- The combined presentation must not weaken ownership enforcement in either source query.
-
-Important file:
-
-- `app/dashboard/page.tsx`
+Both source queries remain scoped to the authenticated user.
 
 ### Phase 8 — Budgets and Budget Usage — COMPLETE
 
-Implemented active budget loading, budget usage calculations, overall and category budget handling, Dashboard budget summaries, and the Budget Carousel.
+Budget loading, active-budget selection, usage calculations, Dashboard summary integration, and the Budget Carousel are implemented.
 
 Important files:
 
 - `app/dashboard/page.tsx`
 - `components/dashboard/budget-carousel`
-- The Prisma schema and budget-related actions/routes, which must be inspected before modification.
+- Existing budget schema/actions/routes, which must be inspected before modification.
 
-Important Dashboard integrations:
-
-- Budget usage appears in the summary cards.
-- Active budgets appear in the Budget status card through `BudgetCarousel`.
-- Budget values are serialized from Prisma `Decimal` values before being passed to the client component.
-
-Security rules:
-
-- Budgets are scoped to the authenticated user.
-- Budget-related reads and mutations must verify ownership through the session user ID.
-
-### Phase 9 — Savings Goals and Contributions — COMPLETE
-
-Implemented savings goals and goal contributions, including Dashboard support for multiple active goals through the Goal Carousel.
-
-Important files:
-
-- `app/dashboard/page.tsx`
-- `components/dashboard/goal-carousel`
-- Goal and contribution actions/routes/schema files, which must be inspected before future changes rather than assumed.
-
-Important Dashboard integrations:
-
-- Active, incomplete goals are loaded with `completedAt: null`.
-- Goals are ordered by target date and then creation date.
-- Goal categories are supported through the optional category relation.
-- Goal data is serialized before being passed to `GoalCarousel`.
-- The Dashboard displays an empty state when there are no active goals.
-
-Security rules:
-
-- Goals and contributions are user-owned.
-- Goal CRUD and contribution CRUD must verify that the authenticated user owns the target goal or contribution.
-- Client-provided user IDs must never be trusted.
-
----
-
-## 4. Budget System
-
-### Overall budget versus category budget
-
-An overall budget has `categoryId: null`. It measures all expenses for the budget's active date range, independently of expense categories.
-
-A category budget has a non-null `categoryId`. It measures only expenses whose `categoryId` matches that budget's category and whose dates fall within the budget's active date range.
-
-### Usage rules
-
-- Overall budget usage measures all matching expenses.
-- Category budget usage measures only matching-category expenses.
-- Category budgets must never be added into overall budget usage.
-- The Dashboard's overall budget summary must use the selected overall budget only.
-- Multiple overall budgets are not combined.
-- Budget usage is calculated independently for each serialized budget.
-- `spent` is the sum of matching expenses.
-- `remaining` is `Math.max(amount - spent, 0)`.
-- `usage` is `(spent / amount) * 100` when the budget amount is greater than zero.
-- `exceededAmount` is the amount spent above the budget, never below zero.
-
-### Active dates
-
-Active budgets are loaded when:
-
-- `periodStart` is less than or equal to the current date.
-- `periodEnd` is greater than or equal to the current date.
-
-The Dashboard uses UTC date-only handling for the current-day boundary so active budget selection is not shifted unexpectedly by local time-zone conversions.
-
-### Multiple overall budgets
-
-Multiple active overall budgets are not summed. The current Dashboard selects one overall budget using the established behavior: the more recent `periodStart` wins; when period starts are equal, the budget with the greater amount wins.
-
-This selection behavior must be preserved unless a future approved change explicitly replaces it.
-
-### Budget Carousel
-
-The Dashboard serializes ordered budgets into `SerializedBudget` objects and passes them to `BudgetCarousel`.
-
-The serialized fields are:
+The Dashboard serializes budget values before passing them to the client component. Serialized budget data includes:
 
 - `id`
 - `name`
@@ -267,126 +149,189 @@ The serialized fields are:
 - `usage`
 - `exceededAmount`
 
-The carousel displays active overall and category budgets without combining category budgets into the overall summary.
+### Phase 9 — Savings Goals and Contributions — COMPLETE
 
----
+Savings goals and contributions are implemented, including the Dashboard Goal Carousel.
 
-## 5. Goal System
+The Dashboard queries active goals with:
 
-### Goal model
+```text
+completedAt: null
+```
 
-The current application has a goal model with at least the following Dashboard-used fields:
+Goals are ordered by target date and then creation date. Each goal includes its target amount, optional target date, optional category, and related contribution amounts.
+
+The Dashboard calculates:
+
+- `saved`: sum of all contribution amounts.
+- `remaining`: `Math.max(targetAmount - saved, 0)`.
+- `progress`: `(saved / targetAmount) * 100` when the target is greater than zero; otherwise `0`.
+
+Serialized goals contain:
 
 - `id`
 - `name`
+- `categoryName`
 - `targetAmount`
+- `saved`
+- `remaining`
+- `progress`
 - `targetDate`
-- optional category relation
-- `completedAt`
-- `createdAt`
-- related contributions
 
-The complete model definition must be inspected in the Prisma schema before future database changes.
-
-### GoalContribution model
-
-Goals have related contribution records. The Dashboard reads contribution amounts and totals them to calculate the amount saved for each goal.
-
-The complete contribution model and action details must be inspected before changing contribution behavior.
-
-### CRUD and ownership
-
-Goal CRUD and contribution CRUD are complete in the current project context. Every read, create, update, and delete operation must verify ownership through the authenticated session user.
-
-A contribution must not be created, edited, or deleted for a goal owned by another user. The application must never trust a client-provided `userId`.
-
-### Completion behavior
-
-The Dashboard treats goals with `completedAt: null` as active. Goals with a non-null `completedAt` are excluded from the active-goal query.
-
-Changing completion behavior requires inspecting the existing goal actions and schema first.
-
-### Calculations
-
-For each active goal:
-
-- `saved` is the sum of all related contribution amounts.
-- `targetAmount` is the Prisma amount converted for serialization.
-- `remaining` is `Math.max(targetAmount - saved, 0)`.
-- `progress` is `(saved / targetAmount) * 100` when `targetAmount > 0`; otherwise it is `0`.
-
-The Dashboard passes these serialized values to the Goal Carousel.
-
-### Goal category support
-
-A goal may have an optional category. The serialized value is `categoryName`, which is either the category name or `null`.
-
-### Goal Carousel
-
-`components/dashboard/goal-carousel` displays multiple active goals and supports navigating between them. The Dashboard passes:
+The Dashboard passes goals to the carousel with:
 
 ```tsx
 <GoalCarousel goals={serializedGoals} currency={currency} />
 ```
 
-When no active goals exist, the Dashboard displays an empty state linking to `/dashboard/goals`.
+When there are no active goals, the Dashboard shows an empty state linking to `/dashboard/goals`.
 
----
+Goal and contribution CRUD must enforce ownership. A user must not be able to access, modify, or delete another user's goal or contribution.
 
-## 6. Current Dashboard
+## Budget Rules
 
-The main Dashboard is `app/dashboard/page.tsx`.
+An overall budget has `categoryId: null`. It measures all expenses inside its active date range.
 
-Current functionality includes:
+A category budget has a non-null `categoryId`. It measures only expenses with the matching category inside its active date range.
 
+These rules are mandatory:
+
+- Overall budget usage measures all matching expenses independently.
+- Category budget usage measures only matching-category expenses.
+- Category budgets must never be added into overall budget usage.
+- Multiple overall budgets are not combined.
+- The Dashboard selects one overall budget using the established behavior: the more recent `periodStart` wins; if periods start at the same time, the larger amount wins.
+- Active budgets use `periodStart <= current date` and `periodEnd >= current date`.
+- UTC date-only handling was added for active-budget date comparisons and must not be regressed.
+- `spent` is the sum of matching expenses.
+- `remaining` is clamped to zero when spending exceeds the budget.
+- `usage` is calculated only when the budget amount is greater than zero.
+- `exceededAmount` is the amount spent above the budget, clamped to zero otherwise.
+
+The Budget Carousel displays active overall and category budgets independently. It must not change the overall-budget calculation or merge category budgets into it.
+
+## Goal Rules
+
+The project has a goal model and a related GoalContribution model. The exact Prisma schema must be inspected before any schema changes.
+
+Current goal behavior:
+
+- Active goals have `completedAt: null`.
+- Goals with a non-null `completedAt` are excluded from the active Dashboard list.
+- Goals may have an optional category.
+- Contributions are summed to calculate saved progress.
+- Goal target amounts and contribution amounts use Prisma Decimal in database operations.
+- Goal CRUD and contribution CRUD require authenticated ownership checks.
+- Client-provided `userId` must never control ownership.
+- Goal progress is not allowed to produce negative remaining values.
+- A zero target amount produces zero progress rather than a division-by-zero result.
+
+The Goal Carousel supports multiple active goals and must preserve the existing visual design and prop shape.
+
+## Current Dashboard
+
+Known file:
+
+- `app/dashboard/page.tsx`
+
+Known components:
+
+- `components/dashboard/dashboard-charts`
+- `components/dashboard/budget-carousel`
+- `components/dashboard/goal-carousel`
+
+The current Dashboard includes:
+
+- Greeting and current date.
 - Monthly income summary.
 - Monthly expense summary.
-- Current balance, calculated as monthly income minus monthly expenses.
-- Savings-rate display.
-- Overall budget usage summary.
-- Budget Carousel for active overall and category budgets.
-- Six-month income and expense charts through `DashboardCharts`.
+- Current balance.
+- Savings-rate detail.
+- Budget usage summary.
+- Budget Carousel.
+- Six-month income and expense charts.
 - Top spending categories for the current month.
 - Combined recent income and expense transactions.
-- Goal Carousel for active savings goals.
-- Upcoming active recurring payments.
+- Goal Carousel.
+- Upcoming recurring payments.
 - View expenses button.
-- Add income button linking to `/dashboard/income`.
-- Add expense button linking to `/dashboard/expenses/new`.
-- Sign-out server action.
+- Add income button.
+- Add expense button.
+- Sign-out action.
 
-Important Dashboard data sources include:
+The Dashboard currently loads:
 
-- `currentExpenseAggregate`
-- `currentIncomeAggregate`
-- `currentExpenses`
-- `monthlyExpenses`
-- `monthlyIncome`
-- `budgets`
-- `categorySpendGroups`
-- `recentExpenses`
-- `recentIncome`
-- `activeGoals`
-- `upcomingRecurring`
+- Current-month expense aggregate.
+- Current-month income aggregate.
+- Current-month expense records.
+- Six-month expense records.
+- Six-month income records.
+- Active budgets.
+- Top expense category groups.
+- Recent expenses.
+- Recent income.
+- Active goals.
+- Upcoming active recurring expenses.
 
-Future phases must not accidentally change:
+The existing recurring-payment Dashboard section queries active recurring expenses using the authenticated `userId`, `isActive: true`, and `nextDueDate >= now`, orders by next due date, and displays up to five records. This existing integration must be inspected and preserved during Phase 10.
 
-- Authenticated-user checks and `/login` redirect behavior.
-- Monthly income and expense date ranges.
-- Balance and savings-rate calculations.
-- Overall versus category budget rules.
+Do not accidentally change:
+
+- Session checks and login redirects.
+- User ownership conditions.
+- Current-month date ranges.
+- Balance and savings-rate formulas.
+- Overall and category budget separation.
 - Combined transaction sorting and signs.
 - Goal saved, remaining, and progress calculations.
-- Dashboard chart input shape.
+- Chart data shape.
 - Existing links and routes.
-- Recurring-payment display behavior while implementing Phase 10.
-- Existing glassmorphism styling and responsive layout.
+- Existing recurring-payment display behavior.
+- Glassmorphism classes and responsive layout.
 
----
+## UI and Design Conventions
 
-## 7. Current Verification Status
+Preserve the existing:
 
-The project context reports the latest local verification as successful for:
+- Glassmorphism panels such as `glass-panel-strong`.
+- Rounded card and button styling.
+- Tailwind responsive layouts.
+- Muted border and text colors.
+- Primary, accent, success, and destructive color conventions.
+- `lucide-react` icons.
+- Existing Toast patterns.
+- Empty-state patterns with links and `ChevronRight` icons.
+- Existing Dashboard spacing and responsive behavior.
+
+Do not replace the design system or introduce a new UI architecture without explicit approval.
+
+## Authentication, Ownership, and Security
+
+- Use `auth()` to obtain the authenticated session on server-rendered pages and server actions.
+- Redirect unauthenticated users to `/login` where the existing page does so.
+- Scope every user-owned database query to `session.user.id`.
+- Verify ownership again for mutations involving an existing record.
+- Never trust a client-provided `userId`.
+- Do not expose another user's records through IDs supplied by the client.
+- Preserve existing authorization behavior when adding recurring-expense functionality.
+
+## Important Fixes That Must Not Regress
+
+Important fixes made during Phases 8 and 9 include:
+
+- UTC date-only handling for active budgets.
+- Selection behavior when multiple overall budgets exist.
+- Separation of overall and category budget usage.
+- Budget Carousel integration.
+- Goal Carousel integration.
+- Dashboard Add Income button.
+- Removal of unused imports and warnings.
+- Correct handling of active goals through `completedAt: null`.
+- Correct saved, remaining, and progress calculations for goals.
+
+## Verification Status
+
+The conversation reported the following local verification as passing:
 
 ```text
 npm run lint
@@ -394,20 +339,47 @@ npx tsc --noEmit
 npm run build
 ```
 
-The reported status is:
+The reported results were:
 
 - 0 ESLint errors.
 - 0 ESLint warnings.
 - TypeScript passing.
 - Production build passing.
 
-Phase 9 was also reported as manually tested, with the Goal Carousel working.
+Phase 9 was also reported as manually tested, and the Goal Carousel was reported as working.
 
-A new conversation must not represent these checks as freshly verified unless actual terminal output is provided for the current code state. If the code changes after the reported verification, run the commands again before claiming that verification passes.
+These are the latest reported results, not a fresh verification by the next chat. Do not claim that verification has passed again unless actual current terminal output is available. If any code has changed since those checks, rerun the commands before marking work complete.
 
----
+## Development Constraints
 
-## 8. Phase Roadmap
+The following instructions are important and must be followed:
+
+- Do not break existing functionality.
+- When modifying an existing file, preserve all unrelated existing code.
+- Prefer complete, copy-pastable files or code when code is requested.
+- Do not invent files, architecture, routes, APIs, models, or existing functionality.
+- Inspect the provided or current code before modifying it.
+- Do not immediately start coding when a new phase begins.
+- Inspect existing files and schema first.
+- Prefer the smallest safe changes.
+- Do not modify unrelated modules.
+- Preserve Prisma Decimal handling for monetary values.
+- Preserve authenticated ownership checks.
+- Preserve existing Toast and glassmorphism patterns.
+- Test before marking a phase complete.
+- Do not claim local verification without actual terminal output.
+
+## Required Phase Workflow
+
+Follow this sequence for future phases:
+
+```text
+INSPECT → PLAN → USER APPROVAL → IMPLEMENT → LOCAL VERIFICATION → MANUAL TESTING → COMPLETE → UPDATE CONTINUITY FILE
+```
+
+The continuity document should be updated after each major phase.
+
+## Roadmap
 
 - Phase 6 — Income management — COMPLETE
 - Phase 7 — Combined transactions — COMPLETE
@@ -422,91 +394,21 @@ A new conversation must not represent these checks as freshly verified unless ac
 - Phase 16 — Final UI/UX, responsive, and accessibility polish
 - Phase 17 — Security, performance, testing, and production-quality review
 
----
+## NEXT TASK
 
-## 9. Phase 10 — Next Phase
+The next task is **Phase 10 — Recurring expenses**.
 
-# PHASE 10 — RECURRING EXPENSES
+The immediate next step is to inspect the existing recurring-expense implementation before proposing any changes. Inspect the repository's current Prisma schema, recurring-expense actions, routes, pages, components, and the existing Dashboard integration.
 
-Recurring expenses are the next planned phase.
+Do not implement Phase 10 yet. After inspection, prepare a concise implementation plan and wait for user approval. Preserve all completed phases and all current Dashboard, budget, goal, authentication, ownership, Decimal, UI, and Toast behavior.
 
-Do not design or implement Phase 10 from this document alone. The next conversation must first inspect the existing recurring-expense implementation, including the current Prisma schema, existing routes, actions, components, and Dashboard integration.
+## Continuation Instructions for the New AI Chat
 
-The current Dashboard already reads upcoming active recurring expenses through `prisma.recurringExpense.findMany`, filtering by:
-
-- authenticated `userId`
-- `isActive: true`
-- `nextDueDate >= now`
-
-It displays up to five upcoming records ordered by `nextDueDate`, including description, category, amount, and next due date. This existing behavior must be preserved while the Phase 10 plan is developed.
-
-No Phase 10 implementation is included in this continuity document.
-
----
-
-## 10. Important Development Rules
-
-- Do not immediately start coding.
-- Inspect existing files before implementation.
-- Do not invent files, routes, database models, or APIs.
-- Preserve existing functionality.
-- Prefer the smallest safe changes.
-- Do not modify unrelated modules.
-- Do not claim local verification unless actual terminal output is provided.
-- Use authenticated session ownership for all user-owned data.
-- Never trust client-provided `userId`.
-- Preserve Prisma `Decimal` for monetary values.
-- Preserve existing Toast patterns.
-- Preserve the existing glassmorphism/design system.
-- Test before marking a phase complete.
-
----
-
-## 11. Phase Completion Process
-
-The development workflow is:
-
-```text
-INSPECT → PLAN → USER APPROVAL → IMPLEMENT → LOCAL VERIFICATION → MANUAL TESTING → COMPLETE → UPDATE CONTINUITY FILE
-```
-
-The continuity file must be updated after each major phase so the next conversation has an accurate project state.
-
----
-
-## 12. Important Recent Fixes
-
-The following fixes were made during Phase 8 and Phase 9:
-
-- UTC date-only handling for active budgets.
-- Multiple overall budget selection behavior.
-- Budget Carousel implementation and Dashboard integration.
-- Goal Carousel implementation and Dashboard integration.
-- Dashboard Add Income button.
-- Removal of unused imports and warnings.
-
-These fixes should be preserved in future work.
-
----
-
-## CONTINUATION INSTRUCTIONS FOR NEW CHAT
-
-Read this file completely before responding to any new Spendly request.
-
-Treat this file as the project continuity source, while recognizing that the repository itself is the source of truth for exact current implementation details.
-
-Do not assume anything that is not documented here. Inspect the repository before making factual claims about files, routes, models, actions, or APIs.
-
-Begin with Phase 10, but do not immediately implement it.
-
-First inspect the existing recurring-expense files, Prisma schema, actions, routes, components, and Dashboard integration.
-
-Do not modify anything until an implementation plan has been prepared and approved by the user.
-
-Preserve all completed phases, especially income management, combined transactions, budgets, budget usage rules, savings goals, contributions, Budget Carousel behavior, Goal Carousel behavior, ownership checks, Prisma Decimal handling, Toast patterns, and the existing glassmorphism design system.
-
-Follow the required workflow:
-
-```text
-INSPECT → PLAN → USER APPROVAL → IMPLEMENT → LOCAL VERIFICATION → MANUAL TESTING → COMPLETE → UPDATE CONTINUITY FILE
-```
+1. Read this entire file before responding.
+2. Treat it as the continuity source for the current project context, while treating the repository as the source of truth for exact code.
+3. Do not assume anything that is not documented here.
+4. Begin with Phase 10, but begin with inspection only.
+5. Inspect the existing recurring-expense files and schema before proposing implementation.
+6. Do not modify files until the user approves the implementation plan.
+7. Preserve all completed phases and unrelated existing code.
+8. Use the required workflow: inspect, plan, approval, implement, verify, manually test, complete, and update this file.

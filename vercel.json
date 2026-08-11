@@ -1,0 +1,8 @@
+{
+  "crons": [
+    {
+      "path": "/api/cron/recurring-expenses",
+      "schedule": "0 * * * *"
+    }
+  ]
+}
