@@ -20,6 +20,7 @@ import { prisma } from "@/lib/prisma";
 import { formatCurrency } from "@/lib/format";
 import { DashboardCharts } from "@/components/dashboard/dashboard-charts";
 import { BudgetCarousel } from "@/components/dashboard/budget-carousel";
+import { GoalCarousel } from "@/components/dashboard/goal-carousel";
 
 type TransactionItem = {
   id: string;
@@ -39,6 +40,17 @@ type SerializedBudget = {
   remaining: number;
   usage: number;
   exceededAmount: number;
+};
+
+type SerializedGoal = {
+  id: string;
+  name: string;
+  categoryName: string | null;
+  targetAmount: number;
+  saved: number;
+  remaining: number;
+  progress: number;
+  targetDate: string | null;
 };
 
 function decimalToNumber(value: Prisma.Decimal | null | undefined) {
@@ -77,7 +89,7 @@ export default async function DashboardPage() {
     categorySpendGroups,
     recentExpenses,
     recentIncome,
-    activeGoal,
+    activeGoals,
     upcomingRecurring,
   ] = await Promise.all([
     prisma.user.findUnique({
@@ -179,7 +191,7 @@ export default async function DashboardPage() {
       },
     }),
 
-    prisma.goal.findFirst({
+    prisma.goal.findMany({
       where: { userId, completedAt: null },
       orderBy: [{ targetDate: "asc" }, { createdAt: "asc" }],
       select: {
@@ -187,6 +199,11 @@ export default async function DashboardPage() {
         name: true,
         targetAmount: true,
         targetDate: true,
+        category: {
+          select: {
+            name: true,
+          },
+        },
         contributions: { select: { amount: true } },
       },
     }),
@@ -404,17 +421,29 @@ export default async function DashboardPage() {
     .sort((first, second) => second.date.getTime() - first.date.getTime())
     .slice(0, 6);
 
-  const goalSaved = activeGoal
-    ? activeGoal.contributions.reduce(
-        (total, contribution) => total + decimalToNumber(contribution.amount),
-        0,
-      )
-    : 0;
+  const serializedGoals: SerializedGoal[] = activeGoals.map((goal) => {
+    const saved = goal.contributions.reduce(
+      (total, contribution) => total + decimalToNumber(contribution.amount),
+      0,
+    );
 
-  const goalTarget = activeGoal ? decimalToNumber(activeGoal.targetAmount) : 0;
+    const targetAmount = decimalToNumber(goal.targetAmount);
+    const remaining = Math.max(targetAmount - saved, 0);
+    const progress = targetAmount > 0 ? (saved / targetAmount) * 100 : 0;
 
-  const goalProgress =
-    goalTarget > 0 ? Math.min((goalSaved / goalTarget) * 100, 100) : 0;
+    return {
+      id: goal.id,
+      name: goal.name,
+      categoryName: goal.category?.name ?? null,
+      targetAmount,
+      saved,
+      remaining,
+      progress,
+      targetDate: goal.targetDate
+        ? goal.targetDate.toISOString().slice(0, 10)
+        : null,
+    };
+  });
 
   const firstName = user.name?.split(" ")[0] ?? "there";
 
@@ -445,6 +474,7 @@ export default async function DashboardPage() {
               <ReceiptText className="h-4 w-4" />
               View expenses
             </Link>
+
             <Link
               href="/dashboard/income"
               className="inline-flex items-center gap-2 rounded-xl border border-border/70 px-4 py-2.5 text-sm font-medium transition hover:border-primary hover:text-primary"
@@ -452,6 +482,7 @@ export default async function DashboardPage() {
               <ArrowUpRight className="h-4 w-4" />
               Add income
             </Link>
+
             <Link
               href="/dashboard/expenses/new"
               className="inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground transition hover:opacity-90"
@@ -694,37 +725,8 @@ export default async function DashboardPage() {
                 <Goal className="h-5 w-5 text-primary" />
               </div>
 
-              {activeGoal ? (
-                <div className="mt-5">
-                  <div className="flex items-center justify-between gap-3">
-                    <p className="truncate text-sm font-medium">
-                      {activeGoal.name}
-                    </p>
-
-                    <span className="text-sm font-semibold">
-                      {percentage(goalProgress)}
-                    </span>
-                  </div>
-
-                  <div className="mt-3 h-2.5 overflow-hidden rounded-full bg-muted/50">
-                    <div
-                      className="h-full rounded-full bg-linear-to-r from-primary to-accent"
-                      style={{ width: `${Math.max(goalProgress, 2)}%` }}
-                    />
-                  </div>
-
-                  <div className="mt-3 flex justify-between gap-3 text-xs text-muted-foreground">
-                    <span>{formatCurrency(goalSaved, currency)} saved</span>
-                    <span>{formatCurrency(goalTarget, currency)}</span>
-                  </div>
-
-                  {activeGoal.targetDate ? (
-                    <p className="mt-4 flex items-center gap-2 text-xs text-muted-foreground">
-                      <CalendarClock className="h-3.5 w-3.5" />
-                      Target {format(activeGoal.targetDate, "d MMM yyyy")}
-                    </p>
-                  ) : null}
-                </div>
+              {serializedGoals.length > 0 ? (
+                <GoalCarousel goals={serializedGoals} currency={currency} />
               ) : (
                 <EmptyState
                   title="No active goal"
