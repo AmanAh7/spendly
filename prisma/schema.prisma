@@ -8,11 +8,7 @@ datasource db {
   directUrl = env("DIRECT_URL")
 }
 
-enum CategoryType {
-  EXPENSE
-  INCOME
-  BOTH
-}
+// CategoryType enum removed
 
 enum PaymentMethod {
   CASH
@@ -41,8 +37,10 @@ enum NotificationType {
   GOAL_MILESTONE
   FINANCIAL_EVENT
   SYSTEM
+  RECURRING_EXPENSE_UPCOMING
+  RECURRING_EXPENSE_OVERDUE
+  BUDGET_APPROACHING_LIMIT
 }
-
 model User {
   id            String   @id @default(cuid())
   name          String?
@@ -85,15 +83,20 @@ model PasswordResetToken {
 }
 
 model Category {
-  id        String       @id @default(cuid())
+  id        String   @id @default(cuid())
   userId    String
   name      String
-  icon      String       @default("Tag")
-  color     String       @default("#8B5CF6")
-  type      CategoryType @default(BOTH)
-  isDefault Boolean      @default(false)
-  createdAt DateTime     @default(now())
-  updatedAt DateTime     @updatedAt
+  icon      String   @default("Tag")
+  color     String   @default("#8B5CF6")
+  isDefault Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Feature applicability flags (default false)
+  appliesToExpenses          Boolean @default(false)
+  appliesToBudgets           Boolean @default(false)
+  appliesToRecurringExpenses Boolean @default(false)
+  appliesToGoals             Boolean @default(false)
 
   user              User              @relation(fields: [userId], references: [id], onDelete: Cascade)
   expenses          Expense[]
@@ -102,7 +105,7 @@ model Category {
   goals             Goal[]
 
   @@unique([userId, name])
-  @@index([userId, type])
+  @@index([userId])
 }
 
 model Expense {

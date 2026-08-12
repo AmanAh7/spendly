@@ -43,41 +43,6 @@ function getActionError(error: unknown, fallback: string) {
   return fallback;
 }
 
-function hasExpenseCompatibleReferences(referenceCounts: {
-  expenses: number;
-  budgets: number;
-  recurringExpenses: number;
-}) {
-  return (
-    referenceCounts.expenses > 0 ||
-    referenceCounts.budgets > 0 ||
-    referenceCounts.recurringExpenses > 0
-  );
-}
-
-function validateTypeChange(
-  nextType: CategoryInput["type"],
-  counts: {
-    expenses: number;
-    budgets: number;
-    goals: number;
-    recurringExpenses: number;
-  },
-) {
-  if (
-    nextType === "INCOME" &&
-    hasExpenseCompatibleReferences({
-      expenses: counts.expenses,
-      budgets: counts.budgets,
-      recurringExpenses: counts.recurringExpenses,
-    })
-  ) {
-    return "This category is used by expense-related records and cannot be changed to income-only.";
-  }
-
-  return null;
-}
-
 function revalidateCategoryPaths() {
   revalidatePath("/dashboard");
   revalidatePath("/dashboard/categories");
@@ -110,8 +75,11 @@ export async function createCategory(
         name: parsed.name,
         icon: parsed.icon,
         color: parsed.color,
-        type: parsed.type,
         isDefault: false,
+        appliesToExpenses: parsed.appliesToExpenses,
+        appliesToBudgets: parsed.appliesToBudgets,
+        appliesToRecurringExpenses: parsed.appliesToRecurringExpenses,
+        appliesToGoals: parsed.appliesToGoals,
       },
     });
 
@@ -169,6 +137,10 @@ export async function updateCategory(
         id: true,
         name: true,
         isDefault: true,
+        appliesToExpenses: true,
+        appliesToBudgets: true,
+        appliesToRecurringExpenses: true,
+        appliesToGoals: true,
         _count: {
           select: {
             expenses: true,
@@ -192,16 +164,48 @@ export async function updateCategory(
       };
     }
 
-    const typeError = validateTypeChange(parsed.type, {
-      expenses: existingCategory._count.expenses,
-      budgets: existingCategory._count.budgets,
-      goals: existingCategory._count.goals,
-      recurringExpenses: existingCategory._count.recurringExpenses,
-    });
-
-    if (typeError) {
+    // Prevent disabling applicability while referenced by records
+    if (
+      existingCategory.appliesToExpenses &&
+      !parsed.appliesToExpenses &&
+      existingCategory._count.expenses > 0
+    ) {
       return {
-        error: typeError,
+        error:
+          "This category is used by expenses and cannot be disabled for Expenses.",
+      };
+    }
+
+    if (
+      existingCategory.appliesToBudgets &&
+      !parsed.appliesToBudgets &&
+      existingCategory._count.budgets > 0
+    ) {
+      return {
+        error:
+          "This category is used by budgets and cannot be disabled for Budgets.",
+      };
+    }
+
+    if (
+      existingCategory.appliesToRecurringExpenses &&
+      !parsed.appliesToRecurringExpenses &&
+      existingCategory._count.recurringExpenses > 0
+    ) {
+      return {
+        error:
+          "This category is used by recurring expenses and cannot be disabled for Recurring Expenses.",
+      };
+    }
+
+    if (
+      existingCategory.appliesToGoals &&
+      !parsed.appliesToGoals &&
+      existingCategory._count.goals > 0
+    ) {
+      return {
+        error:
+          "This category is used by goals and cannot be disabled for Goals.",
       };
     }
 
@@ -213,7 +217,10 @@ export async function updateCategory(
         name: parsed.name,
         icon: parsed.icon,
         color: parsed.color,
-        type: parsed.type,
+        appliesToExpenses: parsed.appliesToExpenses,
+        appliesToBudgets: parsed.appliesToBudgets,
+        appliesToRecurringExpenses: parsed.appliesToRecurringExpenses,
+        appliesToGoals: parsed.appliesToGoals,
       },
     });
 

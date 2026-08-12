@@ -6,6 +6,7 @@ import { revalidatePath } from "next/cache";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { incomeSchema, type IncomeInput } from "@/lib/validators/income";
+import { isNonFutureCalendarDate } from "@/lib/utils/date-validation";
 
 export type IncomeActionResult = {
   error?: string;
@@ -82,6 +83,12 @@ export async function createIncome(
       };
     }
 
+    if (!isNonFutureCalendarDate(parsed.data.date)) {
+      return {
+        error: "Normal income cannot have a future date.",
+      };
+    }
+
     const sourceId = await validateIncomeSource(userId, parsed.data.sourceId);
 
     await prisma.income.create({
@@ -129,6 +136,12 @@ export async function updateIncome(
       return {
         error:
           parsed.error.issues[0]?.message ?? "Please check the income details.",
+      };
+    }
+
+    if (!isNonFutureCalendarDate(parsed.data.date)) {
+      return {
+        error: "Normal income cannot have a future date.",
       };
     }
 

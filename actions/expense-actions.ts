@@ -6,6 +6,8 @@ import { revalidatePath } from "next/cache";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { expenseSchema, type ExpenseInput } from "@/lib/validators/expense";
+import { isNonFutureCalendarDate } from "@/lib/utils/date-validation";
+import { checkAndNotifyBudgetExceeded } from "@/lib/budgets/alerts";
 
 export type ExpenseActionResult = {
   error?: string;
@@ -31,9 +33,7 @@ async function validateCategoryOwnership(userId: string, categoryId: string) {
     where: {
       id: categoryId,
       userId,
-      type: {
-        in: ["EXPENSE", "BOTH"],
-      },
+      appliesToExpenses: true,
     },
     select: {
       id: true,
@@ -58,6 +58,12 @@ export async function createExpense(
       };
     }
 
+    if (!isNonFutureCalendarDate(parsed.data.date)) {
+      return {
+        error: "Normal expenses cannot have a future date.",
+      };
+    }
+
     const categoryOwned = await validateCategoryOwnership(
       userId,
       parsed.data.categoryId,
@@ -69,6 +75,8 @@ export async function createExpense(
       };
     }
 
+    const expenseDate = toUtcDate(parsed.data.date);
+
     await prisma.expense.create({
       data: {
         userId,
@@ -76,9 +84,15 @@ export async function createExpense(
         amount: new Prisma.Decimal(parsed.data.amount),
         description: parsed.data.description,
         paymentMethod: parsed.data.paymentMethod,
-        date: toUtcDate(parsed.data.date),
+        date: expenseDate,
         notes: parsed.data.notes || null,
       },
+    });
+
+    await checkAndNotifyBudgetExceeded({
+      userId,
+      categoryId: parsed.data.categoryId,
+      expenseDate,
     });
 
     revalidatePath("/dashboard");
@@ -125,6 +139,12 @@ export async function updateExpense(
       };
     }
 
+    if (!isNonFutureCalendarDate(parsed.data.date)) {
+      return {
+        error: "Normal expenses cannot have a future date.",
+      };
+    }
+
     const categoryOwned = await validateCategoryOwnership(
       userId,
       parsed.data.categoryId,
@@ -152,6 +172,8 @@ export async function updateExpense(
       };
     }
 
+    const expenseDate = toUtcDate(parsed.data.date);
+
     await prisma.expense.update({
       where: {
         id: existingExpense.id,
@@ -161,9 +183,15 @@ export async function updateExpense(
         amount: new Prisma.Decimal(parsed.data.amount),
         description: parsed.data.description,
         paymentMethod: parsed.data.paymentMethod,
-        date: toUtcDate(parsed.data.date),
+        date: expenseDate,
         notes: parsed.data.notes || null,
       },
+    });
+
+    await checkAndNotifyBudgetExceeded({
+      userId,
+      categoryId: parsed.data.categoryId,
+      expenseDate,
     });
 
     revalidatePath("/dashboard");

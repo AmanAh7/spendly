@@ -25,9 +25,6 @@ export default async function CategoriesPage() {
         isDefault: "desc",
       },
       {
-        type: "asc",
-      },
-      {
         name: "asc",
       },
     ],
@@ -36,8 +33,11 @@ export default async function CategoriesPage() {
       name: true,
       icon: true,
       color: true,
-      type: true,
       isDefault: true,
+      appliesToExpenses: true,
+      appliesToBudgets: true,
+      appliesToRecurringExpenses: true,
+      appliesToGoals: true,
       _count: {
         select: {
           expenses: true,
@@ -58,13 +58,16 @@ export default async function CategoriesPage() {
             name: category.name,
             icon: category.icon,
             color: category.color,
-            type: category.type,
             isDefault: category.isDefault,
             referenceCount:
               category._count.expenses +
               category._count.budgets +
               category._count.goals +
               category._count.recurringExpenses,
+            appliesToExpenses: category.appliesToExpenses,
+            appliesToBudgets: category.appliesToBudgets,
+            appliesToRecurringExpenses: category.appliesToRecurringExpenses,
+            appliesToGoals: category.appliesToGoals,
           }))}
         />
       </div>

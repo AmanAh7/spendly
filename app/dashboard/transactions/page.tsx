@@ -26,6 +26,7 @@ type TransactionsPageProps = {
     search?: string;
     type?: string;
     sort?: string;
+    range?: string;
   }>;
 };
 
@@ -41,6 +42,8 @@ type TransactionRow = {
   createdAt: string;
 };
 
+type TransactionsRange = "current" | "3" | "6" | "12";
+
 function getTransactionType(value: string | undefined): TransactionType {
   return transactionTypeValues.includes(value as TransactionType)
     ? (value as TransactionType)
@@ -51,6 +54,41 @@ function getTransactionSort(value: string | undefined): TransactionSort {
   return sortValues.includes(value as TransactionSort)
     ? (value as TransactionSort)
     : "date-desc";
+}
+
+function getRange(value: string | undefined): TransactionsRange {
+  if (value === "current" || value === "3" || value === "6" || value === "12") {
+    return value;
+  }
+  return "6";
+}
+
+function getDateRange(range: TransactionsRange) {
+  const now = new Date();
+  const currentMonthStart = new Date(
+    Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1),
+  );
+
+  if (range === "current") {
+    const start = currentMonthStart;
+    const end = new Date(
+      Date.UTC(now.getUTCFullYear(), now.getUTCMonth() + 1, 0),
+    );
+    return { start, end };
+  }
+
+  const months = Number(range);
+  const start = new Date(
+    Date.UTC(
+      currentMonthStart.getUTCFullYear(),
+      currentMonthStart.getUTCMonth() - months + 1,
+      1,
+    ),
+  );
+  const end = new Date(
+    Date.UTC(now.getUTCFullYear(), now.getUTCMonth() + 1, 0),
+  );
+  return { start, end };
 }
 
 function getOrderClause(sort: TransactionSort) {
@@ -93,6 +131,13 @@ function buildSearchCondition(search: string) {
   `;
 }
 
+function buildDateCondition(start: Date, end: Date) {
+  return Prisma.sql`
+    AND "date"::date >= ${start.toISOString().slice(0, 10)}::date
+    AND "date"::date <= ${end.toISOString().slice(0, 10)}::date
+  `;
+}
+
 export default async function TransactionsPage({
   searchParams,
 }: TransactionsPageProps) {
@@ -112,9 +157,12 @@ export default async function TransactionsPage({
   const search = params.search?.trim() ?? "";
   const type = getTransactionType(params.type);
   const sort = getTransactionSort(params.sort);
+  const range = getRange(params.range);
+  const { start: rangeStart, end: rangeEnd } = getDateRange(range);
 
   const typeCondition = buildTypeCondition(type);
   const searchCondition = buildSearchCondition(search);
+  const dateCondition = buildDateCondition(rangeStart, rangeEnd);
   const orderClause = getOrderClause(sort);
 
   const combinedTransactionsSql = Prisma.sql`
@@ -164,6 +212,7 @@ export default async function TransactionsPage({
       WHERE i."userId" = ${userId}
     ) combined
     WHERE TRUE
+    ${dateCondition}
     ${typeCondition}
     ${searchCondition}
   `;
@@ -233,6 +282,7 @@ export default async function TransactionsPage({
           search={search}
           type={type}
           sort={sort}
+          range={range}
         />
       </div>
     </main>

@@ -38,9 +38,7 @@ export default async function BudgetsPage() {
     prisma.category.findMany({
       where: {
         userId,
-        type: {
-          in: ["EXPENSE", "BOTH"],
-        },
+        appliesToBudgets: true,
       },
       orderBy: {
         name: "asc",

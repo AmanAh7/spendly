@@ -51,6 +51,8 @@ export type AnalyticsData = {
   categoryData: CategoryAnalyticsItem[];
   sourceData: IncomeSourceAnalyticsItem[];
   budgetData: BudgetAnalyticsItem[];
+  categoryId?: string;
+  categories?: { id: string; name: string }[];
 };
 
 type AnalyticsDashboardProps = {
@@ -87,7 +89,21 @@ export function AnalyticsDashboard({
   const router = useRouter();
 
   function changeRange(range: AnalyticsRange) {
-    router.push(`/dashboard/analytics?range=${range}`);
+    const params = new URLSearchParams();
+    params.set("range", range);
+    if (data.categoryId) {
+      params.set("categoryId", data.categoryId);
+    }
+    router.push(`/dashboard/analytics?${params.toString()}`);
+  }
+
+  function changeCategory(nextCategoryId: string) {
+    const params = new URLSearchParams();
+    params.set("range", data.range);
+    if (nextCategoryId) {
+      params.set("categoryId", nextCategoryId);
+    }
+    router.push(`/dashboard/analytics?${params.toString()}`);
   }
 
   return (
@@ -103,24 +119,46 @@ export function AnalyticsDashboard({
           </p>
         </div>
 
-        <label className="block">
-          <span className="mb-2 block text-xs font-medium text-muted-foreground">
-            Time range
-          </span>
-          <select
-            value={data.range}
-            onChange={(event) =>
-              changeRange(event.target.value as AnalyticsRange)
-            }
-            className="h-11 min-w-48 rounded-xl border border-input bg-background/40 px-3 text-sm outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/30"
-          >
-            {rangeOptions.map((option) => (
-              <option key={option.value} value={option.value}>
-                {option.label}
-              </option>
-            ))}
-          </select>
-        </label>
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:gap-4">
+          <label className="block">
+            <span className="mb-2 block text-xs font-medium text-muted-foreground">
+              Time range
+            </span>
+            <select
+              value={data.range}
+              onChange={(event) =>
+                changeRange(event.target.value as AnalyticsRange)
+              }
+              className="h-11 min-w-48 rounded-xl border border-input bg-background/40 px-3 text-sm outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/30"
+            >
+              {rangeOptions.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
+          </label>
+
+          {data.categories && data.categories.length > 0 ? (
+            <label className="block">
+              <span className="mb-2 block text-xs font-medium text-muted-foreground">
+                Category
+              </span>
+              <select
+                value={data.categoryId ?? ""}
+                onChange={(event) => changeCategory(event.target.value)}
+                className="h-11 min-w-48 rounded-xl border border-input bg-background/40 px-3 text-sm outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/30"
+              >
+                <option value="">All categories</option>
+                {data.categories.map((category) => (
+                  <option key={category.id} value={category.id}>
+                    {category.name}
+                  </option>
+                ))}
+              </select>
+            </label>
+          ) : null}
+        </div>
       </header>
 
       <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">

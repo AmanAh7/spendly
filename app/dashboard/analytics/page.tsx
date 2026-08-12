@@ -17,6 +17,7 @@ import type {
 type AnalyticsPageProps = {
   searchParams: Promise<{
     range?: string;
+    categoryId?: string;
   }>;
 };
 
@@ -54,6 +55,7 @@ function getMonthKey(date: Date) {
 function getMonthLabel(date: Date) {
   return format(date, "MMM yyyy");
 }
+
 export default async function AnalyticsPage({
   searchParams,
 }: AnalyticsPageProps) {
@@ -67,6 +69,7 @@ export default async function AnalyticsPage({
   const userId = session.user.id;
   const range = getRange(params.range);
   const rangeMonths = getRangeMonths(range);
+  const categoryId = params.categoryId ?? "";
 
   const now = new Date();
   const currentMonthStart = getUtcMonthStart(now);
@@ -82,7 +85,7 @@ export default async function AnalyticsPage({
         );
   const periodEnd = getUtcMonthEnd(now);
 
-  const [user, expenses, incomes, budgets] = await Promise.all([
+  const [user, expenses, incomes, budgets, categories] = await Promise.all([
     prisma.user.findUnique({
       where: {
         id: userId,
@@ -99,6 +102,11 @@ export default async function AnalyticsPage({
           gte: periodStart,
           lte: periodEnd,
         },
+        ...(categoryId
+          ? {
+              categoryId,
+            }
+          : {}),
       },
       select: {
         amount: true,
@@ -137,6 +145,11 @@ export default async function AnalyticsPage({
         periodEnd: {
           gte: periodStart,
         },
+        ...(categoryId
+          ? {
+              categoryId,
+            }
+          : {}),
       },
       orderBy: [
         {
@@ -159,6 +172,20 @@ export default async function AnalyticsPage({
             color: true,
           },
         },
+      },
+    }),
+
+    prisma.category.findMany({
+      where: {
+        userId,
+        appliesToExpenses: true,
+      },
+      orderBy: {
+        name: "asc",
+      },
+      select: {
+        id: true,
+        name: true,
       },
     }),
   ]);
@@ -316,6 +343,8 @@ export default async function AnalyticsPage({
     categoryData,
     sourceData,
     budgetData,
+    categoryId: categoryId || undefined,
+    categories,
   };
 
   return (

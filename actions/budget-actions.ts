@@ -31,9 +31,7 @@ async function validateCategoryOwnership(userId: string, categoryId: string) {
     where: {
       id: categoryId,
       userId,
-      type: {
-        in: ["EXPENSE", "BOTH"],
-      },
+      appliesToBudgets: true,
     },
     select: {
       id: true,

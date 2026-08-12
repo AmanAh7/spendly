@@ -35,6 +35,7 @@ type TransactionsManagerProps = {
   search: string;
   type: string;
   sort: string;
+  range: "current" | "3" | "6" | "12";
 };
 
 const paymentMethodLabels: Record<string, string> = {
@@ -94,6 +95,7 @@ export function TransactionsManager({
   search,
   type,
   sort,
+  range,
 }: TransactionsManagerProps) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
@@ -105,6 +107,7 @@ export function TransactionsManager({
     const nextSearch = String(formData.get("search") ?? "").trim();
     const nextType = String(formData.get("type") ?? "all");
     const nextSort = String(formData.get("sort") ?? "date-desc");
+    const nextRange = String(formData.get("range") ?? "6");
 
     if (nextSearch) {
       params.set("search", nextSearch);
@@ -116,6 +119,10 @@ export function TransactionsManager({
 
     if (nextSort !== "date-desc") {
       params.set("sort", nextSort);
+    }
+
+    if (nextRange !== "6") {
+      params.set("range", nextRange);
     }
 
     startTransition(() => {
@@ -136,6 +143,10 @@ export function TransactionsManager({
 
     if (sort !== "date-desc") {
       params.set("sort", sort);
+    }
+
+    if (range !== "6") {
+      params.set("range", range);
     }
 
     params.set("page", String(nextPage));
@@ -171,7 +182,7 @@ export function TransactionsManager({
           updateFilters(event.currentTarget);
         }}
       >
-        <div className="grid gap-3 lg:grid-cols-[1fr_180px_220px_auto]">
+        <div className="grid gap-3 lg:grid-cols-[1fr_160px_180px_180px_auto]">
           <label className="relative block">
             <span className="sr-only">Search transactions</span>
             <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
@@ -193,6 +204,20 @@ export function TransactionsManager({
               <option value="all">All transactions</option>
               <option value="income">Income only</option>
               <option value="expense">Expenses only</option>
+            </select>
+          </label>
+
+          <label>
+            <span className="sr-only">Time range</span>
+            <select
+              name="range"
+              defaultValue={range}
+              className="h-10 w-full rounded-xl border border-input bg-background/40 px-3 text-sm outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/30"
+            >
+              <option value="current">Current month</option>
+              <option value="3">Last 3 months</option>
+              <option value="6">Last 6 months</option>
+              <option value="12">Last 12 months</option>
             </select>
           </label>
 

@@ -18,11 +18,7 @@ import {
   updateCategory,
   type CategoryActionResult,
 } from "@/actions/category-actions";
-import {
-  categorySchema,
-  categoryTypeValues,
-  type CategoryInput,
-} from "@/lib/validators/category";
+import { categorySchema, type CategoryInput } from "@/lib/validators/category";
 import { Toast } from "@/components/ui/toast";
 
 type CategoryRecord = {
@@ -30,9 +26,12 @@ type CategoryRecord = {
   name: string;
   icon: string;
   color: string;
-  type: string;
   isDefault: boolean;
   referenceCount: number;
+  appliesToExpenses: boolean;
+  appliesToBudgets: boolean;
+  appliesToRecurringExpenses: boolean;
+  appliesToGoals: boolean;
 };
 
 type CategoryManagerProps = {
@@ -43,19 +42,10 @@ const defaultValues: CategoryInput = {
   name: "",
   icon: "Tag",
   color: "#8B5CF6",
-  type: "EXPENSE",
-};
-
-const typeLabels: Record<string, string> = {
-  EXPENSE: "Expense",
-  INCOME: "Income",
-  BOTH: "Income & expense",
-};
-
-const typeClasses: Record<string, string> = {
-  EXPENSE: "bg-primary/15 text-primary",
-  INCOME: "bg-success/15 text-success",
-  BOTH: "bg-accent/15 text-accent",
+  appliesToExpenses: true,
+  appliesToBudgets: true,
+  appliesToRecurringExpenses: true,
+  appliesToGoals: true,
 };
 
 export function CategoryManager({ categories }: CategoryManagerProps) {
@@ -83,7 +73,10 @@ export function CategoryManager({ categories }: CategoryManagerProps) {
       name: category.name,
       icon: category.icon,
       color: category.color,
-      type: category.type as CategoryInput["type"],
+      appliesToExpenses: category.appliesToExpenses,
+      appliesToBudgets: category.appliesToBudgets,
+      appliesToRecurringExpenses: category.appliesToRecurringExpenses,
+      appliesToGoals: category.appliesToGoals,
     });
     setFormError("");
     setFeedback(null);
@@ -171,6 +164,29 @@ export function CategoryManager({ categories }: CategoryManagerProps) {
     });
   }
 
+  function renderApplicability(category: CategoryRecord) {
+    const features: string[] = [];
+
+    if (category.appliesToExpenses) {
+      features.push("Expenses");
+    }
+    if (category.appliesToBudgets) {
+      features.push("Budgets");
+    }
+    if (category.appliesToRecurringExpenses) {
+      features.push("Recurring");
+    }
+    if (category.appliesToGoals) {
+      features.push("Goals");
+    }
+
+    if (features.length === 0) {
+      return "Not applicable to any feature";
+    }
+
+    return features.join(", ");
+  }
+
   return (
     <div className="space-y-6">
       <Toast
@@ -186,7 +202,8 @@ export function CategoryManager({ categories }: CategoryManagerProps) {
             Categories
           </h1>
           <p className="mt-2 text-sm text-muted-foreground">
-            Organize your income and expenses with user-owned categories.
+            Organize your expenses, budgets, recurring payments, and goals with
+            user-owned categories.
           </p>
         </div>
 
@@ -215,7 +232,7 @@ export function CategoryManager({ categories }: CategoryManagerProps) {
                 <thead className="border-b border-border/50 text-xs text-muted-foreground">
                   <tr>
                     <th className="px-5 py-4 font-medium">Category</th>
-                    <th className="px-5 py-4 font-medium">Type</th>
+                    <th className="px-5 py-4 font-medium">Applicability</th>
                     <th className="px-5 py-4 font-medium">Usage</th>
                     <th className="px-5 py-4 text-right font-medium">
                       Actions
@@ -253,15 +270,8 @@ export function CategoryManager({ categories }: CategoryManagerProps) {
                         </div>
                       </td>
 
-                      <td className="px-5 py-4">
-                        <span
-                          className={`inline-flex rounded-full px-3 py-1 text-xs font-medium ${
-                            typeClasses[category.type] ??
-                            "bg-muted text-muted-foreground"
-                          }`}
-                        >
-                          {typeLabels[category.type] ?? category.type}
-                        </span>
+                      <td className="px-5 py-4 text-sm text-muted-foreground">
+                        {renderApplicability(category)}
                       </td>
 
                       <td className="px-5 py-4 text-sm text-muted-foreground">
@@ -324,7 +334,7 @@ export function CategoryManager({ categories }: CategoryManagerProps) {
                           {category.name}
                         </h3>
                         <p className="mt-1 text-xs text-muted-foreground">
-                          {typeLabels[category.type] ?? category.type}
+                          {renderApplicability(category)}
                         </p>
                         <p className="mt-1 text-xs text-muted-foreground">
                           {category.isDefault
@@ -481,33 +491,56 @@ export function CategoryManager({ categories }: CategoryManagerProps) {
               </div>
 
               <div>
-                <label
-                  htmlFor="category-type"
-                  className="mb-2 block text-sm font-medium"
-                >
-                  Category type
-                </label>
-                <select
-                  id="category-type"
-                  value={values.type}
-                  onChange={(event) =>
-                    updateValue(
-                      "type",
-                      event.target.value as CategoryInput["type"],
-                    )
-                  }
-                  className="h-11 w-full rounded-xl border border-input bg-background/40 px-3 text-sm outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/30"
-                >
-                  {categoryTypeValues.map((type) => (
-                    <option key={type} value={type}>
-                      {typeLabels[type]}
-                    </option>
-                  ))}
-                </select>
+                <p className="mb-2 block text-sm font-medium">
+                  Feature applicability
+                </p>
+                <div className="grid gap-3 sm:grid-cols-2">
+                  <label className="flex items-center gap-2 text-sm">
+                    <input
+                      type="checkbox"
+                      checked={values.appliesToExpenses}
+                      onChange={(event) =>
+                        updateValue("appliesToExpenses", event.target.checked)
+                      }
+                    />
+                    Expenses
+                  </label>
+                  <label className="flex items-center gap-2 text-sm">
+                    <input
+                      type="checkbox"
+                      checked={values.appliesToBudgets}
+                      onChange={(event) =>
+                        updateValue("appliesToBudgets", event.target.checked)
+                      }
+                    />
+                    Budgets
+                  </label>
+                  <label className="flex items-center gap-2 text-sm">
+                    <input
+                      type="checkbox"
+                      checked={values.appliesToRecurringExpenses}
+                      onChange={(event) =>
+                        updateValue(
+                          "appliesToRecurringExpenses",
+                          event.target.checked,
+                        )
+                      }
+                    />
+                    Recurring expenses
+                  </label>
+                  <label className="flex items-center gap-2 text-sm">
+                    <input
+                      type="checkbox"
+                      checked={values.appliesToGoals}
+                      onChange={(event) =>
+                        updateValue("appliesToGoals", event.target.checked)
+                      }
+                    />
+                    Goals
+                  </label>
+                </div>
                 <p className="mt-1 text-xs text-muted-foreground">
-                  Expense categories are used by expenses, budgets, and
-                  recurring expenses. BOTH categories can be used across
-                  financial features.
+                  Select at least one feature where this category can be used.
                 </p>
               </div>
 

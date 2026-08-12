@@ -82,7 +82,6 @@ export default async function DashboardPage() {
     user,
     currentExpenseAggregate,
     currentIncomeAggregate,
-    currentExpenses,
     monthlyExpenses,
     monthlyIncome,
     budgets,
@@ -111,14 +110,6 @@ export default async function DashboardPage() {
         date: { gte: monthStart, lte: monthEnd },
       },
       _sum: { amount: true },
-    }),
-
-    prisma.expense.findMany({
-      where: {
-        userId,
-        date: { gte: monthStart, lte: monthEnd },
-      },
-      select: { amount: true },
     }),
 
     prisma.expense.findMany({
@@ -505,7 +496,7 @@ export default async function DashboardPage() {
           <SummaryCard
             title="Monthly expenses"
             value={formatCurrency(currentExpensesTotal, currency)}
-            detail={`${currentExpenses.length} recorded expenses`}
+            detail={`${format(now, "MMMM")} expenses`}
             icon={<ArrowDownRight className="h-5 w-5" />}
             tone="violet"
           />
@@ -525,7 +516,10 @@ export default async function DashboardPage() {
               totalBudget > 0
                 ? exceededAmount > 0
                   ? `${formatCurrency(exceededAmount, currency)} over budget`
-                  : `${formatCurrency(overallBudgetExpensesTotal, currency)} of ${formatCurrency(totalBudget, currency)}`
+                  : `${formatCurrency(
+                      overallBudgetExpensesTotal,
+                      currency,
+                    )} of ${formatCurrency(totalBudget, currency)}`
                 : "Create your first overall budget"
             }
             icon={<PiggyBank className="h-5 w-5" />}

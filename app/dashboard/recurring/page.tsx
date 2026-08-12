@@ -29,9 +29,7 @@ export default async function RecurringExpensesPage() {
     prisma.category.findMany({
       where: {
         userId,
-        type: {
-          in: ["EXPENSE", "BOTH"],
-        },
+        appliesToRecurringExpenses: true,
       },
       orderBy: {
         name: "asc",

@@ -35,6 +35,7 @@ export default async function GoalsPage() {
     prisma.category.findMany({
       where: {
         userId,
+        appliesToGoals: true,
       },
       orderBy: {
         name: "asc",

@@ -35,71 +35,55 @@ async function main() {
       name: "Food & Dining",
       icon: "Utensils",
       color: "#F97316",
-      type: "EXPENSE" as const,
     },
     {
       name: "Transport",
       icon: "Car",
       color: "#3B82F6",
-      type: "EXPENSE" as const,
     },
     {
       name: "Shopping",
       icon: "ShoppingBag",
       color: "#EC4899",
-      type: "EXPENSE" as const,
     },
     {
       name: "Bills & Utilities",
       icon: "Receipt",
       color: "#EAB308",
-      type: "EXPENSE" as const,
     },
     {
       name: "Entertainment",
       icon: "Clapperboard",
       color: "#A855F7",
-      type: "EXPENSE" as const,
     },
     {
       name: "Health",
       icon: "HeartPulse",
       color: "#EF4444",
-      type: "EXPENSE" as const,
     },
     {
       name: "Education",
       icon: "GraduationCap",
       color: "#14B8A6",
-      type: "EXPENSE" as const,
     },
     {
       name: "Travel",
       icon: "Plane",
       color: "#06B6D4",
-      type: "EXPENSE" as const,
     },
     {
       name: "Rent",
       icon: "House",
       color: "#6366F1",
-      type: "EXPENSE" as const,
     },
     {
       name: "Other",
       icon: "Tag",
       color: "#64748B",
-      type: "BOTH" as const,
     },
   ];
 
-  const categories = new Map<
-    string,
-    {
-      id: string;
-      name: string;
-    }
-  >();
+  const categories = new Map<string, { id: string; name: string }>();
 
   for (const definition of categoryDefinitions) {
     const category = await prisma.category.create({
@@ -108,8 +92,11 @@ async function main() {
         name: definition.name,
         icon: definition.icon,
         color: definition.color,
-        type: definition.type,
         isDefault: true,
+        appliesToExpenses: true,
+        appliesToBudgets: true,
+        appliesToRecurringExpenses: true,
+        appliesToGoals: true,
       },
       select: {
         id: true,
@@ -329,7 +316,7 @@ async function main() {
     data: [
       {
         userId: user.id,
-        type: "RECURRING_UPCOMING",
+        type: "RECURRING_EXPENSE_UPCOMING",
         title: "Upcoming recurring payment",
         message: "Your internet payment of ₹1,499 is due soon.",
         link: "/dashboard/recurring",

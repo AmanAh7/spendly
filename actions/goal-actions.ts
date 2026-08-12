@@ -48,6 +48,7 @@ async function validateCategoryOwnership(userId: string, categoryId: string) {
     where: {
       id: categoryId,
       userId,
+      appliesToGoals: true,
     },
     select: {
       id: true,

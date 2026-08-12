@@ -47,7 +47,7 @@ export async function registerUser(formData: FormData): Promise<ActionResult> {
 
   const existingUser = await prisma.user.findUnique({
     where: {
-      email,
+      id: email,
     },
     select: {
       id: true,
@@ -75,8 +75,11 @@ export async function registerUser(formData: FormData): Promise<ActionResult> {
           name: category.name,
           icon: category.icon,
           color: category.color,
-          type: category.type,
           isDefault: category.isDefault,
+          appliesToExpenses: category.appliesToExpenses,
+          appliesToBudgets: category.appliesToBudgets,
+          appliesToRecurringExpenses: category.appliesToRecurringExpenses,
+          appliesToGoals: category.appliesToGoals,
         })),
       },
     },

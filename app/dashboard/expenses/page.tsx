@@ -34,7 +34,6 @@ export default async function ExpensesPage({
   await ensureDefaultCategories(userId);
 
   const pageValue = Number.parseInt(params.page ?? "1", 10);
-
   const page = Number.isFinite(pageValue) && pageValue > 0 ? pageValue : 1;
 
   const search = params.search?.trim() ?? "";
@@ -118,9 +117,7 @@ export default async function ExpensesPage({
     prisma.category.findMany({
       where: {
         userId,
-        type: {
-          in: ["EXPENSE", "BOTH"],
-        },
+        appliesToExpenses: true,
       },
       orderBy: {
         name: "asc",
@@ -164,7 +161,6 @@ export default async function ExpensesPage({
   }
 
   const totalPages = Math.max(1, Math.ceil(totalCount / PAGE_SIZE));
-
   const safePage = Math.min(page, totalPages);
 
   const serializedExpenses = expenses.map((expense) => ({
