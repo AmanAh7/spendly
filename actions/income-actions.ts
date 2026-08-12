@@ -26,6 +26,48 @@ function toUtcDate(date: string) {
   return new Date(`${date}T00:00:00.000Z`);
 }
 
+async function validateIncomeSource(userId: string, sourceId: string) {
+  const source = await prisma.incomeSource.findFirst({
+    where: {
+      id: sourceId,
+      userId,
+    },
+    select: {
+      id: true,
+    },
+  });
+
+  if (!source) {
+    throw new Error("INCOME_SOURCE_NOT_FOUND");
+  }
+
+  return source.id;
+}
+
+function getActionError(error: unknown, fallback: string) {
+  if (error instanceof Error) {
+    if (error.message === "UNAUTHORIZED") {
+      return "Your session has expired. Please sign in again.";
+    }
+
+    if (error.message === "INCOME_SOURCE_NOT_FOUND") {
+      return "The selected income source was not found.";
+    }
+  }
+
+  console.error(fallback, error);
+  return fallback;
+}
+
+function revalidateIncomePaths() {
+  revalidatePath("/dashboard");
+  revalidatePath("/dashboard/income");
+  revalidatePath("/dashboard/income-sources");
+  revalidatePath("/dashboard/analytics");
+  revalidatePath("/dashboard/reports");
+  revalidatePath("/dashboard/transactions");
+}
+
 export async function createIncome(
   input: IncomeInput,
 ): Promise<IncomeActionResult> {
@@ -40,34 +82,30 @@ export async function createIncome(
       };
     }
 
+    const sourceId = await validateIncomeSource(userId, parsed.data.sourceId);
+
     await prisma.income.create({
       data: {
         userId,
         amount: new Prisma.Decimal(parsed.data.amount),
         description: parsed.data.description,
-        source: parsed.data.source,
+        sourceId,
         date: toUtcDate(parsed.data.date),
         notes: parsed.data.notes || null,
       },
     });
 
-    revalidatePath("/dashboard");
-    revalidatePath("/dashboard/income");
+    revalidateIncomePaths();
 
     return {
       success: "Income added successfully.",
     };
   } catch (error) {
-    if (error instanceof Error && error.message === "UNAUTHORIZED") {
-      return {
-        error: "Your session has expired. Please sign in again.",
-      };
-    }
-
-    console.error("Create income error:", error);
-
     return {
-      error: "Unable to add the income. Please try again.",
+      error: getActionError(
+        error,
+        "Unable to add the income. Please try again.",
+      ),
     };
   }
 }
@@ -110,6 +148,8 @@ export async function updateIncome(
       };
     }
 
+    const sourceId = await validateIncomeSource(userId, parsed.data.sourceId);
+
     await prisma.income.update({
       where: {
         id: existingIncome.id,
@@ -117,29 +157,23 @@ export async function updateIncome(
       data: {
         amount: new Prisma.Decimal(parsed.data.amount),
         description: parsed.data.description,
-        source: parsed.data.source,
+        sourceId,
         date: toUtcDate(parsed.data.date),
         notes: parsed.data.notes || null,
       },
     });
 
-    revalidatePath("/dashboard");
-    revalidatePath("/dashboard/income");
+    revalidateIncomePaths();
 
     return {
       success: "Income updated successfully.",
     };
   } catch (error) {
-    if (error instanceof Error && error.message === "UNAUTHORIZED") {
-      return {
-        error: "Your session has expired. Please sign in again.",
-      };
-    }
-
-    console.error("Update income error:", error);
-
     return {
-      error: "Unable to update the income. Please try again.",
+      error: getActionError(
+        error,
+        "Unable to update the income. Please try again.",
+      ),
     };
   }
 }
@@ -176,23 +210,17 @@ export async function deleteIncome(id: string): Promise<IncomeActionResult> {
       },
     });
 
-    revalidatePath("/dashboard");
-    revalidatePath("/dashboard/income");
+    revalidateIncomePaths();
 
     return {
       success: "Income deleted successfully.",
     };
   } catch (error) {
-    if (error instanceof Error && error.message === "UNAUTHORIZED") {
-      return {
-        error: "Your session has expired. Please sign in again.",
-      };
-    }
-
-    console.error("Delete income error:", error);
-
     return {
-      error: "Unable to delete the income. Please try again.",
+      error: getActionError(
+        error,
+        "Unable to delete the income. Please try again.",
+      ),
     };
   }
 }

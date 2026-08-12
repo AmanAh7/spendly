@@ -131,6 +131,42 @@ async function main() {
     throw new Error("Required seed categories were not created.");
   }
 
+  const incomeSourceDefinitions = [
+    "Salary",
+    "Freelance",
+    "Business",
+    "Investment",
+    "Interest",
+    "Rental Income",
+    "Gift",
+    "Other",
+  ];
+
+  const incomeSources = new Map<string, { id: string; name: string }>();
+
+  for (const name of incomeSourceDefinitions) {
+    const incomeSource = await prisma.incomeSource.create({
+      data: {
+        userId: user.id,
+        name,
+        isDefault: true,
+      },
+      select: {
+        id: true,
+        name: true,
+      },
+    });
+
+    incomeSources.set(name, incomeSource);
+  }
+
+  const salarySource = incomeSources.get("Salary");
+  const freelanceSource = incomeSources.get("Freelance");
+
+  if (!salarySource || !freelanceSource) {
+    throw new Error("Required seed income sources were not created.");
+  }
+
   await prisma.expense.createMany({
     data: [
       {
@@ -183,16 +219,15 @@ async function main() {
         userId: user.id,
         amount: new Prisma.Decimal("65000.00"),
         description: "Monthly salary",
-        source: "SALARY",
+        sourceId: salarySource.id,
         date: dateAtMidnight("2026-08-01"),
         notes: "Development-only demo income",
       },
       {
         userId: user.id,
-        categoryId: other.id,
         amount: new Prisma.Decimal("5000.00"),
         description: "Freelance project payment",
-        source: "FREELANCE",
+        sourceId: freelanceSource.id,
         date: dateAtMidnight("2026-08-07"),
       },
     ],

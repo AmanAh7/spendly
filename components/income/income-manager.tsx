@@ -22,11 +22,7 @@ import {
   updateIncome,
   type IncomeActionResult,
 } from "@/actions/income-actions";
-import {
-  incomeSchema,
-  incomeSourceValues,
-  type IncomeInput,
-} from "@/lib/validators/income";
+import { incomeSchema, type IncomeInput } from "@/lib/validators/income";
 import { formatCurrency } from "@/lib/format";
 import { Toast } from "@/components/ui/toast";
 
@@ -34,13 +30,20 @@ type IncomeRecord = {
   id: string;
   amount: number;
   description: string;
+  sourceId: string;
   source: string;
   date: string;
   notes: string | null;
 };
 
+type IncomeSourceOption = {
+  id: string;
+  name: string;
+};
+
 type IncomeManagerProps = {
   incomes: IncomeRecord[];
+  incomeSources: IncomeSourceOption[];
   currency: string;
   page: number;
   totalPages: number;
@@ -50,27 +53,19 @@ type IncomeManagerProps = {
   sort: string;
 };
 
-const incomeSourceLabels: Record<string, string> = {
-  SALARY: "Salary",
-  FREELANCE: "Freelance",
-  BUSINESS: "Business",
-  INVESTMENT: "Investment",
-  INTEREST: "Interest",
-  RENTAL_INCOME: "Rental Income",
-  GIFT: "Gift",
-  OTHER: "Other",
-};
-
-const defaultValues: IncomeInput = {
-  amount: "",
-  description: "",
-  source: "SALARY",
-  date: new Date().toISOString().slice(0, 10),
-  notes: "",
-};
+function getDefaultValues(incomeSources: IncomeSourceOption[]): IncomeInput {
+  return {
+    amount: "",
+    description: "",
+    sourceId: incomeSources[0]?.id ?? "",
+    date: new Date().toISOString().slice(0, 10),
+    notes: "",
+  };
+}
 
 export function IncomeManager({
   incomes,
+  incomeSources,
   currency,
   page,
   totalPages,
@@ -87,21 +82,23 @@ export function IncomeManager({
 
   const form = useForm<IncomeInput>({
     resolver: zodResolver(incomeSchema),
-    defaultValues,
+    defaultValues: getDefaultValues(incomeSources),
   });
+
   useEffect(() => {
     if (editingIncome) {
       form.reset({
         amount: editingIncome.amount.toFixed(2),
         description: editingIncome.description,
-        source: editingIncome.source as IncomeInput["source"],
+        sourceId: editingIncome.sourceId,
         date: editingIncome.date.slice(0, 10),
         notes: editingIncome.notes ?? "",
       });
     } else {
-      form.reset(defaultValues);
+      form.reset(getDefaultValues(incomeSources));
     }
-  }, [editingIncome, form]);
+  }, [editingIncome, form, incomeSources]);
+
   function openCreateForm() {
     setEditingIncome(null);
     setFeedback(null);
@@ -121,7 +118,7 @@ export function IncomeManager({
 
     setIsFormOpen(false);
     setEditingIncome(null);
-    form.reset(defaultValues);
+    form.reset(getDefaultValues(incomeSources));
   }
 
   function submitIncome(values: IncomeInput) {
@@ -135,7 +132,7 @@ export function IncomeManager({
       if (result.success) {
         setIsFormOpen(false);
         setEditingIncome(null);
-        form.reset(defaultValues);
+        form.reset(getDefaultValues(incomeSources));
         router.refresh();
       }
     });
@@ -199,7 +196,6 @@ export function IncomeManager({
     }
 
     params.set("page", String(nextPage));
-
     router.push(`/dashboard/income?${params.toString()}`);
   }
 
@@ -257,9 +253,9 @@ export function IncomeManager({
               className="h-10 w-full rounded-xl border border-input bg-background/40 px-3 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/30"
             >
               <option value="">All sources</option>
-              {incomeSourceValues.map((incomeSource) => (
-                <option key={incomeSource} value={incomeSource}>
-                  {incomeSourceLabels[incomeSource]}
+              {incomeSources.map((incomeSource) => (
+                <option key={incomeSource.id} value={incomeSource.id}>
+                  {incomeSource.name}
                 </option>
               ))}
             </select>
@@ -332,7 +328,7 @@ export function IncomeManager({
                       </td>
 
                       <td className="px-5 py-4 text-sm text-muted-foreground">
-                        {incomeSourceLabels[income.source]}
+                        {income.source}
                       </td>
 
                       <td className="px-5 py-4 text-sm text-muted-foreground">
@@ -382,7 +378,7 @@ export function IncomeManager({
                         {income.description}
                       </h3>
                       <p className="mt-1 text-xs text-muted-foreground">
-                        {incomeSourceLabels[income.source]}
+                        {income.source}
                       </p>
                     </div>
 
@@ -393,7 +389,7 @@ export function IncomeManager({
 
                   <div className="mt-4 flex items-center justify-between gap-3 text-xs text-muted-foreground">
                     <span>
-                      {incomeSourceLabels[income.source]} ·{" "}
+                      {income.source} ·{" "}
                       {new Date(income.date).toLocaleDateString("en-IN")}
                     </span>
 
@@ -429,7 +425,9 @@ export function IncomeManager({
             <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-success/10 text-success">
               <CalendarDays className="h-6 w-6" />
             </div>
+
             <h3 className="mt-5 text-lg font-semibold">No income found</h3>
+
             <p className="mx-auto mt-2 max-w-sm text-sm text-muted-foreground">
               {search || source
                 ? "Try changing your search or filters."
@@ -528,6 +526,7 @@ export function IncomeManager({
                 >
                   Amount
                 </label>
+
                 <input
                   id="income-amount"
                   type="text"
@@ -536,6 +535,7 @@ export function IncomeManager({
                   {...form.register("amount")}
                   className="h-11 w-full rounded-xl border border-input bg-background/40 px-3 text-sm outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/30"
                 />
+
                 {form.formState.errors.amount ? (
                   <p className="mt-1 text-xs text-destructive">
                     {form.formState.errors.amount.message}
@@ -550,6 +550,7 @@ export function IncomeManager({
                 >
                   Description
                 </label>
+
                 <input
                   id="income-description"
                   type="text"
@@ -557,6 +558,7 @@ export function IncomeManager({
                   {...form.register("description")}
                   className="h-11 w-full rounded-xl border border-input bg-background/40 px-3 text-sm outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/30"
                 />
+
                 {form.formState.errors.description ? (
                   <p className="mt-1 text-xs text-destructive">
                     {form.formState.errors.description.message}
@@ -571,17 +573,26 @@ export function IncomeManager({
                 >
                   Source
                 </label>
+
                 <select
                   id="income-source"
-                  {...form.register("source")}
+                  {...form.register("sourceId")}
                   className="h-11 w-full rounded-xl border border-input bg-background/40 px-3 text-sm outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/30"
                 >
-                  {incomeSourceValues.map((incomeSource) => (
-                    <option key={incomeSource} value={incomeSource}>
-                      {incomeSourceLabels[incomeSource]}
+                  <option value="">Select a source</option>
+
+                  {incomeSources.map((incomeSource) => (
+                    <option key={incomeSource.id} value={incomeSource.id}>
+                      {incomeSource.name}
                     </option>
                   ))}
                 </select>
+
+                {form.formState.errors.sourceId ? (
+                  <p className="mt-1 text-xs text-destructive">
+                    {form.formState.errors.sourceId.message}
+                  </p>
+                ) : null}
               </div>
 
               <div>
@@ -591,12 +602,14 @@ export function IncomeManager({
                 >
                   Date
                 </label>
+
                 <input
                   id="income-date"
                   type="date"
                   {...form.register("date")}
                   className="h-11 w-full rounded-xl border border-input bg-background/40 px-3 text-sm outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/30"
                 />
+
                 {form.formState.errors.date ? (
                   <p className="mt-1 text-xs text-destructive">
                     {form.formState.errors.date.message}
@@ -614,6 +627,7 @@ export function IncomeManager({
                     Optional
                   </span>
                 </label>
+
                 <textarea
                   id="income-notes"
                   rows={3}
@@ -621,6 +635,7 @@ export function IncomeManager({
                   {...form.register("notes")}
                   className="w-full resize-y rounded-xl border border-input bg-background/40 px-3 py-3 text-sm outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/30"
                 />
+
                 {form.formState.errors.notes ? (
                   <p className="mt-1 text-xs text-destructive">
                     {form.formState.errors.notes.message}
@@ -640,7 +655,7 @@ export function IncomeManager({
 
                 <button
                   type="submit"
-                  disabled={isPending}
+                  disabled={isPending || incomeSources.length === 0}
                   className="h-11 rounded-xl bg-primary px-5 text-sm font-medium text-primary-foreground transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
                 >
                   {isPending

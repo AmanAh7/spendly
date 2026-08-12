@@ -1,11 +1,10 @@
-import { Prisma, IncomeSource } from "@prisma/client";
+import { Prisma } from "@prisma/client";
 import { redirect } from "next/navigation";
 
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { IncomeManager } from "@/components/income/income-manager";
-import { incomeSourceValues } from "@/lib/validators/income";
-import { ensureDefaultCategories } from "@/lib/default-categories";
+import { ensureDefaultIncomeSources } from "@/lib/default-income-sources";
 
 const PAGE_SIZE = 10;
 
@@ -28,27 +27,24 @@ export default async function IncomePage({ searchParams }: IncomePageProps) {
   const params = await searchParams;
   const userId = session.user.id;
 
-  await ensureDefaultCategories(userId);
+  await ensureDefaultIncomeSources(userId);
 
   const pageValue = Number.parseInt(params.page ?? "1", 10);
   const page = Number.isFinite(pageValue) && pageValue > 0 ? pageValue : 1;
 
   const search = params.search?.trim() ?? "";
+  const source = params.source?.trim() ?? "";
 
-  const source = incomeSourceValues.includes(
-    params.source as (typeof incomeSourceValues)[number],
-  )
-    ? (params.source ?? "")
-    : "";
-
-  const sort = [
+  const sortValues = [
     "date-desc",
     "date-asc",
     "amount-desc",
     "amount-asc",
     "description-asc",
-  ].includes(params.sort ?? "")
-    ? (params.sort ?? "date-desc")
+  ] as const;
+
+  const sort = sortValues.includes(params.sort as (typeof sortValues)[number])
+    ? (params.sort as (typeof sortValues)[number])
     : "date-desc";
 
   const where: Prisma.IncomeWhereInput = {
@@ -73,7 +69,7 @@ export default async function IncomePage({ searchParams }: IncomePageProps) {
   }
 
   if (source) {
-    where.source = source as IncomeSource;
+    where.sourceId = source;
   }
 
   const orderBy: Prisma.IncomeOrderByWithRelationInput =
@@ -87,13 +83,24 @@ export default async function IncomePage({ searchParams }: IncomePageProps) {
             ? { description: "asc" }
             : { date: "desc" };
 
-  const [user, totalCount, incomes] = await Promise.all([
+  const [user, sources, totalCount, incomes] = await Promise.all([
     prisma.user.findUnique({
       where: {
         id: userId,
       },
       select: {
         currency: true,
+      },
+    }),
+
+    prisma.incomeSource.findMany({
+      where: {
+        userId,
+      },
+      orderBy: [{ isDefault: "desc" }, { name: "asc" }],
+      select: {
+        id: true,
+        name: true,
       },
     }),
 
@@ -110,7 +117,12 @@ export default async function IncomePage({ searchParams }: IncomePageProps) {
         id: true,
         amount: true,
         description: true,
-        source: true,
+        source: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
         date: true,
         notes: true,
       },
@@ -128,7 +140,8 @@ export default async function IncomePage({ searchParams }: IncomePageProps) {
     id: income.id,
     amount: Number(income.amount.toString()),
     description: income.description,
-    source: income.source,
+    sourceId: income.source.id,
+    source: income.source.name,
     date: income.date.toISOString(),
     notes: income.notes,
   }));
@@ -138,6 +151,7 @@ export default async function IncomePage({ searchParams }: IncomePageProps) {
       <div className="mx-auto max-w-7xl">
         <IncomeManager
           incomes={serializedIncome}
+          incomeSources={sources}
           currency={user.currency}
           page={safePage}
           totalPages={totalPages}

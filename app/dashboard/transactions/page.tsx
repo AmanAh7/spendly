@@ -88,6 +88,7 @@ function buildSearchCondition(search: string) {
     AND (
       "description" ILIKE ${searchPattern}
       OR COALESCE("notes", '') ILIKE ${searchPattern}
+      OR COALESCE("classification", '') ILIKE ${searchPattern}
     )
   `;
 }
@@ -140,7 +141,8 @@ export default async function TransactionsPage({
         e."createdAt"::text AS "created_at",
         e."userId" AS "user_id"
       FROM "Expense" e
-      INNER JOIN "Category" c ON c."id" = e."categoryId"
+      INNER JOIN "Category" c
+        ON c."id" = e."categoryId"
       WHERE e."userId" = ${userId}
 
       UNION ALL
@@ -152,11 +154,13 @@ export default async function TransactionsPage({
         i."amount"::numeric AS "amount",
         i."date"::text AS "date",
         i."notes" AS "notes",
-        i."source"::text AS "classification",
+        s."name" AS "classification",
         NULL::text AS "payment_method",
         i."createdAt"::text AS "created_at",
         i."userId" AS "user_id"
       FROM "Income" i
+      INNER JOIN "IncomeSource" s
+        ON s."id" = i."sourceId"
       WHERE i."userId" = ${userId}
     ) combined
     WHERE TRUE
