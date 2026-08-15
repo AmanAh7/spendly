@@ -1,14 +1,30 @@
-import { Prisma } from "@prisma/client";
+import { NotificationType, Prisma } from "@prisma/client";
 
 import { prisma } from "@/lib/prisma";
+import {
+  notifyRecurringExpenseOverdue,
+  notifyRecurringExpenseUpcoming,
+} from "@/lib/notifications/alerts";
 
 type RecurringFrequency = "WEEKLY" | "MONTHLY" | "YEARLY";
+
+const UPCOMING_WINDOW_DAYS = 3;
 
 function todayUtc() {
   const now = new Date();
 
   return new Date(
     Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()),
+  );
+}
+
+function addDays(date: Date, days: number) {
+  return new Date(
+    Date.UTC(
+      date.getUTCFullYear(),
+      date.getUTCMonth(),
+      date.getUTCDate() + days,
+    ),
   );
 }
 
@@ -58,6 +74,128 @@ function isUniqueConstraintError(error: unknown) {
     error instanceof Prisma.PrismaClientKnownRequestError &&
     error.code === "P2002"
   );
+}
+
+async function hasRecurringNotification(params: {
+  userId: string;
+  recurringExpenseId: string;
+  type: NotificationType;
+  dueDate: Date;
+}) {
+  const { userId, recurringExpenseId, type, dueDate } = params;
+
+  const link = `/dashboard/recurring?recurringExpenseId=${recurringExpenseId}`;
+
+  const existing = await prisma.notification.findFirst({
+    where: {
+      userId,
+      type,
+      link,
+      message: {
+        contains: dueDate.toISOString().slice(0, 10),
+      },
+    },
+    select: {
+      id: true,
+    },
+  });
+
+  return Boolean(existing);
+}
+
+async function processRecurringExpenseNotifications() {
+  const today = todayUtc();
+  const upcomingEndDate = addDays(today, UPCOMING_WINDOW_DAYS);
+
+  const [upcomingRecurringExpenses, overdueManualRecurringExpenses] =
+    await Promise.all([
+      prisma.recurringExpense.findMany({
+        where: {
+          isActive: true,
+          nextDueDate: {
+            gte: today,
+            lte: upcomingEndDate,
+          },
+        },
+        select: {
+          id: true,
+          userId: true,
+          description: true,
+          amount: true,
+          nextDueDate: true,
+        },
+      }),
+      prisma.recurringExpense.findMany({
+        where: {
+          isActive: true,
+          generationMode: "MANUAL",
+          nextDueDate: {
+            lt: today,
+          },
+        },
+        select: {
+          id: true,
+          userId: true,
+          description: true,
+          amount: true,
+          nextDueDate: true,
+        },
+      }),
+    ]);
+
+  let upcomingNotificationCount = 0;
+  let overdueNotificationCount = 0;
+
+  for (const recurring of upcomingRecurringExpenses) {
+    const alreadyNotified = await hasRecurringNotification({
+      userId: recurring.userId,
+      recurringExpenseId: recurring.id,
+      type: NotificationType.RECURRING_EXPENSE_UPCOMING,
+      dueDate: recurring.nextDueDate,
+    });
+
+    if (alreadyNotified) {
+      continue;
+    }
+
+    await notifyRecurringExpenseUpcoming({
+      userId: recurring.userId,
+      recurringExpenseId: recurring.id,
+      description: recurring.description,
+      amount: recurring.amount.toString(),
+      dueDate: recurring.nextDueDate,
+    });
+
+    upcomingNotificationCount += 1;
+  }
+
+  for (const recurring of overdueManualRecurringExpenses) {
+    const alreadyNotified = await hasRecurringNotification({
+      userId: recurring.userId,
+      recurringExpenseId: recurring.id,
+      type: NotificationType.RECURRING_EXPENSE_OVERDUE,
+      dueDate: recurring.nextDueDate,
+    });
+
+    if (alreadyNotified) {
+      continue;
+    }
+
+    await notifyRecurringExpenseOverdue({
+      userId: recurring.userId,
+      recurringExpenseId: recurring.id,
+      description: recurring.description,
+      amount: recurring.amount.toString(),
+      dueDate: recurring.nextDueDate,
+    });
+
+    overdueNotificationCount += 1;
+  }
+
+  return {
+    upcomingNotificationCount,
+    overdueNotificationCount,
+  };
 }
 
 export async function processDueAutomaticRecurringExpenses() {
@@ -136,11 +274,6 @@ export async function processDueAutomaticRecurringExpenses() {
           throw error;
         }
 
-        /*
-         * Another cron invocation already created this occurrence.
-         * Advance only if the recurring record still points at this
-         * due date. This cannot move a newer nextDueDate backwards.
-         */
         await prisma.recurringExpense.updateMany({
           where: {
             id: recurring.id,
@@ -157,21 +290,18 @@ export async function processDueAutomaticRecurringExpenses() {
         processedOccurrenceCount += 1;
       }
 
-      /*
-       * The original day is retained across short months:
-       *
-       * January 31 -> February 28 -> March 31
-       * February 29 -> February 28 in a non-leap year
-       */
       anchorDay ??= dueDate.getUTCDate();
       dueDate = nextDueDate;
       safetyCounter += 1;
     }
   }
 
+  const notificationResult = await processRecurringExpenseNotifications();
+
   return {
     generatedCount,
     processedOccurrenceCount,
     recurringExpenseCount: recurringExpenses.length,
+    ...notificationResult,
   };
 }

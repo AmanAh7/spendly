@@ -1,5 +1,6 @@
-import { createNotification } from "./service";
 import { NotificationType } from "@prisma/client";
+
+import { createNotification } from "./service";
 
 export async function notifyBudgetApproachingLimit({
   userId,
@@ -51,61 +52,67 @@ export async function notifyBudgetExceeded({
 
 export async function notifyRecurringExpenseUpcoming({
   userId,
+  recurringExpenseId,
   description,
   amount,
   dueDate,
 }: {
   userId: string;
+  recurringExpenseId: string;
   description: string;
   amount: number | string;
   dueDate: Date | string;
 }) {
   const title = "Recurring expense due soon";
   const due = typeof dueDate === "string" ? new Date(dueDate) : dueDate;
-  const dueStr = due.toLocaleDateString(undefined, {
+  const dueKey = due.toISOString().slice(0, 10);
+  const dueStr = due.toLocaleDateString("en-IN", {
     day: "2-digit",
     month: "short",
     year: "numeric",
   });
 
-  const message = `${description} of ${amount} is due on ${dueStr}.`;
+  const message = `${description} of ${amount} is due on ${dueStr}. [Due: ${dueKey}]`;
 
   return createNotification({
     userId,
     type: NotificationType.RECURRING_EXPENSE_UPCOMING,
     title,
     message,
-    link: "/dashboard/recurring",
+    link: `/dashboard/recurring?recurringExpenseId=${recurringExpenseId}`,
   });
 }
 
 export async function notifyRecurringExpenseOverdue({
   userId,
+  recurringExpenseId,
   description,
   amount,
   dueDate,
 }: {
   userId: string;
+  recurringExpenseId: string;
   description: string;
   amount: number | string;
   dueDate: Date | string;
 }) {
   const title = "Recurring expense overdue";
   const due = typeof dueDate === "string" ? new Date(dueDate) : dueDate;
-  const dueStr = due.toLocaleDateString(undefined, {
+  const dueKey = due.toISOString().slice(0, 10);
+  const dueStr = due.toLocaleDateString("en-IN", {
     day: "2-digit",
     month: "short",
     year: "numeric",
   });
 
-  const message = `${description} of ${amount} was due on ${dueStr} and hasn't been recorded yet.`;
+  const message = `${description} of ${amount} was due on ${dueStr} and hasn't been recorded yet. [Due: ${dueKey}]`;
 
   return createNotification({
     userId,
     type: NotificationType.RECURRING_EXPENSE_OVERDUE,
     title,
     message,
-    link: "/dashboard/recurring",
+    link: `/dashboard/recurring?recurringExpenseId=${recurringExpenseId}`,
   });
 }
 

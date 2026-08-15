@@ -1,4 +1,6 @@
+import Link from "next/link";
 import { redirect } from "next/navigation";
+import { Settings } from "lucide-react";
 
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
@@ -20,7 +22,7 @@ export default async function DashboardLayout({
   const notifications = await prisma.notification.findMany({
     where: { userId },
     orderBy: { createdAt: "desc" },
-    take: 10,
+    take: 50,
     select: {
       id: true,
       type: true,
@@ -54,6 +56,15 @@ export default async function DashboardLayout({
           </div>
 
           <div className="flex items-center gap-3">
+            <Link
+              href="/dashboard/settings"
+              className="inline-flex h-9 items-center justify-center gap-2 rounded-xl border border-border px-3 text-sm font-medium text-muted-foreground transition hover:border-primary hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            >
+              <Settings className="h-4 w-4" />
+              <span className="hidden sm:inline">Settings</span>
+              <span className="sr-only sm:hidden">Settings</span>
+            </Link>
+
             <NotificationDropdown notifications={serialized} />
           </div>
         </div>

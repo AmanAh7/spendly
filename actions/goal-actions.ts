@@ -17,6 +17,8 @@ export type GoalActionResult = {
   success?: string;
 };
 
+const GOAL_MILESTONES = [25, 50, 75, 100] as const;
+
 async function getAuthenticatedUserId() {
   const session = await auth();
 
@@ -56,6 +58,81 @@ async function validateCategoryOwnership(userId: string, categoryId: string) {
   });
 
   return Boolean(category);
+}
+
+function calculateGoalProgress(
+  savedAmount: Prisma.Decimal,
+  targetAmount: Prisma.Decimal,
+) {
+  if (targetAmount.lessThanOrEqualTo(0)) {
+    return 0;
+  }
+
+  return savedAmount
+    .dividedBy(targetAmount)
+    .times(100)
+    .toDecimalPlaces(2)
+    .toNumber();
+}
+
+function milestoneMessage(goalName: string, milestone: number) {
+  if (milestone === 100) {
+    return `Congratulations! You completed "${goalName}" (100%). [Milestone: 100%]`;
+  }
+
+  return `You reached ${milestone}% of your "${goalName}" goal. [Milestone: ${milestone}%]`;
+}
+
+async function createGoalMilestoneNotifications(params: {
+  userId: string;
+  goalId: string;
+  goalName: string;
+  previousProgress: number;
+  currentProgress: number;
+}) {
+  const { userId, goalId, goalName, previousProgress, currentProgress } =
+    params;
+
+  const link = `/dashboard/goals?goalId=${goalId}`;
+
+  const crossedMilestones = GOAL_MILESTONES.filter(
+    (milestone) => previousProgress < milestone && currentProgress >= milestone,
+  );
+
+  for (const milestone of crossedMilestones) {
+    const marker = `[Milestone: ${milestone}%]`;
+
+    const existingNotification = await prisma.notification.findFirst({
+      where: {
+        userId,
+        type: "GOAL_MILESTONE",
+        link,
+        message: {
+          contains: marker,
+        },
+      },
+      select: {
+        id: true,
+      },
+    });
+
+    if (existingNotification) {
+      continue;
+    }
+
+    await prisma.notification.create({
+      data: {
+        userId,
+        type: "GOAL_MILESTONE",
+        title:
+          milestone === 100
+            ? "Goal completed!"
+            : `Goal milestone: ${milestone}%`,
+        message: milestoneMessage(goalName, milestone),
+        link,
+      },
+    });
+  }
 }
 
 async function updateGoalCompletion(goalId: string) {
@@ -288,6 +365,13 @@ export async function createGoalContribution(
       },
       select: {
         id: true,
+        name: true,
+        targetAmount: true,
+        contributions: {
+          select: {
+            amount: true,
+          },
+        },
       },
     });
 
@@ -295,17 +379,41 @@ export async function createGoalContribution(
       return { error: "Goal not found." };
     }
 
+    const previousSavedAmount = goal.contributions.reduce(
+      (total, contribution) =>
+        total.add(new Prisma.Decimal(contribution.amount)),
+      new Prisma.Decimal(0),
+    );
+
+    const contributionAmount = new Prisma.Decimal(parsed.data.amount);
+    const previousProgress = calculateGoalProgress(
+      previousSavedAmount,
+      goal.targetAmount,
+    );
+    const currentProgress = calculateGoalProgress(
+      previousSavedAmount.add(contributionAmount),
+      goal.targetAmount,
+    );
+
     await prisma.goalContribution.create({
       data: {
         userId,
         goalId: goal.id,
-        amount: new Prisma.Decimal(parsed.data.amount),
+        amount: contributionAmount,
         date: toUtcDate(parsed.data.date),
         note: parsed.data.note || null,
       },
     });
 
     await updateGoalCompletion(goal.id);
+
+    await createGoalMilestoneNotifications({
+      userId,
+      goalId: goal.id,
+      goalName: goal.name,
+      previousProgress,
+      currentProgress,
+    });
 
     revalidatePath("/dashboard");
     revalidatePath("/dashboard/goals");
