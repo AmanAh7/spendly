@@ -7,6 +7,10 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   CalendarDays,
+  Eye,
+  EyeOff,
+  KeyRound,
+  Lock,
   Moon,
   Monitor,
   Save,
@@ -16,11 +20,12 @@ import {
 } from "lucide-react";
 
 import {
-  updateSettings,
+  changePassword,
   type SettingsActionResult,
+  updateSettings,
 } from "@/actions/settings-actions";
-import { settingsSchema, type SettingsInput } from "@/lib/validators/settings";
 import { Toast } from "@/components/ui/toast";
+import { settingsSchema, type SettingsInput } from "@/lib/validators/settings";
 
 type SettingsManagerProps = {
   initialSettings: SettingsInput;
@@ -92,6 +97,12 @@ export function SettingsManager({ initialSettings }: SettingsManagerProps) {
   const router = useRouter();
   const { setTheme } = useTheme();
   const [feedback, setFeedback] = useState<SettingsActionResult | null>(null);
+  const [passwordFeedback, setPasswordFeedback] =
+    useState<SettingsActionResult | null>(null);
+  const [showCurrentPassword, setShowCurrentPassword] = useState(false);
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [isChangingPassword, startPasswordTransition] = useTransition();
   const [isPending, startTransition] = useTransition();
 
   const form = useForm<SettingsInput>({
@@ -119,6 +130,32 @@ export function SettingsManager({ initialSettings }: SettingsManagerProps) {
       if (result.success) {
         setTheme(values.theme);
         router.refresh();
+      }
+    });
+  }
+
+  function submitChangePassword(formData: FormData) {
+    startPasswordTransition(async () => {
+      const currentPassword = String(formData.get("currentPassword") ?? "");
+      const newPassword = String(formData.get("newPassword") ?? "");
+      const confirmPassword = String(formData.get("confirmPassword") ?? "");
+
+      const result = await changePassword({
+        currentPassword,
+        newPassword,
+        confirmPassword,
+      });
+
+      setPasswordFeedback(result);
+
+      if (result.success) {
+        (
+          document.getElementById("currentPassword") as HTMLInputElement | null
+        )?.form?.reset();
+
+        setShowCurrentPassword(false);
+        setShowNewPassword(false);
+        setShowConfirmPassword(false);
       }
     });
   }
@@ -353,6 +390,166 @@ export function SettingsManager({ initialSettings }: SettingsManagerProps) {
           </button>
         </div>
       </form>
+
+      <section className="glass-panel-strong rounded-3xl p-5 sm:p-6">
+        <div className="flex items-start gap-3">
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
+            <KeyRound className="h-5 w-5" />
+          </div>
+
+          <div>
+            <h2 className="text-lg font-semibold">Change Password</h2>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Update your account password. You will remain signed in.
+            </p>
+          </div>
+        </div>
+
+        <div className="mt-6 max-w-xl">
+          <Toast
+            message={
+              passwordFeedback?.error ?? passwordFeedback?.success ?? null
+            }
+            variant={passwordFeedback?.error ? "error" : "success"}
+            onDismiss={() => setPasswordFeedback(null)}
+          />
+
+          <form action={submitChangePassword} className="space-y-5">
+            <div>
+              <label
+                htmlFor="currentPassword"
+                className="mb-2 block text-sm font-medium"
+              >
+                Current password
+              </label>
+
+              <div className="relative">
+                <input
+                  id="currentPassword"
+                  name="currentPassword"
+                  type={showCurrentPassword ? "text" : "password"}
+                  autoComplete="current-password"
+                  required
+                  disabled={isChangingPassword}
+                  className="h-11 w-full rounded-xl border border-input bg-background/40 px-3 pr-11 text-sm outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/30 disabled:cursor-not-allowed disabled:opacity-60"
+                  placeholder="Enter your current password"
+                />
+
+                <button
+                  type="button"
+                  onClick={() => setShowCurrentPassword((visible) => !visible)}
+                  disabled={isChangingPassword}
+                  aria-label={
+                    showCurrentPassword
+                      ? "Hide current password"
+                      : "Show current password"
+                  }
+                  className="absolute inset-y-0 right-0 flex w-11 items-center justify-center rounded-r-xl text-muted-foreground transition hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30 disabled:cursor-not-allowed disabled:opacity-60"
+                >
+                  {showCurrentPassword ? (
+                    <EyeOff className="h-4 w-4" aria-hidden="true" />
+                  ) : (
+                    <Eye className="h-4 w-4" aria-hidden="true" />
+                  )}
+                </button>
+              </div>
+            </div>
+
+            <div>
+              <label
+                htmlFor="newPassword"
+                className="mb-2 block text-sm font-medium"
+              >
+                New password
+              </label>
+
+              <div className="relative">
+                <input
+                  id="newPassword"
+                  name="newPassword"
+                  type={showNewPassword ? "text" : "password"}
+                  autoComplete="new-password"
+                  required
+                  disabled={isChangingPassword}
+                  className="h-11 w-full rounded-xl border border-input bg-background/40 px-3 pr-11 text-sm outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/30 disabled:cursor-not-allowed disabled:opacity-60"
+                  placeholder="At least 8 characters"
+                />
+
+                <button
+                  type="button"
+                  onClick={() => setShowNewPassword((visible) => !visible)}
+                  disabled={isChangingPassword}
+                  aria-label={
+                    showNewPassword ? "Hide new password" : "Show new password"
+                  }
+                  className="absolute inset-y-0 right-0 flex w-11 items-center justify-center rounded-r-xl text-muted-foreground transition hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30 disabled:cursor-not-allowed disabled:opacity-60"
+                >
+                  {showNewPassword ? (
+                    <EyeOff className="h-4 w-4" aria-hidden="true" />
+                  ) : (
+                    <Eye className="h-4 w-4" aria-hidden="true" />
+                  )}
+                </button>
+              </div>
+            </div>
+
+            <div>
+              <label
+                htmlFor="confirmPassword"
+                className="mb-2 block text-sm font-medium"
+              >
+                Confirm new password
+              </label>
+
+              <div className="relative">
+                <input
+                  id="confirmPassword"
+                  name="confirmPassword"
+                  type={showConfirmPassword ? "text" : "password"}
+                  autoComplete="new-password"
+                  required
+                  disabled={isChangingPassword}
+                  className="h-11 w-full rounded-xl border border-input bg-background/40 px-3 pr-11 text-sm outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/30 disabled:cursor-not-allowed disabled:opacity-60"
+                  placeholder="Repeat your new password"
+                />
+
+                <button
+                  type="button"
+                  onClick={() => setShowConfirmPassword((visible) => !visible)}
+                  disabled={isChangingPassword}
+                  aria-label={
+                    showConfirmPassword
+                      ? "Hide confirm new password"
+                      : "Show confirm new password"
+                  }
+                  className="absolute inset-y-0 right-0 flex w-11 items-center justify-center rounded-r-xl text-muted-foreground transition hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30 disabled:cursor-not-allowed disabled:opacity-60"
+                >
+                  {showConfirmPassword ? (
+                    <EyeOff className="h-4 w-4" aria-hidden="true" />
+                  ) : (
+                    <Eye className="h-4 w-4" aria-hidden="true" />
+                  )}
+                </button>
+              </div>
+            </div>
+
+            <p className="text-xs text-muted-foreground">
+              Use at least 8 characters with uppercase, lowercase, and a number.
+            </p>
+
+            <div className="flex justify-end">
+              <button
+                type="submit"
+                disabled={isChangingPassword}
+                className="inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-primary px-5 text-sm font-medium text-primary-foreground transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                <Lock className="h-4 w-4" />
+                {isChangingPassword ? "Changing..." : "Change password"}
+              </button>
+            </div>
+          </form>
+        </div>
+      </section>
     </div>
   );
 }

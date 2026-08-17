@@ -24,3 +24,22 @@ export const settingsSchema = z.object({
 });
 
 export type SettingsInput = z.infer<typeof settingsSchema>;
+
+export const changePasswordSchema = z
+  .object({
+    currentPassword: z.string().min(1, "Current password is required."),
+    newPassword: z
+      .string()
+      .min(8, "Password must contain at least 8 characters.")
+      .max(128, "Password must be 128 characters or fewer.")
+      .regex(/[A-Z]/, "Password must contain an uppercase letter.")
+      .regex(/[a-z]/, "Password must contain a lowercase letter.")
+      .regex(/[0-9]/, "Password must contain a number."),
+    confirmPassword: z.string(),
+  })
+  .refine((data) => data.newPassword === data.confirmPassword, {
+    path: ["confirmPassword"],
+    message: "Passwords do not match.",
+  });
+
+export type ChangePasswordInput = z.infer<typeof changePasswordSchema>;
