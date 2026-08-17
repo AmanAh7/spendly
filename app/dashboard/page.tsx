@@ -17,7 +17,7 @@ import { Prisma } from "@prisma/client";
 
 import { auth, signOut } from "@/auth";
 import { prisma } from "@/lib/prisma";
-import { formatCurrency } from "@/lib/format";
+import { dateFormatValues, formatCurrency, formatDate } from "@/lib/format";
 import { DashboardCharts } from "@/components/dashboard/dashboard-charts";
 import { BudgetCarousel } from "@/components/dashboard/budget-carousel";
 import { GoalCarousel } from "@/components/dashboard/goal-carousel";
@@ -93,7 +93,12 @@ export default async function DashboardPage() {
   ] = await Promise.all([
     prisma.user.findUnique({
       where: { id: userId },
-      select: { name: true, email: true, currency: true },
+      select: {
+        name: true,
+        email: true,
+        currency: true,
+        dateFormat: true,
+      },
     }),
 
     prisma.expense.aggregate({
@@ -222,7 +227,11 @@ export default async function DashboardPage() {
   }
 
   const currency = user.currency;
-
+  const dateFormat = dateFormatValues.includes(
+    user.dateFormat as (typeof dateFormatValues)[number],
+  )
+    ? user.dateFormat
+    : "DD/MM/YYYY";
   const currentExpensesTotal = decimalToNumber(
     currentExpenseAggregate._sum.amount,
   );
@@ -677,7 +686,7 @@ export default async function DashboardPage() {
 
                         <p className="mt-1 truncate text-xs text-muted-foreground">
                           {transaction.category} ·{" "}
-                          {format(transaction.date, "d MMM yyyy")}
+                          {formatDate(transaction.date, dateFormat)}
                         </p>
                       </div>
                     </div>
@@ -720,7 +729,11 @@ export default async function DashboardPage() {
               </div>
 
               {serializedGoals.length > 0 ? (
-                <GoalCarousel goals={serializedGoals} currency={currency} />
+                <GoalCarousel
+                  goals={serializedGoals}
+                  currency={currency}
+                  dateFormat={dateFormat}
+                />
               ) : (
                 <EmptyState
                   title="No active goal"
@@ -758,7 +771,7 @@ export default async function DashboardPage() {
 
                         <p className="mt-1 text-xs text-muted-foreground">
                           {recurring.category.name} ·{" "}
-                          {format(recurring.nextDueDate, "d MMM")}
+                          {formatDate(recurring.nextDueDate, dateFormat)}
                         </p>
                       </div>
 

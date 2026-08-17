@@ -4,8 +4,9 @@ import { redirect } from "next/navigation";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { ExpenseManager } from "@/components/expenses/expense-manager";
-import { paymentMethodValues } from "@/lib/validators/expense";
 import { ensureDefaultCategories } from "@/lib/default-categories";
+import { dateFormatValues } from "@/lib/format";
+import { paymentMethodValues } from "@/lib/validators/expense";
 
 const PAGE_SIZE = 10;
 
@@ -111,6 +112,7 @@ export default async function ExpensesPage({
       },
       select: {
         currency: true,
+        dateFormat: true,
       },
     }),
 
@@ -160,6 +162,12 @@ export default async function ExpensesPage({
     redirect("/login");
   }
 
+  const dateFormat = dateFormatValues.includes(
+    user.dateFormat as (typeof dateFormatValues)[number],
+  )
+    ? user.dateFormat
+    : "DD/MM/YYYY";
+
   const totalPages = Math.max(1, Math.ceil(totalCount / PAGE_SIZE));
   const safePage = Math.min(page, totalPages);
 
@@ -180,6 +188,7 @@ export default async function ExpensesPage({
           expenses={serializedExpenses}
           categories={categories}
           currency={user.currency}
+          dateFormat={dateFormat}
           page={safePage}
           totalPages={totalPages}
           totalCount={totalCount}

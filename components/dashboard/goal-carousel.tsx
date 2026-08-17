@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
-import { formatCurrency } from "@/lib/format";
+import { formatCurrency, formatDate } from "@/lib/format";
 
 type GoalCarouselItem = {
   id: string;
@@ -19,13 +19,14 @@ type GoalCarouselItem = {
 type GoalCarouselProps = {
   goals: GoalCarouselItem[];
   currency: string;
+  dateFormat: string;
 };
 
-function formatDate(date: string) {
-  return new Date(`${date}T00:00:00`).toLocaleDateString("en-IN");
-}
-
-export function GoalCarousel({ goals, currency }: GoalCarouselProps) {
+export function GoalCarousel({
+  goals,
+  currency,
+  dateFormat,
+}: GoalCarouselProps) {
   const [activeIndex, setActiveIndex] = useState(0);
   const [isHovered, setIsHovered] = useState(false);
   const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
@@ -110,7 +111,7 @@ export function GoalCarousel({ goals, currency }: GoalCarouselProps) {
         </span>
 
         {activeGoal.targetDate ? (
-          <span>Target {formatDate(activeGoal.targetDate)}</span>
+          <span>Target {formatDate(activeGoal.targetDate, dateFormat)}</span>
         ) : null}
       </div>
 

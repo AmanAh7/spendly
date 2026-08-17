@@ -1,9 +1,10 @@
-import { redirect } from "next/navigation";
 import { Prisma } from "@prisma/client";
+import { redirect } from "next/navigation";
 
 import { auth } from "@/auth";
-import { prisma } from "@/lib/prisma";
 import { GoalManager } from "@/components/goals/goal-manager";
+import { dateFormatValues } from "@/lib/format";
+import { prisma } from "@/lib/prisma";
 
 function decimalToNumber(value: Prisma.Decimal) {
   return Number(value.toString());
@@ -29,6 +30,7 @@ export default async function GoalsPage() {
       },
       select: {
         currency: true,
+        dateFormat: true,
       },
     }),
 
@@ -100,6 +102,12 @@ export default async function GoalsPage() {
     redirect("/login");
   }
 
+  const dateFormat = dateFormatValues.includes(
+    user.dateFormat as (typeof dateFormatValues)[number],
+  )
+    ? user.dateFormat
+    : "DD/MM/YYYY";
+
   const serializedGoals = goals.map((goal) => {
     const saved = goal.contributions.reduce(
       (total, contribution) => total + decimalToNumber(contribution.amount),
@@ -137,6 +145,7 @@ export default async function GoalsPage() {
           goals={serializedGoals}
           categories={categories}
           currency={user.currency}
+          dateFormat={dateFormat}
         />
       </div>
     </main>

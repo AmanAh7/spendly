@@ -20,7 +20,7 @@ import {
   type ContributionInput,
   type GoalInput,
 } from "@/lib/validators/goal";
-import { formatCurrency } from "@/lib/format";
+import { formatCurrency, formatDate } from "@/lib/format";
 import { Toast } from "@/components/ui/toast";
 
 type CategoryOption = {
@@ -54,6 +54,7 @@ type GoalManagerProps = {
   goals: GoalRecord[];
   categories: CategoryOption[];
   currency: string;
+  dateFormat: string;
 };
 
 const defaultGoalValues: GoalInput = {
@@ -70,17 +71,18 @@ const defaultContributionValues: ContributionInput = {
   note: "",
 };
 
-function formatDate(date: string) {
-  return new Date(`${date}T00:00:00`).toLocaleDateString("en-IN");
-}
-
 function progressColor(progress: number, completed: boolean) {
   if (completed) return "bg-success";
   if (progress >= 90) return "bg-warning";
   return "bg-primary";
 }
 
-export function GoalManager({ goals, categories, currency }: GoalManagerProps) {
+export function GoalManager({
+  goals,
+  categories,
+  currency,
+  dateFormat,
+}: GoalManagerProps) {
   const router = useRouter();
   const [isGoalFormOpen, setIsGoalFormOpen] = useState(false);
   const [editingGoal, setEditingGoal] = useState<GoalRecord | null>(null);
@@ -311,7 +313,9 @@ export function GoalManager({ goals, categories, currency }: GoalManagerProps) {
                   </span>
 
                   {goal.targetDate ? (
-                    <span>Target {formatDate(goal.targetDate)}</span>
+                    <span>
+                      Target {formatDate(goal.targetDate, dateFormat)}
+                    </span>
                   ) : null}
                 </div>
 
@@ -764,7 +768,7 @@ export function GoalManager({ goals, categories, currency }: GoalManagerProps) {
                       </p>
 
                       <p className="mt-1 text-xs text-muted-foreground">
-                        {formatDate(contribution.date)}
+                        {formatDate(contribution.date, dateFormat)}
                         {contribution.note ? ` · ${contribution.note}` : ""}
                       </p>
                     </div>

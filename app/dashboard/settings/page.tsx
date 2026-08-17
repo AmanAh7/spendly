@@ -7,6 +7,7 @@ import {
   settingsSchema,
   themeValues,
 } from "@/lib/validators/settings";
+import { dateFormatValues } from "@/lib/format";
 import { prisma } from "@/lib/prisma";
 
 export default async function SettingsPage() {
@@ -24,6 +25,7 @@ export default async function SettingsPage() {
       name: true,
       currency: true,
       theme: true,
+      dateFormat: true,
     },
   });
 
@@ -41,10 +43,17 @@ export default async function SettingsPage() {
     ? (user.theme as (typeof themeValues)[number])
     : "system";
 
+  const dateFormat = dateFormatValues.includes(
+    user.dateFormat as (typeof dateFormatValues)[number],
+  )
+    ? (user.dateFormat as (typeof dateFormatValues)[number])
+    : "DD/MM/YYYY";
+
   const initialSettings = settingsSchema.parse({
     name: user.name ?? "",
     currency,
     theme,
+    dateFormat,
   });
 
   return <SettingsManager initialSettings={initialSettings} />;

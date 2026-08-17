@@ -27,7 +27,7 @@ import {
   paymentMethodValues,
   type ExpenseInput,
 } from "@/lib/validators/expense";
-import { formatCurrency } from "@/lib/format";
+import { formatCurrency, formatDate } from "@/lib/format";
 import { Toast } from "@/components/ui/toast";
 
 type ExpenseRecord = {
@@ -54,6 +54,7 @@ type ExpenseManagerProps = {
   expenses: ExpenseRecord[];
   categories: CategoryOption[];
   currency: string;
+  dateFormat: string;
   page: number;
   totalPages: number;
   totalCount: number;
@@ -85,6 +86,7 @@ export function ExpenseManager({
   expenses,
   categories,
   currency,
+  dateFormat,
   page,
   totalPages,
   totalCount,
@@ -394,7 +396,7 @@ export function ExpenseManager({
                       </td>
 
                       <td className="px-5 py-4 text-sm text-muted-foreground">
-                        {new Date(expense.date).toLocaleDateString("en-IN")}
+                        {formatDate(expense.date, dateFormat)}
                       </td>
 
                       <td className="px-5 py-4 text-right font-semibold">
@@ -458,7 +460,7 @@ export function ExpenseManager({
                   <div className="mt-4 flex items-center justify-between gap-3 text-xs text-muted-foreground">
                     <span>
                       {paymentMethodLabels[expense.paymentMethod]} ·{" "}
-                      {new Date(expense.date).toLocaleDateString("en-IN")}
+                      {formatDate(expense.date, dateFormat)}
                     </span>
 
                     <div className="flex gap-1">

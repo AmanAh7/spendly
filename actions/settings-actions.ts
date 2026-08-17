@@ -44,11 +44,14 @@ export async function updateSettings(
         name: parsed.data.name,
         currency: parsed.data.currency,
         theme: parsed.data.theme,
+        dateFormat: parsed.data.dateFormat,
       },
     });
 
     revalidatePath("/dashboard");
     revalidatePath("/dashboard/settings");
+    revalidatePath("/dashboard/expenses");
+    revalidatePath("/dashboard/goals");
 
     return {
       success: "Settings updated successfully.",

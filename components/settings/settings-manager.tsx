@@ -5,7 +5,15 @@ import { useRouter } from "next/navigation";
 import { useTheme } from "next-themes";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Moon, Monitor, Save, Sun, UserRound, WalletCards } from "lucide-react";
+import {
+  CalendarDays,
+  Moon,
+  Monitor,
+  Save,
+  Sun,
+  UserRound,
+  WalletCards,
+} from "lucide-react";
 
 import {
   updateSettings,
@@ -62,6 +70,24 @@ const themeOptions = [
   },
 ] as const;
 
+const dateFormatOptions = [
+  {
+    value: "DD/MM/YYYY",
+    label: "Day / Month / Year",
+    example: "16/08/2026",
+  },
+  {
+    value: "MM/DD/YYYY",
+    label: "Month / Day / Year",
+    example: "08/16/2026",
+  },
+  {
+    value: "YYYY-MM-DD",
+    label: "Year - Month - Day",
+    example: "2026-08-16",
+  },
+] as const;
+
 export function SettingsManager({ initialSettings }: SettingsManagerProps) {
   const router = useRouter();
   const { setTheme } = useTheme();
@@ -99,6 +125,7 @@ export function SettingsManager({ initialSettings }: SettingsManagerProps) {
 
   const selectedCurrency = form.watch("currency");
   const selectedTheme = form.watch("theme");
+  const selectedDateFormat = form.watch("dateFormat");
 
   return (
     <div className="space-y-6">
@@ -210,6 +237,58 @@ export function SettingsManager({ initialSettings }: SettingsManagerProps) {
           {form.formState.errors.currency ? (
             <p className="mt-3 text-xs text-destructive">
               {form.formState.errors.currency.message}
+            </p>
+          ) : null}
+        </section>
+
+        <section className="glass-panel-strong rounded-3xl p-5 sm:p-6">
+          <div className="flex items-start gap-3">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
+              <CalendarDays className="h-5 w-5" />
+            </div>
+
+            <div>
+              <h2 className="text-lg font-semibold">Date format</h2>
+              <p className="mt-1 text-sm text-muted-foreground">
+                Choose how calendar dates are displayed in Spendly.
+              </p>
+            </div>
+          </div>
+
+          <div className="mt-6 grid gap-3 md:grid-cols-3">
+            {dateFormatOptions.map((dateFormatOption) => {
+              const isSelected = selectedDateFormat === dateFormatOption.value;
+
+              return (
+                <label
+                  key={dateFormatOption.value}
+                  className={`cursor-pointer rounded-2xl border p-4 transition ${
+                    isSelected
+                      ? "border-primary bg-primary/10"
+                      : "border-border bg-background/20 hover:border-primary/50"
+                  }`}
+                >
+                  <input
+                    type="radio"
+                    value={dateFormatOption.value}
+                    className="sr-only"
+                    {...form.register("dateFormat")}
+                  />
+
+                  <span className="block text-sm font-medium">
+                    {dateFormatOption.label}
+                  </span>
+                  <span className="mt-1 block text-xs text-muted-foreground">
+                    Example: {dateFormatOption.example}
+                  </span>
+                </label>
+              );
+            })}
+          </div>
+
+          {form.formState.errors.dateFormat ? (
+            <p className="mt-3 text-xs text-destructive">
+              {form.formState.errors.dateFormat.message}
             </p>
           ) : null}
         </section>
