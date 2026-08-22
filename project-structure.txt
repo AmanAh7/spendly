@@ -1,0 +1,185 @@
+﻿actions/
+├─ auth-actions.ts
+├─ budget-actions.ts
+├─ category-actions.ts
+├─ expense-actions.ts
+├─ goal-actions.ts
+├─ income-actions.ts
+├─ income-source-actions.ts
+├─ notification-actions.ts
+├─ password-reset-actions.ts
+├─ recurring-expense-actions.ts
+└─ settings-actions.ts
+app/
+├─ about/
+│  └─ page.tsx
+├─ api/
+│  ├─ auth/
+│  │  └─ [...nextauth]/
+│  │     └─ route.ts
+│  ├─ cron/
+│  │  └─ recurring-expenses/
+│  │     └─ route.ts
+│  └─ reports/
+│     ├─ csv/
+│     │  └─ route.ts
+│     └─ pdf/
+│        └─ route.ts
+├─ contact/
+│  └─ page.tsx
+├─ dashboard/
+│  ├─ analytics/
+│  │  └─ page.tsx
+│  ├─ budgets/
+│  │  └─ page.tsx
+│  ├─ categories/
+│  │  └─ page.tsx
+│  ├─ expenses/
+│  │  ├─ error.tsx
+│  │  ├─ loading.tsx
+│  │  └─ page.tsx
+│  ├─ goals/
+│  │  └─ page.tsx
+│  ├─ income/
+│  │  └─ page.tsx
+│  ├─ income-sources/
+│  │  └─ page.tsx
+│  ├─ notifications/
+│  │  └─ page.tsx
+│  ├─ recurring/
+│  │  ├─ new/
+│  │  │  └─ page.tsx
+│  │  └─ page.tsx
+│  ├─ reports/
+│  │  └─ page.tsx
+│  ├─ settings/
+│  │  └─ page.tsx
+│  ├─ transactions/
+│  │  └─ page.tsx
+│  ├─ error.tsx
+│  ├─ layout.tsx
+│  ├─ loading.tsx
+│  └─ page.tsx
+├─ feedback/
+│  └─ page.tsx
+├─ forgot-password/
+│  └─ page.tsx
+├─ login/
+│  └─ page.tsx
+├─ register/
+│  └─ page.tsx
+├─ reset-password/
+│  ├─ page.tsx
+│  └─ reset-password-form.tsx
+├─ tutorial/
+│  └─ page.tsx
+├─ globals.css
+├─ layout.tsx
+├─ loading.tsx
+└─ page.tsx
+components/
+├─ analytics/
+│  ├─ analytics-charts.tsx
+│  └─ analytics-dashboard.tsx
+├─ auth/
+│  └─ auth-page-shell.tsx
+├─ budgets/
+│  └─ budget-manager.tsx
+├─ categories/
+│  └─ category-manager.tsx
+├─ dashboard/
+│  ├─ budget-carousel.tsx
+│  ├─ dashboard-charts.tsx
+│  └─ goal-carousel.tsx
+├─ expenses/
+│  └─ expense-manager.tsx
+├─ goals/
+│  └─ goal-manager.tsx
+├─ income/
+│  └─ income-manager.tsx
+├─ income-sources/
+│  └─ income-source-manager.tsx
+├─ layout/
+│  ├─ dashboard-shell.tsx
+│  ├─ mobile-nav.tsx
+│  ├─ page-header.tsx
+│  ├─ sidebar.tsx
+│  ├─ sign-out-button.tsx
+│  ├─ site-footer.tsx
+│  └─ topbar.tsx
+├─ notifications/
+│  ├─ notification-dropdown.tsx
+│  └─ notification-history.tsx
+├─ recurring/
+│  └─ recurring-expense-manager.tsx
+├─ reports/
+│  └─ report-dashboard.tsx
+├─ settings/
+│  └─ settings-manager.tsx
+├─ transactions/
+│  └─ transactions-manager.tsx
+├─ ui/
+│  ├─ prism-flux-loader.tsx
+│  └─ toast.tsx
+├─ theme-provider.tsx
+└─ theme-toggle.tsx
+lib/
+├─ budgets/
+│  └─ alerts.ts
+├─ notifications/
+│  ├─ alerts.ts
+│  └─ service.ts
+├─ utils/
+│  └─ date-validation.ts
+├─ validators/
+│  ├─ budget.ts
+│  ├─ category.ts
+│  ├─ expense.ts
+│  ├─ goal.ts
+│  ├─ income-source.ts
+│  ├─ income.ts
+│  ├─ recurring-expense.ts
+│  └─ settings.ts
+├─ default-categories.ts
+├─ default-income-sources.ts
+├─ email.ts
+├─ env.ts
+├─ format.ts
+├─ navigation.ts
+├─ password-reset.ts
+├─ prisma.ts
+├─ recurring-expense-processor.ts
+├─ report-data.ts
+└─ utils.ts
+prisma/
+├─ migrations/
+│  ├─ 20260808233044_init/
+│  │  └─ migration.sql
+│  ├─ 20260809085449_add_income_source_types/
+│  │  └─ migration.sql
+│  ├─ 20260811050323_add_recurring_expense_automation/
+│  │  └─ migration.sql
+│  ├─ 20260811151317_remove_income_category_relation/
+│  │  └─ migration.sql
+│  ├─ 20260811153201_replace_income_source_enum/
+│  │  └─ migration.sql
+│  ├─ 20260812205255_feature_applicability_categories/
+│  │  └─ migration.sql
+│  ├─ 20260812211109_backfill_default_category_applicability/
+│  │  └─ migration.sql
+│  ├─ 20260812222822_adjust_notification_types/
+│  │  └─ migration.sql
+│  └─ migration_lock.toml
+├─ scripts/
+│  └─ fix-default-categories.ts
+├─ schema.prisma
+└─ seed.ts
+public/
+├─ images/
+│  └─ dashboard-bg.png
+└─ videos/
+   ├─ intro-landing.mp4
+   ├─ login-page-looped.mp4
+   └─ spendly-hero.mp4
+types/
+└─ next-auth.d.ts

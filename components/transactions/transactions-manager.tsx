@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 
 import { formatCurrency } from "@/lib/format";
+import { PageHeader } from "@/components/layout/page-header";
 
 type TransactionRecord = {
   id: string;
@@ -158,22 +159,17 @@ export function TransactionsManager({
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
-        <div>
-          <p className="text-sm text-muted-foreground">Finance</p>
-          <h1 className="mt-1 text-3xl font-semibold tracking-tight">
-            Transactions
-          </h1>
-          <p className="mt-2 text-sm text-muted-foreground">
-            View your income and expenses together in one place.
-          </p>
-        </div>
-
-        <div className="inline-flex items-center gap-2 text-sm text-muted-foreground">
-          <ListFilter className="h-4 w-4 text-primary" />
-          {totalCount} {totalCount === 1 ? "transaction" : "transactions"}
-        </div>
-      </div>
+      <PageHeader
+        eyebrow="Finance"
+        title="Transactions"
+        description="View your income and expenses together in one place."
+        actions={
+          <div className="inline-flex items-center gap-2 text-sm text-muted-foreground">
+            <ListFilter className="h-4 w-4 text-primary" aria-hidden="true" />
+            {totalCount} {totalCount === 1 ? "transaction" : "transactions"}
+          </div>
+        }
+      />
 
       <form
         className="glass-panel-strong rounded-2xl p-4"
@@ -287,6 +283,7 @@ export function TransactionsManager({
                           <p className="font-medium">
                             {transaction.description}
                           </p>
+
                           {transaction.notes ? (
                             <p className="mt-1 max-w-xs truncate text-xs text-muted-foreground">
                               {transaction.notes}
@@ -311,6 +308,7 @@ export function TransactionsManager({
 
                         <td className="px-5 py-4 text-sm text-muted-foreground">
                           <span>{getClassificationLabel(transaction)}</span>
+
                           {secondaryLabel ? (
                             <span className="block text-xs">
                               {secondaryLabel}
@@ -367,10 +365,12 @@ export function TransactionsManager({
                           <h3 className="truncate font-medium">
                             {transaction.description}
                           </h3>
+
                           <p className="mt-1 text-xs text-muted-foreground">
                             {isIncome ? "Income" : "Expense"} ·{" "}
                             {getClassificationLabel(transaction)}
                           </p>
+
                           {secondaryLabel ? (
                             <p className="mt-1 text-xs text-muted-foreground">
                               {secondaryLabel}
@@ -391,6 +391,7 @@ export function TransactionsManager({
 
                     <div className="mt-4 flex items-center justify-between gap-3 text-xs text-muted-foreground">
                       <span>{formatTransactionDate(transaction.date)}</span>
+
                       {transaction.notes ? (
                         <span className="max-w-[55%] truncate">
                           {transaction.notes}
@@ -407,9 +408,11 @@ export function TransactionsManager({
             <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/10 text-primary">
               <CalendarDays className="h-6 w-6" />
             </div>
+
             <h3 className="mt-5 text-lg font-semibold">
               No transactions found
             </h3>
+
             <p className="mx-auto mt-2 max-w-sm text-sm text-muted-foreground">
               {search
                 ? "Try changing your search terms."

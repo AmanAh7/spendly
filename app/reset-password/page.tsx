@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import { AuthPageShell } from "@/components/auth/auth-page-shell";
 import { ResetPasswordForm } from "@/app/reset-password/reset-password-form";
 
 type ResetPasswordPageProps = {
@@ -16,27 +17,32 @@ export default async function ResetPasswordPage({
 
   if (!token) {
     return (
-      <main className="flex min-h-screen items-center justify-center px-6 py-12">
-        <section className="glass-panel-strong w-full max-w-md rounded-3xl p-8 text-center">
-          <p className="text-sm font-medium text-primary">Spendly</p>
-          <h1 className="mt-2 text-3xl font-semibold">Invalid reset link</h1>
-          <p className="mt-3 text-sm text-muted-foreground">
-            This password reset link is missing or invalid.
-          </p>
+      <AuthPageShell>
+        <section className="text-center">
+          <div className="mb-8">
+            <p className="text-sm font-medium text-primary">Spendly</p>
+            <h1 className="mt-2 text-3xl font-semibold tracking-tight text-white">
+              Invalid reset link
+            </h1>
+            <p className="mt-3 text-sm text-white/65">
+              This password reset link is missing or invalid.
+            </p>
+          </div>
+
           <Link
             href="/forgot-password"
-            className="mt-6 inline-block rounded-xl bg-primary px-4 py-2 text-sm font-medium text-primary-foreground"
+            className="mt-6 inline-flex h-11 items-center justify-center rounded-xl bg-primary px-4 text-sm font-medium text-primary-foreground transition hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
           >
             Request a new link
           </Link>
         </section>
-      </main>
+      </AuthPageShell>
     );
   }
 
   return (
-    <main className="flex min-h-screen items-center justify-center px-6 py-12">
+    <AuthPageShell>
       <ResetPasswordForm token={token} />
-    </main>
+    </AuthPageShell>
   );
 }

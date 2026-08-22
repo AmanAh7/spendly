@@ -22,6 +22,7 @@ import {
 } from "@/lib/validators/goal";
 import { formatCurrency, formatDate } from "@/lib/format";
 import { Toast } from "@/components/ui/toast";
+import { PageHeader } from "@/components/layout/page-header";
 
 type CategoryOption = {
   id: string;
@@ -218,26 +219,21 @@ export function GoalManager({
         onDismiss={() => setFeedback(null)}
       />
 
-      <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
-        <div>
-          <p className="text-sm text-muted-foreground">Finance</p>
-          <h1 className="mt-1 text-3xl font-semibold tracking-tight">
-            Savings goals
-          </h1>
-          <p className="mt-2 text-sm text-muted-foreground">
-            Track your progress toward the things that matter.
-          </p>
-        </div>
-
-        <button
-          type="button"
-          onClick={openCreateGoalForm}
-          className="inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground transition hover:opacity-90"
-        >
-          <Plus className="h-4 w-4" />
-          Add goal
-        </button>
-      </div>
+      <PageHeader
+        eyebrow="Finance"
+        title="Savings goals"
+        description="Track your progress toward the things that matter."
+        actions={
+          <button
+            type="button"
+            onClick={openCreateGoalForm}
+            className="inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground transition hover:opacity-90"
+          >
+            <Plus className="h-4 w-4" aria-hidden="true" />
+            Add goal
+          </button>
+        }
+      />
 
       {goals.length > 0 ? (
         <div className="grid gap-6 lg:grid-cols-2">
@@ -258,7 +254,10 @@ export function GoalManager({
                       </h2>
 
                       {completed ? (
-                        <CheckCircle2 className="h-5 w-5 shrink-0 text-success" />
+                        <CheckCircle2
+                          className="h-5 w-5 shrink-0 text-success"
+                          aria-hidden="true"
+                        />
                       ) : null}
                     </div>
 
@@ -269,7 +268,10 @@ export function GoalManager({
                     </p>
                   </div>
 
-                  <Target className="h-5 w-5 shrink-0 text-primary" />
+                  <Target
+                    className="h-5 w-5 shrink-0 text-primary"
+                    aria-hidden="true"
+                  />
                 </div>
 
                 {goal.description ? (
@@ -283,6 +285,7 @@ export function GoalManager({
                     <p className="text-3xl font-semibold">
                       {Math.round(goal.progress)}%
                     </p>
+
                     <p className="mt-1 text-xs text-muted-foreground">
                       {formatCurrency(goal.saved, currency)} saved
                     </p>
@@ -326,7 +329,7 @@ export function GoalManager({
                       onClick={() => setContributionGoal(goal)}
                       className="inline-flex items-center gap-2 rounded-xl bg-primary px-3 py-2 text-xs font-medium text-primary-foreground transition hover:opacity-90"
                     >
-                      <Plus className="h-3.5 w-3.5" />
+                      <Plus className="h-3.5 w-3.5" aria-hidden="true" />
                       Add contribution
                     </button>
                   ) : null}
@@ -345,7 +348,7 @@ export function GoalManager({
                     className="rounded-xl border border-border p-2 text-muted-foreground transition hover:border-primary hover:text-primary"
                     aria-label={`Edit ${goal.name}`}
                   >
-                    <Edit3 className="h-4 w-4" />
+                    <Edit3 className="h-4 w-4" aria-hidden="true" />
                   </button>
 
                   <button
@@ -355,7 +358,7 @@ export function GoalManager({
                     className="rounded-xl border border-border p-2 text-muted-foreground transition hover:border-destructive hover:text-destructive disabled:opacity-50"
                     aria-label={`Delete ${goal.name}`}
                   >
-                    <Trash2 className="h-4 w-4" />
+                    <Trash2 className="h-4 w-4" aria-hidden="true" />
                   </button>
                 </div>
               </article>
@@ -365,7 +368,7 @@ export function GoalManager({
       ) : (
         <div className="glass-panel-strong rounded-3xl px-6 py-16 text-center">
           <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/10 text-primary">
-            <Target className="h-6 w-6" />
+            <Target className="h-6 w-6" aria-hidden="true" />
           </div>
 
           <h2 className="mt-5 text-lg font-semibold">No savings goals yet</h2>
@@ -379,7 +382,7 @@ export function GoalManager({
             onClick={openCreateGoalForm}
             className="mt-6 inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground"
           >
-            <Plus className="h-4 w-4" />
+            <Plus className="h-4 w-4" aria-hidden="true" />
             Create your first goal
           </button>
         </div>
@@ -390,7 +393,9 @@ export function GoalManager({
           className="fixed inset-0 z-50 flex items-center justify-center bg-background/70 px-4 py-6 backdrop-blur-sm"
           role="presentation"
           onMouseDown={(event) => {
-            if (event.target === event.currentTarget) closeGoalForm();
+            if (event.target === event.currentTarget) {
+              closeGoalForm();
+            }
           }}
         >
           <section
@@ -419,7 +424,7 @@ export function GoalManager({
                 aria-label="Close goal form"
                 className="rounded-lg p-2 text-muted-foreground hover:bg-background/50 hover:text-foreground"
               >
-                <X className="h-5 w-5" />
+                <X className="h-5 w-5" aria-hidden="true" />
               </button>
             </div>
 
@@ -612,7 +617,7 @@ export function GoalManager({
                 aria-label="Close contribution form"
                 className="rounded-lg p-2 text-muted-foreground hover:bg-background/50 hover:text-foreground"
               >
-                <X className="h-5 w-5" />
+                <X className="h-5 w-5" aria-hidden="true" />
               </button>
             </div>
 
@@ -751,7 +756,7 @@ export function GoalManager({
                 aria-label="Close contribution history"
                 className="rounded-lg p-2 text-muted-foreground hover:bg-background/50 hover:text-foreground"
               >
-                <X className="h-5 w-5" />
+                <X className="h-5 w-5" aria-hidden="true" />
               </button>
             </div>
 
@@ -785,7 +790,7 @@ export function GoalManager({
                       aria-label="Delete contribution"
                       className="rounded-lg p-2 text-muted-foreground hover:bg-destructive/10 hover:text-destructive disabled:opacity-50"
                     >
-                      <Trash2 className="h-4 w-4" />
+                      <Trash2 className="h-4 w-4" aria-hidden="true" />
                     </button>
                   </div>
                 ))}
@@ -793,6 +798,7 @@ export function GoalManager({
             ) : (
               <div className="mt-6 rounded-2xl border border-dashed border-border/70 p-5 text-center">
                 <p className="text-sm font-medium">No contributions yet</p>
+
                 <p className="mt-1 text-xs text-muted-foreground">
                   Add your first contribution to begin tracking progress.
                 </p>

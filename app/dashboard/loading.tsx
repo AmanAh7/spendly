@@ -1,19 +1,27 @@
-export default function DashboardLoading() {
+import { PrismFluxLoader } from "@/components/ui/prism-flux-loader";
+
+export default function Loading() {
   return (
-    <main className="min-h-screen px-4 py-6 sm:px-6 lg:px-8">
-      <div className="mx-auto max-w-7xl animate-pulse space-y-6">
-        <div className="h-10 w-56 rounded-xl bg-muted/50" />
+    <main
+      role="status"
+      aria-live="polite"
+      className="relative min-h-screen px-4 py-6 sm:px-6 lg:px-8"
+    >
+      {/* Background image layer */}
+      <div
+        className="pointer-events-none fixed inset-0 z-0 bg-[url('/images/dashboard-bg.png')] bg-cover bg-center bg-no-repeat"
+        aria-hidden="true"
+      />
 
-        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-          {Array.from({ length: 4 }).map((_, index) => (
-            <div key={index} className="h-32 rounded-3xl bg-muted/40" />
-          ))}
-        </div>
+      {/* Dark translucent overlay */}
+      <div
+        className="pointer-events-none fixed inset-0 z-0 bg-black/42 dark:bg-black/58"
+        aria-hidden="true"
+      />
 
-        <div className="grid gap-6 xl:grid-cols-2">
-          <div className="h-96 rounded-3xl bg-muted/40" />
-          <div className="h-96 rounded-3xl bg-muted/40" />
-        </div>
+      {/* Loader content above layers */}
+      <div className="relative z-10 flex min-h-[calc(100vh-3rem)] items-center justify-center">
+        <PrismFluxLoader size={40} speed={5} textSize={16} />
       </div>
     </main>
   );

@@ -29,6 +29,7 @@ import {
 } from "@/lib/validators/expense";
 import { formatCurrency, formatDate } from "@/lib/format";
 import { Toast } from "@/components/ui/toast";
+import { PageHeader } from "@/components/layout/page-header";
 
 type ExpenseRecord = {
   id: string;
@@ -107,6 +108,7 @@ export function ExpenseManager({
     resolver: zodResolver(expenseSchema),
     defaultValues,
   });
+
   useEffect(() => {
     if (editingExpense) {
       form.reset({
@@ -122,6 +124,7 @@ export function ExpenseManager({
       form.reset(defaultValues);
     }
   }, [editingExpense, form]);
+
   function openCreateForm() {
     setEditingExpense(null);
     setFeedback(null);
@@ -240,26 +243,21 @@ export function ExpenseManager({
         onDismiss={() => setFeedback(null)}
       />
 
-      <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
-        <div>
-          <p className="text-sm text-muted-foreground">Finance</p>
-          <h1 className="mt-1 text-3xl font-semibold tracking-tight">
-            Expenses
-          </h1>
-          <p className="mt-2 text-sm text-muted-foreground">
-            Track and manage every expense in one place.
-          </p>
-        </div>
-
-        <button
-          type="button"
-          onClick={openCreateForm}
-          className="inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground transition hover:opacity-90"
-        >
-          <Plus className="h-4 w-4" />
-          Add expense
-        </button>
-      </div>
+      <PageHeader
+        eyebrow="Finance"
+        title="Expenses"
+        description="Track and manage every expense in one place."
+        actions={
+          <button
+            type="button"
+            onClick={openCreateForm}
+            className="inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground transition hover:opacity-90"
+          >
+            <Plus className="h-4 w-4" aria-hidden="true" />
+            Add expense
+          </button>
+        }
+      />
 
       <form
         className="glass-panel-strong rounded-2xl p-4"
@@ -331,7 +329,7 @@ export function ExpenseManager({
             type="submit"
             className="inline-flex h-10 items-center justify-center gap-2 rounded-xl border border-border px-4 text-sm font-medium transition hover:border-primary hover:text-primary"
           >
-            <Filter className="h-4 w-4" />
+            <Filter className="h-4 w-4" aria-hidden="true" />
             Apply
           </button>
         </div>
@@ -411,7 +409,7 @@ export function ExpenseManager({
                             aria-label={`Edit ${expense.description}`}
                             className="rounded-lg p-2 text-muted-foreground transition hover:bg-primary/10 hover:text-primary"
                           >
-                            <Edit3 className="h-4 w-4" />
+                            <Edit3 className="h-4 w-4" aria-hidden="true" />
                           </button>
 
                           <button
@@ -423,7 +421,7 @@ export function ExpenseManager({
                             aria-label={`Delete ${expense.description}`}
                             className="rounded-lg p-2 text-muted-foreground transition hover:bg-destructive/10 hover:text-destructive disabled:opacity-50"
                           >
-                            <Trash2 className="h-4 w-4" />
+                            <Trash2 className="h-4 w-4" aria-hidden="true" />
                           </button>
                         </div>
                       </td>
@@ -441,6 +439,7 @@ export function ExpenseManager({
                       <h3 className="truncate font-medium">
                         {expense.description}
                       </h3>
+
                       <p className="mt-1 flex items-center gap-2 text-xs text-muted-foreground">
                         <span
                           className="h-2 w-2 rounded-full"
@@ -470,7 +469,7 @@ export function ExpenseManager({
                         aria-label={`Edit ${expense.description}`}
                         className="rounded-lg p-2 transition hover:bg-primary/10 hover:text-primary"
                       >
-                        <Edit3 className="h-4 w-4" />
+                        <Edit3 className="h-4 w-4" aria-hidden="true" />
                       </button>
 
                       <button
@@ -482,7 +481,7 @@ export function ExpenseManager({
                         aria-label={`Delete ${expense.description}`}
                         className="rounded-lg p-2 transition hover:bg-destructive/10 hover:text-destructive disabled:opacity-50"
                       >
-                        <Trash2 className="h-4 w-4" />
+                        <Trash2 className="h-4 w-4" aria-hidden="true" />
                       </button>
                     </div>
                   </div>
@@ -495,7 +494,9 @@ export function ExpenseManager({
             <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/10 text-primary">
               <CalendarDays className="h-6 w-6" />
             </div>
+
             <h3 className="mt-5 text-lg font-semibold">No expenses found</h3>
+
             <p className="mx-auto mt-2 max-w-sm text-sm text-muted-foreground">
               {search || categoryId || paymentMethod
                 ? "Try changing your search or filters."
@@ -508,7 +509,7 @@ export function ExpenseManager({
                 onClick={openCreateForm}
                 className="mt-6 inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground"
               >
-                <Plus className="h-4 w-4" />
+                <Plus className="h-4 w-4" aria-hidden="true" />
                 Add your first expense
               </button>
             ) : null}
@@ -529,7 +530,7 @@ export function ExpenseManager({
                 className="rounded-lg border border-border p-2 transition hover:border-primary hover:text-primary disabled:cursor-not-allowed disabled:opacity-40"
                 aria-label="Previous page"
               >
-                <ChevronLeft className="h-4 w-4" />
+                <ChevronLeft className="h-4 w-4" aria-hidden="true" />
               </button>
 
               <button
@@ -539,7 +540,7 @@ export function ExpenseManager({
                 className="rounded-lg border border-border p-2 transition hover:border-primary hover:text-primary disabled:cursor-not-allowed disabled:opacity-40"
                 aria-label="Next page"
               >
-                <ChevronRight className="h-4 w-4" />
+                <ChevronRight className="h-4 w-4" aria-hidden="true" />
               </button>
             </div>
           </div>
@@ -565,6 +566,7 @@ export function ExpenseManager({
             <div className="flex items-start justify-between gap-4">
               <div>
                 <p className="text-sm font-medium text-primary">Expenses</p>
+
                 <h2
                   id="expense-dialog-title"
                   className="mt-1 text-2xl font-semibold"
@@ -579,7 +581,7 @@ export function ExpenseManager({
                 aria-label="Close expense form"
                 className="rounded-lg p-2 text-muted-foreground transition hover:bg-background/50 hover:text-foreground"
               >
-                <X className="h-5 w-5" />
+                <X className="h-5 w-5" aria-hidden="true" />
               </button>
             </div>
 
@@ -594,6 +596,7 @@ export function ExpenseManager({
                 >
                   Amount
                 </label>
+
                 <input
                   id="amount"
                   type="text"
@@ -602,6 +605,7 @@ export function ExpenseManager({
                   {...form.register("amount")}
                   className="h-11 w-full rounded-xl border border-input bg-background/40 px-3 text-sm outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/30"
                 />
+
                 {form.formState.errors.amount ? (
                   <p className="mt-1 text-xs text-destructive">
                     {form.formState.errors.amount.message}
@@ -616,6 +620,7 @@ export function ExpenseManager({
                 >
                   Description
                 </label>
+
                 <input
                   id="description"
                   type="text"
@@ -623,6 +628,7 @@ export function ExpenseManager({
                   {...form.register("description")}
                   className="h-11 w-full rounded-xl border border-input bg-background/40 px-3 text-sm outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/30"
                 />
+
                 {form.formState.errors.description ? (
                   <p className="mt-1 text-xs text-destructive">
                     {form.formState.errors.description.message}
@@ -638,18 +644,21 @@ export function ExpenseManager({
                   >
                     Category
                   </label>
+
                   <select
                     id="categoryId"
                     {...form.register("categoryId")}
                     className="h-11 w-full rounded-xl border border-input bg-background/40 px-3 text-sm outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/30"
                   >
                     <option value="">Select category</option>
+
                     {categories.map((category) => (
                       <option key={category.id} value={category.id}>
                         {category.name}
                       </option>
                     ))}
                   </select>
+
                   {form.formState.errors.categoryId ? (
                     <p className="mt-1 text-xs text-destructive">
                       {form.formState.errors.categoryId.message}
@@ -664,6 +673,7 @@ export function ExpenseManager({
                   >
                     Payment method
                   </label>
+
                   <select
                     id="paymentMethod"
                     {...form.register("paymentMethod")}
@@ -685,12 +695,14 @@ export function ExpenseManager({
                 >
                   Date
                 </label>
+
                 <input
                   id="date"
                   type="date"
                   {...form.register("date")}
                   className="h-11 w-full rounded-xl border border-input bg-background/40 px-3 text-sm outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/30"
                 />
+
                 {form.formState.errors.date ? (
                   <p className="mt-1 text-xs text-destructive">
                     {form.formState.errors.date.message}
@@ -708,6 +720,7 @@ export function ExpenseManager({
                     Optional
                   </span>
                 </label>
+
                 <textarea
                   id="notes"
                   rows={3}
@@ -715,6 +728,7 @@ export function ExpenseManager({
                   {...form.register("notes")}
                   className="w-full resize-y rounded-xl border border-input bg-background/40 px-3 py-3 text-sm outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/30"
                 />
+
                 {form.formState.errors.notes ? (
                   <p className="mt-1 text-xs text-destructive">
                     {form.formState.errors.notes.message}

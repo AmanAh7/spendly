@@ -78,6 +78,24 @@ export function BudgetCarousel({ budgets, currency }: BudgetCarouselProps) {
   const progressWidth = Math.min(Math.max(activeBudget.usage, 2), 100);
   const status = statusMessage(activeBudget, currency);
 
+  const statusLabel =
+    activeBudget.usage > 100
+      ? "Over budget"
+      : activeBudget.usage >= 100
+        ? "Reached"
+        : activeBudget.usage >= 90
+          ? "Very close"
+          : activeBudget.usage >= 75
+            ? "Getting close"
+            : "Within budget";
+
+  const statusLabelClass =
+    activeBudget.usage >= 100
+      ? "text-destructive"
+      : activeBudget.usage >= 75
+        ? "text-warning"
+        : "text-success";
+
   return (
     <div
       onMouseEnter={() => setIsHovered(true)}
@@ -92,9 +110,15 @@ export function BudgetCarousel({ budgets, currency }: BudgetCarouselProps) {
       </div>
 
       <div className="mt-5 flex items-end justify-between gap-4">
-        <span className="text-3xl font-semibold">
-          {Math.round(activeBudget.usage)}%
-        </span>
+        <div className="flex min-w-0 items-baseline gap-2">
+          <span className="text-3xl font-semibold">
+            {Math.round(activeBudget.usage)}%
+          </span>
+          <span className={`text-xs font-medium ${statusLabelClass}`}>
+            {statusLabel}
+          </span>
+        </div>
+
         <span className="text-right text-xs text-muted-foreground">
           {formatCurrency(activeBudget.amount, currency)}
           <br />

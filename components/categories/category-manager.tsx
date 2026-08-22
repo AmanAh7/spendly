@@ -20,6 +20,7 @@ import {
 } from "@/actions/category-actions";
 import { categorySchema, type CategoryInput } from "@/lib/validators/category";
 import { Toast } from "@/components/ui/toast";
+import { PageHeader } from "@/components/layout/page-header";
 
 type CategoryRecord = {
   id: string;
@@ -170,12 +171,15 @@ export function CategoryManager({ categories }: CategoryManagerProps) {
     if (category.appliesToExpenses) {
       features.push("Expenses");
     }
+
     if (category.appliesToBudgets) {
       features.push("Budgets");
     }
+
     if (category.appliesToRecurringExpenses) {
       features.push("Recurring");
     }
+
     if (category.appliesToGoals) {
       features.push("Goals");
     }
@@ -195,27 +199,21 @@ export function CategoryManager({ categories }: CategoryManagerProps) {
         onDismiss={() => setFeedback(null)}
       />
 
-      <header className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
-        <div>
-          <p className="text-sm text-muted-foreground">Finance</p>
-          <h1 className="mt-1 text-3xl font-semibold tracking-tight">
-            Categories
-          </h1>
-          <p className="mt-2 text-sm text-muted-foreground">
-            Organize your expenses, budgets, recurring payments, and goals with
-            user-owned categories.
-          </p>
-        </div>
-
-        <button
-          type="button"
-          onClick={openCreateForm}
-          className="inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground transition hover:opacity-90"
-        >
-          <Plus className="h-4 w-4" />
-          Add category
-        </button>
-      </header>
+      <PageHeader
+        eyebrow="Finance"
+        title="Categories"
+        description="Organize your expenses, budgets, recurring payments, and goals with user-owned categories."
+        actions={
+          <button
+            type="button"
+            onClick={openCreateForm}
+            className="inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground transition hover:opacity-90"
+          >
+            <Plus className="h-4 w-4" aria-hidden="true" />
+            Add category
+          </button>
+        }
+      />
 
       <section className="glass-panel-strong overflow-hidden rounded-3xl">
         <div className="border-b border-border/50 px-5 py-4">
@@ -255,14 +253,18 @@ export function CategoryManager({ categories }: CategoryManagerProps) {
                               color: category.color,
                             }}
                           >
-                            <Tag className="h-4 w-4" />
+                            <Tag className="h-4 w-4" aria-hidden="true" />
                           </span>
 
                           <div>
                             <p className="font-medium">{category.name}</p>
+
                             {category.isDefault ? (
                               <p className="mt-1 inline-flex items-center gap-1 text-xs text-muted-foreground">
-                                <LockKeyhole className="h-3 w-3" />
+                                <LockKeyhole
+                                  className="h-3 w-3"
+                                  aria-hidden="true"
+                                />
                                 Default category
                               </p>
                             ) : null}
@@ -290,7 +292,7 @@ export function CategoryManager({ categories }: CategoryManagerProps) {
                             aria-label={`Edit ${category.name}`}
                             className="rounded-lg p-2 text-muted-foreground transition hover:bg-primary/10 hover:text-primary"
                           >
-                            <Edit3 className="h-4 w-4" />
+                            <Edit3 className="h-4 w-4" aria-hidden="true" />
                           </button>
 
                           <button
@@ -304,7 +306,7 @@ export function CategoryManager({ categories }: CategoryManagerProps) {
                             aria-label={`Delete ${category.name}`}
                             className="rounded-lg p-2 text-muted-foreground transition hover:bg-destructive/10 hover:text-destructive disabled:cursor-not-allowed disabled:opacity-40"
                           >
-                            <Trash2 className="h-4 w-4" />
+                            <Trash2 className="h-4 w-4" aria-hidden="true" />
                           </button>
                         </div>
                       </td>
@@ -326,16 +328,18 @@ export function CategoryManager({ categories }: CategoryManagerProps) {
                           color: category.color,
                         }}
                       >
-                        <Tag className="h-4 w-4" />
+                        <Tag className="h-4 w-4" aria-hidden="true" />
                       </span>
 
                       <div className="min-w-0">
                         <h3 className="truncate font-medium">
                           {category.name}
                         </h3>
+
                         <p className="mt-1 text-xs text-muted-foreground">
                           {renderApplicability(category)}
                         </p>
+
                         <p className="mt-1 text-xs text-muted-foreground">
                           {category.isDefault
                             ? "Default category"
@@ -355,7 +359,7 @@ export function CategoryManager({ categories }: CategoryManagerProps) {
                         aria-label={`Edit ${category.name}`}
                         className="rounded-lg p-2 text-muted-foreground transition hover:bg-primary/10 hover:text-primary"
                       >
-                        <Edit3 className="h-4 w-4" />
+                        <Edit3 className="h-4 w-4" aria-hidden="true" />
                       </button>
 
                       <button
@@ -369,7 +373,7 @@ export function CategoryManager({ categories }: CategoryManagerProps) {
                         aria-label={`Delete ${category.name}`}
                         className="rounded-lg p-2 text-muted-foreground transition hover:bg-destructive/10 hover:text-destructive disabled:cursor-not-allowed disabled:opacity-40"
                       >
-                        <Trash2 className="h-4 w-4" />
+                        <Trash2 className="h-4 w-4" aria-hidden="true" />
                       </button>
                     </div>
                   </div>
@@ -379,8 +383,13 @@ export function CategoryManager({ categories }: CategoryManagerProps) {
           </>
         ) : (
           <div className="px-6 py-16 text-center">
-            <Palette className="mx-auto h-8 w-8 text-primary" />
+            <Palette
+              className="mx-auto h-8 w-8 text-primary"
+              aria-hidden="true"
+            />
+
             <h3 className="mt-5 text-lg font-semibold">No categories yet</h3>
+
             <p className="mt-2 text-sm text-muted-foreground">
               Create a category to organize your financial records.
             </p>
@@ -407,6 +416,7 @@ export function CategoryManager({ categories }: CategoryManagerProps) {
             <div className="flex items-start justify-between gap-4">
               <div>
                 <p className="text-sm font-medium text-primary">Categories</p>
+
                 <h2
                   id="category-dialog-title"
                   className="mt-1 text-2xl font-semibold"
@@ -421,7 +431,7 @@ export function CategoryManager({ categories }: CategoryManagerProps) {
                 aria-label="Close category form"
                 className="rounded-lg p-2 text-muted-foreground transition hover:bg-background/50 hover:text-foreground"
               >
-                <X className="h-5 w-5" />
+                <X className="h-5 w-5" aria-hidden="true" />
               </button>
             </div>
 
@@ -433,6 +443,7 @@ export function CategoryManager({ categories }: CategoryManagerProps) {
                 >
                   Name
                 </label>
+
                 <input
                   id="category-name"
                   type="text"
@@ -451,6 +462,7 @@ export function CategoryManager({ categories }: CategoryManagerProps) {
                   >
                     Icon name
                   </label>
+
                   <input
                     id="category-icon"
                     type="text"
@@ -461,6 +473,7 @@ export function CategoryManager({ categories }: CategoryManagerProps) {
                     placeholder="e.g. Tag"
                     className="h-11 w-full rounded-xl border border-input bg-background/40 px-3 text-sm outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/30"
                   />
+
                   <p className="mt-1 text-xs text-muted-foreground">
                     Stored for future icon rendering.
                   </p>
@@ -473,6 +486,7 @@ export function CategoryManager({ categories }: CategoryManagerProps) {
                   >
                     Color
                   </label>
+
                   <div className="flex h-11 items-center gap-3 rounded-xl border border-input bg-background/40 px-3">
                     <input
                       id="category-color"
@@ -483,6 +497,7 @@ export function CategoryManager({ categories }: CategoryManagerProps) {
                       }
                       className="h-7 w-10 cursor-pointer rounded border-0 bg-transparent p-0"
                     />
+
                     <span className="text-sm text-muted-foreground">
                       {values.color}
                     </span>
@@ -494,6 +509,7 @@ export function CategoryManager({ categories }: CategoryManagerProps) {
                 <p className="mb-2 block text-sm font-medium">
                   Feature applicability
                 </p>
+
                 <div className="grid gap-3 sm:grid-cols-2">
                   <label className="flex items-center gap-2 text-sm">
                     <input
@@ -505,6 +521,7 @@ export function CategoryManager({ categories }: CategoryManagerProps) {
                     />
                     Expenses
                   </label>
+
                   <label className="flex items-center gap-2 text-sm">
                     <input
                       type="checkbox"
@@ -515,6 +532,7 @@ export function CategoryManager({ categories }: CategoryManagerProps) {
                     />
                     Budgets
                   </label>
+
                   <label className="flex items-center gap-2 text-sm">
                     <input
                       type="checkbox"
@@ -528,6 +546,7 @@ export function CategoryManager({ categories }: CategoryManagerProps) {
                     />
                     Recurring expenses
                   </label>
+
                   <label className="flex items-center gap-2 text-sm">
                     <input
                       type="checkbox"
@@ -539,6 +558,7 @@ export function CategoryManager({ categories }: CategoryManagerProps) {
                     Goals
                   </label>
                 </div>
+
                 <p className="mt-1 text-xs text-muted-foreground">
                   Select at least one feature where this category can be used.
                 </p>

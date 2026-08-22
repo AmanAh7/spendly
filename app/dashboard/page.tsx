@@ -15,12 +15,13 @@ import {
 import { endOfMonth, format, startOfMonth, subMonths } from "date-fns";
 import { Prisma } from "@prisma/client";
 
-import { auth, signOut } from "@/auth";
+import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { dateFormatValues, formatCurrency, formatDate } from "@/lib/format";
 import { DashboardCharts } from "@/components/dashboard/dashboard-charts";
 import { BudgetCarousel } from "@/components/dashboard/budget-carousel";
 import { GoalCarousel } from "@/components/dashboard/goal-carousel";
+import { cn } from "@/lib/utils";
 
 type TransactionItem = {
   id: string;
@@ -469,7 +470,7 @@ export default async function DashboardPage() {
           <div className="flex gap-3">
             <Link
               href="/dashboard/expenses"
-              className="inline-flex items-center gap-2 rounded-xl border border-border/70 px-4 py-2.5 text-sm font-medium transition hover:border-primary hover:text-primary"
+              className="inline-flex items-center gap-2 rounded-xl border border-border/70 px-4 py-2.5 text-sm font-medium transition hover:border-primary hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
             >
               <ReceiptText className="h-4 w-4" />
               View expenses
@@ -477,7 +478,7 @@ export default async function DashboardPage() {
 
             <Link
               href="/dashboard/income"
-              className="inline-flex items-center gap-2 rounded-xl border border-border/70 px-4 py-2.5 text-sm font-medium transition hover:border-primary hover:text-primary"
+              className="inline-flex items-center gap-2 rounded-xl border border-border/70 px-4 py-2.5 text-sm font-medium transition hover:border-primary hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
             >
               <ArrowUpRight className="h-4 w-4" />
               Add income
@@ -485,7 +486,7 @@ export default async function DashboardPage() {
 
             <Link
               href="/dashboard/expenses/new"
-              className="inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground transition hover:opacity-90"
+              className="inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground transition hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
             >
               <CircleDollarSign className="h-4 w-4" />
               Add expense
@@ -589,6 +590,7 @@ export default async function DashboardPage() {
                       </div>
 
                       <div className="h-2 overflow-hidden rounded-full bg-muted/50">
+                        {/* Inline styles required: width and color are dynamic per-category values */}
                         <div
                           className="h-full rounded-full transition-all"
                           style={{
@@ -650,7 +652,7 @@ export default async function DashboardPage() {
 
               <Link
                 href="/dashboard/transactions"
-                className="inline-flex items-center gap-1 text-xs font-medium text-primary hover:underline"
+                className="inline-flex items-center gap-1 text-xs font-medium text-primary hover:underline focus-visible:bg-background/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
               >
                 View all
                 <ChevronRight className="h-3.5 w-3.5" />
@@ -666,11 +668,12 @@ export default async function DashboardPage() {
                   >
                     <div className="flex min-w-0 items-center gap-3">
                       <div
-                        className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${
+                        className={cn(
+                          "flex h-10 w-10 shrink-0 items-center justify-center rounded-xl",
                           transaction.type === "income"
                             ? "bg-success/15 text-success"
-                            : "bg-primary/15 text-primary"
-                        }`}
+                            : "bg-primary/15 text-primary",
+                        )}
                       >
                         {transaction.type === "income" ? (
                           <ArrowUpRight className="h-4 w-4" />
@@ -692,11 +695,12 @@ export default async function DashboardPage() {
                     </div>
 
                     <span
-                      className={`shrink-0 text-sm font-semibold ${
+                      className={cn(
+                        "shrink-0 text-sm font-semibold",
                         transaction.type === "income"
                           ? "text-success"
-                          : "text-foreground"
-                      }`}
+                          : "text-foreground",
+                      )}
                     >
                       {transaction.type === "income" ? "+" : "-"}
                       {formatCurrency(transaction.amount, currency)}
@@ -795,21 +799,6 @@ export default async function DashboardPage() {
             </div>
           </div>
         </section>
-
-        <form
-          action={async () => {
-            "use server";
-            await signOut({ redirectTo: "/login" });
-          }}
-          className="flex justify-end"
-        >
-          <button
-            type="submit"
-            className="text-xs text-muted-foreground transition hover:text-foreground"
-          >
-            Sign out
-          </button>
-        </form>
       </div>
     </main>
   );
@@ -845,7 +834,10 @@ function SummaryCard({
         </div>
 
         <div
-          className={`flex h-10 w-10 items-center justify-center rounded-xl ${toneClasses[tone]}`}
+          className={cn(
+            "flex h-10 w-10 items-center justify-center rounded-xl",
+            toneClasses[tone],
+          )}
         >
           {icon}
         </div>
@@ -874,7 +866,7 @@ function EmptyState({
 
       <Link
         href={href}
-        className="mt-4 inline-flex items-center gap-1 text-xs font-medium text-primary hover:underline"
+        className="mt-4 inline-flex items-center gap-1 text-xs font-medium text-primary hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
       >
         {linkLabel}
         <ChevronRight className="h-3.5 w-3.5" />

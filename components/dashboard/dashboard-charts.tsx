@@ -64,6 +64,32 @@ function EmptyChart({ message }: { message: string }) {
   );
 }
 
+const chartAxisStyle = {
+  fill: "var(--chart-axis)",
+  fontSize: 11,
+};
+
+const chartTooltipStyle = {
+  backgroundColor: "var(--popover)",
+  border: "1px solid var(--border)",
+  borderRadius: "12px",
+  color: "var(--popover-foreground)",
+};
+
+const chartTooltipLabelStyle = {
+  color: "var(--muted-foreground)",
+};
+
+const chartTooltipItemStyle = {
+  color: "var(--popover-foreground)",
+};
+
+const chartLegendStyle = {
+  color: "var(--muted-foreground)",
+  fontSize: "12px",
+  paddingTop: "12px",
+};
+
 export function DashboardCharts({
   monthlyData,
   currency,
@@ -77,14 +103,23 @@ export function DashboardCharts({
   return (
     <div className="grid gap-6 xl:grid-cols-2">
       <div className="glass-panel-strong rounded-3xl p-5">
-        <div className="mb-5">
-          <h2 className="text-base font-semibold">Expense trend</h2>
-          <p className="mt-1 text-xs text-muted-foreground">
-            Your actual expenses over the last six months.
-          </p>
+        <div className="mb-5 flex items-start justify-between gap-4">
+          <div>
+            <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-muted-foreground">
+              Spending
+            </p>
+            <h2 className="mt-1 text-base font-semibold">Expense trend</h2>
+            <p className="mt-1 text-xs text-muted-foreground">
+              Your actual expenses over the last six months.
+            </p>
+          </div>
         </div>
 
-        <div className="h-72 w-full">
+        <div
+          className="h-72 w-full"
+          role="img"
+          aria-label="Area chart showing actual expenses over the last six months"
+        >
           {hasExpenseData ? (
             <ResponsiveContainer width="100%" height="100%">
               <AreaChart
@@ -104,14 +139,22 @@ export function DashboardCharts({
                     x2="0"
                     y2="1"
                   >
-                    <stop offset="5%" stopColor="#8b5cf6" stopOpacity={0.45} />
-                    <stop offset="95%" stopColor="#8b5cf6" stopOpacity={0} />
+                    <stop
+                      offset="5%"
+                      stopColor="var(--chart-expenses)"
+                      stopOpacity={0.45}
+                    />
+                    <stop
+                      offset="95%"
+                      stopColor="var(--chart-expenses)"
+                      stopOpacity={0}
+                    />
                   </linearGradient>
                 </defs>
 
                 <CartesianGrid
-                  stroke="currentColor"
-                  strokeOpacity={0.08}
+                  stroke="var(--chart-grid)"
+                  strokeOpacity={0.45}
                   vertical={false}
                 />
 
@@ -119,13 +162,13 @@ export function DashboardCharts({
                   dataKey="month"
                   axisLine={false}
                   tickLine={false}
-                  tick={{ fill: "currentColor", fontSize: 11 }}
+                  tick={chartAxisStyle}
                 />
 
                 <YAxis
                   axisLine={false}
                   tickLine={false}
-                  tick={{ fill: "currentColor", fontSize: 11 }}
+                  tick={chartAxisStyle}
                   tickFormatter={(value) =>
                     compactCurrency(Number(value), currency)
                   }
@@ -133,12 +176,9 @@ export function DashboardCharts({
                 />
 
                 <Tooltip
-                  contentStyle={{
-                    backgroundColor: "rgba(17, 25, 54, 0.95)",
-                    border: "1px solid rgba(255, 255, 255, 0.14)",
-                    borderRadius: "12px",
-                    color: "#ffffff",
-                  }}
+                  contentStyle={chartTooltipStyle}
+                  labelStyle={chartTooltipLabelStyle}
+                  itemStyle={chartTooltipItemStyle}
                   formatter={(value) => [
                     formatTooltipValue(Number(value), currency),
                     "Expenses",
@@ -149,7 +189,7 @@ export function DashboardCharts({
                   type="monotone"
                   dataKey="expenses"
                   name="Expenses"
-                  stroke="#8b5cf6"
+                  stroke="var(--chart-expenses)"
                   strokeWidth={2.5}
                   fill="url(#expenseGradient)"
                 />
@@ -162,14 +202,23 @@ export function DashboardCharts({
       </div>
 
       <div className="glass-panel-strong rounded-3xl p-5">
-        <div className="mb-5">
-          <h2 className="text-base font-semibold">Income vs expenses</h2>
-          <p className="mt-1 text-xs text-muted-foreground">
-            Compare your actual monthly cash flow.
-          </p>
+        <div className="mb-5 flex items-start justify-between gap-4">
+          <div>
+            <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-muted-foreground">
+              Cash flow
+            </p>
+            <h2 className="mt-1 text-base font-semibold">Income vs expenses</h2>
+            <p className="mt-1 text-xs text-muted-foreground">
+              Compare your actual monthly cash flow.
+            </p>
+          </div>
         </div>
 
-        <div className="h-72 w-full">
+        <div
+          className="h-72 w-full"
+          role="img"
+          aria-label="Bar chart comparing actual monthly income and expenses"
+        >
           {hasCashflowData ? (
             <ResponsiveContainer width="100%" height="100%">
               <BarChart
@@ -182,8 +231,8 @@ export function DashboardCharts({
                 }}
               >
                 <CartesianGrid
-                  stroke="currentColor"
-                  strokeOpacity={0.08}
+                  stroke="var(--chart-grid)"
+                  strokeOpacity={0.45}
                   vertical={false}
                 />
 
@@ -191,13 +240,13 @@ export function DashboardCharts({
                   dataKey="month"
                   axisLine={false}
                   tickLine={false}
-                  tick={{ fill: "currentColor", fontSize: 11 }}
+                  tick={chartAxisStyle}
                 />
 
                 <YAxis
                   axisLine={false}
                   tickLine={false}
-                  tick={{ fill: "currentColor", fontSize: 11 }}
+                  tick={chartAxisStyle}
                   tickFormatter={(value) =>
                     compactCurrency(Number(value), currency)
                   }
@@ -205,36 +254,28 @@ export function DashboardCharts({
                 />
 
                 <Tooltip
-                  contentStyle={{
-                    backgroundColor: "rgba(17, 25, 54, 0.95)",
-                    border: "1px solid rgba(255, 255, 255, 0.14)",
-                    borderRadius: "12px",
-                    color: "#ffffff",
-                  }}
+                  contentStyle={chartTooltipStyle}
+                  labelStyle={chartTooltipLabelStyle}
+                  itemStyle={chartTooltipItemStyle}
                   formatter={(value, name) => [
                     formatTooltipValue(Number(value), currency),
                     name,
                   ]}
                 />
 
-                <Legend
-                  wrapperStyle={{
-                    fontSize: "12px",
-                    paddingTop: "12px",
-                  }}
-                />
+                <Legend wrapperStyle={chartLegendStyle} />
 
                 <Bar
                   dataKey="income"
                   name="Income"
-                  fill="#22c55e"
+                  fill="var(--chart-income)"
                   radius={[5, 5, 0, 0]}
                 />
 
                 <Bar
                   dataKey="expenses"
                   name="Expenses"
-                  fill="#8b5cf6"
+                  fill="var(--chart-expenses)"
                   radius={[5, 5, 0, 0]}
                 />
               </BarChart>

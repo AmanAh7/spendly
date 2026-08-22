@@ -69,6 +69,10 @@ export function GoalCarousel({
   }
 
   const progressWidth = Math.min(Math.max(activeGoal.progress, 2), 100);
+  const goalStatus =
+    activeGoal.remaining <= 0 ? "Target reached" : "In progress";
+  const goalStatusClass =
+    activeGoal.remaining <= 0 ? "text-success" : "text-muted-foreground";
 
   return (
     <div
@@ -84,9 +88,14 @@ export function GoalCarousel({
           </p>
         </div>
 
-        <span className="shrink-0 text-2xl font-semibold">
-          {Math.round(activeGoal.progress)}%
-        </span>
+        <div className="flex shrink-0 items-baseline gap-2">
+          <span className="text-2xl font-semibold">
+            {Math.round(activeGoal.progress)}%
+          </span>
+          <span className={`text-xs font-medium ${goalStatusClass}`}>
+            {goalStatus}
+          </span>
+        </div>
       </div>
 
       <div className="mt-4 h-2.5 overflow-hidden rounded-full bg-muted/50">

@@ -7,6 +7,7 @@ import {
   resetPassword,
   type PasswordResetActionResult,
 } from "@/actions/password-reset-actions";
+import { PasswordVisibilityInput } from "@/components/auth/password-visibility-input";
 
 type ResetPasswordFormProps = {
   token: string;
@@ -42,13 +43,13 @@ export function ResetPasswordForm({ token }: ResetPasswordFormProps) {
   }
 
   return (
-    <section className="glass-panel-strong w-full max-w-md rounded-3xl p-8">
+    <div>
       <div className="mb-8">
         <p className="text-sm font-medium text-primary">Spendly</p>
-        <h1 className="mt-2 text-3xl font-semibold tracking-tight">
+        <h1 className="mt-2 text-3xl font-semibold tracking-tight text-white">
           Set a new password
         </h1>
-        <p className="mt-2 text-sm text-muted-foreground">
+        <p className="mt-2 text-sm text-white/65">
           Choose a strong password for your Spendly account.
         </p>
       </div>
@@ -79,17 +80,16 @@ export function ResetPasswordForm({ token }: ResetPasswordFormProps) {
           <div>
             <label
               htmlFor="password"
-              className="mb-2 block text-sm font-medium"
+              className="mb-2 block text-sm font-medium text-white/90"
             >
               New password
             </label>
-            <input
+            <PasswordVisibilityInput
               id="password"
               name="password"
-              type="password"
               autoComplete="new-password"
               required
-              className="h-11 w-full rounded-xl border border-input bg-background/50 px-3 text-sm outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/30"
+              className="h-11 w-full rounded-xl border border-white/15 bg-black/25 px-3 text-sm text-white outline-none transition placeholder:text-white/35 focus:border-primary focus:ring-2 focus:ring-primary/30"
               placeholder="At least 8 characters"
             />
           </div>
@@ -97,22 +97,21 @@ export function ResetPasswordForm({ token }: ResetPasswordFormProps) {
           <div>
             <label
               htmlFor="confirmPassword"
-              className="mb-2 block text-sm font-medium"
+              className="mb-2 block text-sm font-medium text-white/90"
             >
               Confirm new password
             </label>
-            <input
+            <PasswordVisibilityInput
               id="confirmPassword"
               name="confirmPassword"
-              type="password"
               autoComplete="new-password"
               required
-              className="h-11 w-full rounded-xl border border-input bg-background/50 px-3 text-sm outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/30"
+              className="h-11 w-full rounded-xl border border-white/15 bg-black/25 px-3 text-sm text-white outline-none transition placeholder:text-white/35 focus:border-primary focus:ring-2 focus:ring-primary/30"
               placeholder="Repeat your password"
             />
           </div>
 
-          <p className="text-xs text-muted-foreground">
+          <p className="text-xs text-white/50">
             Use uppercase, lowercase, and a number.
           </p>
 
@@ -125,6 +124,6 @@ export function ResetPasswordForm({ token }: ResetPasswordFormProps) {
           </button>
         </form>
       ) : null}
-    </section>
+    </div>
   );
 }

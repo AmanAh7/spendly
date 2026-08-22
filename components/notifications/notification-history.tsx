@@ -34,9 +34,10 @@ type NotificationHistoryProps = {
 function formatNotificationDate(value: string) {
   const date = new Date(value);
 
-  return new Intl.DateTimeFormat(undefined, {
+  return new Intl.DateTimeFormat("en-IN", {
     dateStyle: "medium",
     timeStyle: "short",
+    timeZone: "UTC",
   }).format(date);
 }
 
@@ -65,21 +66,32 @@ export function NotificationHistory({
 
   function iconFor(type: string) {
     if (type === "BUDGET_EXCEEDED" || type === "RECURRING_EXPENSE_OVERDUE") {
-      return <AlertTriangle className="h-5 w-5 text-destructive" aria-hidden />;
+      return (
+        <AlertTriangle
+          className="h-5 w-5 text-destructive"
+          aria-hidden="true"
+        />
+      );
     }
 
     if (
       type === "BUDGET_APPROACHING_LIMIT" ||
       type === "RECURRING_EXPENSE_UPCOMING"
     ) {
-      return <AlertTriangle className="h-5 w-5 text-amber-400" aria-hidden />;
+      return (
+        <AlertTriangle className="h-5 w-5 text-amber-400" aria-hidden="true" />
+      );
     }
 
     if (type === "GOAL_MILESTONE") {
-      return <CheckCircle2 className="h-5 w-5 text-emerald-400" aria-hidden />;
+      return (
+        <CheckCircle2 className="h-5 w-5 text-emerald-400" aria-hidden="true" />
+      );
     }
 
-    return <Info className="h-5 w-5 text-muted-foreground" aria-hidden />;
+    return (
+      <Info className="h-5 w-5 text-muted-foreground" aria-hidden="true" />
+    );
   }
 
   function handleNotificationClick(notification: NotificationItem) {
@@ -109,9 +121,12 @@ export function NotificationHistory({
       <div className="flex flex-col gap-4 border-b border-border/60 p-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <p className="text-sm font-medium">Notification history</p>
+
           <p className="mt-1 text-xs text-muted-foreground">
             {unreadCount > 0
-              ? `${unreadCount} unread notification${unreadCount === 1 ? "" : "s"}`
+              ? `${unreadCount} unread notification${
+                  unreadCount === 1 ? "" : "s"
+                }`
               : "You’re all caught up."}
           </p>
         </div>
@@ -141,7 +156,7 @@ export function NotificationHistory({
               disabled={isPending}
               className="inline-flex items-center gap-1.5 rounded-lg border border-border/60 px-2.5 py-1.5 text-xs font-medium text-primary transition hover:bg-muted/60 disabled:cursor-not-allowed disabled:opacity-60"
             >
-              <CheckCheck className="h-4 w-4" aria-hidden />
+              <CheckCheck className="h-4 w-4" aria-hidden="true" />
               Mark all read
             </button>
           ) : null}
@@ -150,8 +165,13 @@ export function NotificationHistory({
 
       {filteredNotifications.length === 0 ? (
         <div className="px-5 py-12 text-center">
-          <Info className="mx-auto h-8 w-8 text-muted-foreground" aria-hidden />
+          <Info
+            className="mx-auto h-8 w-8 text-muted-foreground"
+            aria-hidden="true"
+          />
+
           <p className="mt-3 text-sm font-medium">No notifications found</p>
+
           <p className="mt-1 text-xs text-muted-foreground">
             Try another filter or check back later.
           </p>
@@ -178,7 +198,10 @@ export function NotificationHistory({
 
                     {!notification.readAt ? (
                       <span className="mt-1 inline-flex shrink-0 items-center gap-1 text-[11px] font-medium text-primary">
-                        <Circle className="h-2 w-2 fill-current" aria-hidden />
+                        <Circle
+                          className="h-2 w-2 fill-current"
+                          aria-hidden="true"
+                        />
                         Unread
                       </span>
                     ) : null}

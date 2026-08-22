@@ -28,6 +28,7 @@ import {
 import { paymentMethodValues } from "@/lib/validators/expense";
 import { formatCurrency } from "@/lib/format";
 import { Toast } from "@/components/ui/toast";
+import { PageHeader } from "@/components/layout/page-header";
 
 type CategoryOption = {
   id: string;
@@ -206,44 +207,45 @@ export function RecurringExpenseManager({
         onDismiss={() => setFeedback(null)}
       />
 
-      <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
-        <div>
-          <p className="text-sm text-muted-foreground">Finance</p>
-          <h1 className="mt-1 text-3xl font-semibold tracking-tight">
-            Recurring expenses
-          </h1>
-          <p className="mt-2 text-sm text-muted-foreground">
-            Track reminders or automatically record repeating expenses.
-          </p>
-        </div>
-
-        <button
-          type="button"
-          onClick={openCreate}
-          className="inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground transition hover:opacity-90"
-        >
-          <Plus className="h-4 w-4" />
-          Add recurring expense
-        </button>
-      </div>
+      <PageHeader
+        eyebrow="Finance"
+        title="Recurring expenses"
+        description="Track reminders or automatically record repeating expenses."
+        actions={
+          <button
+            type="button"
+            onClick={openCreate}
+            className="inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground transition hover:opacity-90"
+          >
+            <Plus className="h-4 w-4" aria-hidden="true" />
+            Add recurring expense
+          </button>
+        }
+      />
 
       <div className="grid gap-4">
         {recurringExpenses.length === 0 ? (
           <div className="glass-panel-strong rounded-3xl px-6 py-16 text-center">
-            <CalendarClock className="mx-auto h-8 w-8 text-primary" />
+            <CalendarClock
+              className="mx-auto h-8 w-8 text-primary"
+              aria-hidden="true"
+            />
+
             <h2 className="mt-4 text-lg font-semibold">
               No recurring expenses
             </h2>
+
             <p className="mx-auto mt-2 max-w-md text-sm text-muted-foreground">
               Add a recurring expense to receive reminders or generate expenses
               automatically.
             </p>
+
             <button
               type="button"
               onClick={openCreate}
               className="mt-6 inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground"
             >
-              <Plus className="h-4 w-4" />
+              <Plus className="h-4 w-4" aria-hidden="true" />
               Add your first recurring expense
             </button>
           </div>
@@ -260,8 +262,11 @@ export function RecurringExpenseManager({
                   <div className="flex items-center gap-3">
                     <span
                       className="h-3 w-3 shrink-0 rounded-full"
-                      style={{ backgroundColor: item.category.color }}
+                      style={{
+                        backgroundColor: item.category.color,
+                      }}
                     />
+
                     <h2 className="truncate text-lg font-semibold">
                       {item.description}
                     </h2>
@@ -274,7 +279,7 @@ export function RecurringExpenseManager({
                   </p>
 
                   <p className="mt-2 flex items-center gap-2 text-sm text-muted-foreground">
-                    <CalendarClock className="h-4 w-4" />
+                    <CalendarClock className="h-4 w-4" aria-hidden="true" />
                     Next due:{" "}
                     {new Date(item.nextDueDate).toLocaleDateString("en-IN")}
                   </p>
@@ -301,10 +306,11 @@ export function RecurringExpenseManager({
                   className="inline-flex items-center gap-2 rounded-lg border border-border px-3 py-2 text-xs font-medium transition hover:border-primary hover:text-primary disabled:opacity-50"
                 >
                   {item.isActive ? (
-                    <Pause className="h-3.5 w-3.5" />
+                    <Pause className="h-3.5 w-3.5" aria-hidden="true" />
                   ) : (
-                    <Play className="h-3.5 w-3.5" />
+                    <Play className="h-3.5 w-3.5" aria-hidden="true" />
                   )}
+
                   {item.isActive ? "Pause" : "Activate"}
                 </button>
 
@@ -313,7 +319,7 @@ export function RecurringExpenseManager({
                   onClick={() => openEdit(item)}
                   className="inline-flex items-center gap-2 rounded-lg border border-border px-3 py-2 text-xs font-medium transition hover:border-primary hover:text-primary"
                 >
-                  <Edit3 className="h-3.5 w-3.5" />
+                  <Edit3 className="h-3.5 w-3.5" aria-hidden="true" />
                   Edit
                 </button>
 
@@ -323,7 +329,7 @@ export function RecurringExpenseManager({
                   disabled={isPending}
                   className="inline-flex items-center gap-2 rounded-lg border border-border px-3 py-2 text-xs font-medium transition hover:border-destructive hover:text-destructive disabled:opacity-50"
                 >
-                  <Trash2 className="h-3.5 w-3.5" />
+                  <Trash2 className="h-3.5 w-3.5" aria-hidden="true" />
                   Delete
                 </button>
               </div>
@@ -347,6 +353,7 @@ export function RecurringExpenseManager({
                 <p className="text-sm font-medium text-primary">
                   Recurring expenses
                 </p>
+
                 <h2 className="mt-1 text-2xl font-semibold">
                   {editing ? "Edit recurring expense" : "Add recurring expense"}
                 </h2>
@@ -358,13 +365,14 @@ export function RecurringExpenseManager({
                 aria-label="Close recurring expense form"
                 className="rounded-lg p-2 text-muted-foreground transition hover:bg-background/50 hover:text-foreground"
               >
-                <X className="h-5 w-5" />
+                <X className="h-5 w-5" aria-hidden="true" />
               </button>
             </div>
 
             <form onSubmit={submit} className="mt-6 space-y-5">
               <div>
                 <label className="mb-2 block text-sm font-medium">Amount</label>
+
                 <input
                   value={values.amount}
                   onChange={(event) =>
@@ -380,6 +388,7 @@ export function RecurringExpenseManager({
                 <label className="mb-2 block text-sm font-medium">
                   Description
                 </label>
+
                 <input
                   value={values.description}
                   onChange={(event) =>
@@ -401,6 +410,7 @@ export function RecurringExpenseManager({
                     className="mt-2 h-11 w-full rounded-xl border border-input bg-background/40 px-3 text-sm font-normal outline-none focus:border-primary focus:ring-2 focus:ring-primary/30"
                   >
                     <option value="">Select category</option>
+
                     {categories.map((category) => (
                       <option key={category.id} value={category.id}>
                         {category.name}
@@ -479,6 +489,7 @@ export function RecurringExpenseManager({
                 <label className="mb-2 block text-sm font-medium">
                   Next due date
                 </label>
+
                 <input
                   type="date"
                   value={values.nextDueDate}
@@ -496,6 +507,7 @@ export function RecurringExpenseManager({
                     Optional
                   </span>
                 </label>
+
                 <textarea
                   value={values.notes}
                   onChange={(event) => updateValue("notes", event.target.value)}

@@ -5,7 +5,7 @@ import { redirect } from "next/navigation";
 import bcrypt from "bcryptjs";
 import { z } from "zod";
 
-import { signIn } from "@/auth";
+import { signIn, signOut } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { DEFAULT_CATEGORY_DEFINITIONS } from "@/lib/default-categories";
 
@@ -116,4 +116,8 @@ export async function loginUser(formData: FormData) {
 
     throw error;
   }
+}
+
+export async function signOutUser() {
+  await signOut({ redirectTo: "/login" });
 }

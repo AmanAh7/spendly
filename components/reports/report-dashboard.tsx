@@ -13,6 +13,7 @@ import {
 
 import { formatCurrency } from "@/lib/format";
 import type { ReportData, ReportRange } from "@/lib/report-data";
+import { PageHeader } from "@/components/layout/page-header";
 
 type ReportDashboardProps = {
   report: ReportData;
@@ -82,34 +83,32 @@ export function ReportDashboard({ report, currency }: ReportDashboardProps) {
 
   return (
     <div className="space-y-6">
-      <header className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
-        <div>
-          <p className="text-sm text-muted-foreground">Finance</p>
-          <h1 className="mt-1 text-3xl font-semibold tracking-tight">
-            Reports
-          </h1>
-          <p className="mt-2 text-sm text-muted-foreground">
-            Download your financial activity for {report.periodLabel}.
-          </p>
-        </div>
+      <PageHeader
+        eyebrow="Finance"
+        title="Reports"
+        description={`Download your financial activity for ${report.periodLabel}.`}
+        actions={
+          <label className="block">
+            <span className="mb-2 block text-xs font-medium text-muted-foreground">
+              Time range
+            </span>
 
-        <label className="block">
-          <span className="mb-2 block text-xs font-medium text-muted-foreground">
-            Time range
-          </span>
-          <select
-            value={report.range}
-            onChange={(event) => changeRange(event.target.value as ReportRange)}
-            className="h-11 min-w-48 rounded-xl border border-input bg-background/40 px-3 text-sm outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/30"
-          >
-            {rangeOptions.map((option) => (
-              <option key={option.value} value={option.value}>
-                {option.label}
-              </option>
-            ))}
-          </select>
-        </label>
-      </header>
+            <select
+              value={report.range}
+              onChange={(event) =>
+                changeRange(event.target.value as ReportRange)
+              }
+              className="h-11 min-w-48 rounded-xl border border-input bg-background/40 px-3 text-sm outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/30"
+            >
+              {rangeOptions.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
+          </label>
+        }
+      />
 
       <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <MetricCard
@@ -238,12 +237,15 @@ export function ReportDashboard({ report, currency }: ReportDashboardProps) {
                     <td className="px-5 py-4 text-sm font-medium">
                       {item.month}
                     </td>
+
                     <td className="px-5 py-4 text-right text-sm text-success">
                       {formatCurrency(item.income, currency)}
                     </td>
+
                     <td className="px-5 py-4 text-right text-sm">
                       {formatCurrency(item.expenses, currency)}
                     </td>
+
                     <td
                       className={`px-5 py-4 text-right text-sm font-semibold ${
                         item.net >= 0 ? "text-success" : "text-destructive"
@@ -259,6 +261,7 @@ export function ReportDashboard({ report, currency }: ReportDashboardProps) {
         ) : (
           <div className="px-6 py-16 text-center">
             <p className="text-sm font-medium">No report data available</p>
+
             <p className="mt-1 text-xs text-muted-foreground">
               Add income or expenses to generate a report.
             </p>
@@ -294,6 +297,7 @@ function MetricCard({
       <div className="flex items-start justify-between gap-4">
         <div className="min-w-0">
           <p className="text-xs text-muted-foreground">{title}</p>
+
           <p className="mt-3 truncate text-2xl font-semibold tracking-tight">
             {value}
           </p>

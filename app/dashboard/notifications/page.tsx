@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { NotificationHistory } from "@/components/notifications/notification-history";
+import { PageHeader } from "@/components/layout/page-header";
 
 function formatDate(date: Date) {
   return date.toISOString();
@@ -46,18 +47,12 @@ export default async function NotificationsPage() {
 
   return (
     <main className="min-h-screen px-4 py-6 sm:px-6 lg:px-8">
-      <div className="mx-auto max-w-4xl">
-        <div className="mb-6">
-          <p className="text-xs font-medium uppercase tracking-[0.2em] text-primary">
-            Activity
-          </p>
-          <h1 className="mt-2 text-3xl font-semibold tracking-tight">
-            Notifications
-          </h1>
-          <p className="mt-2 text-sm text-muted-foreground">
-            Review your budget, recurring-expense, and goal updates.
-          </p>
-        </div>
+      <div className="mx-auto max-w-4xl space-y-6">
+        <PageHeader
+          eyebrow="Activity"
+          title="Notifications"
+          description="Review your budget, recurring-expense, and goal updates."
+        />
 
         <NotificationHistory notifications={serialized} />
       </div>

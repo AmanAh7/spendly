@@ -15,6 +15,7 @@ import {
 import { budgetSchema, type BudgetInput } from "@/lib/validators/budget";
 import { formatCurrency } from "@/lib/format";
 import { Toast } from "@/components/ui/toast";
+import { PageHeader } from "@/components/layout/page-header";
 
 type CategoryOption = {
   id: string;
@@ -170,26 +171,21 @@ export function BudgetManager({
         onDismiss={() => setFeedback(null)}
       />
 
-      <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
-        <div>
-          <p className="text-sm text-muted-foreground">Finance</p>
-          <h1 className="mt-1 text-3xl font-semibold tracking-tight">
-            Budgets
-          </h1>
-          <p className="mt-2 text-sm text-muted-foreground">
-            Track overall spending and category limits independently.
-          </p>
-        </div>
-
-        <button
-          type="button"
-          onClick={openCreateForm}
-          className="inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground transition hover:opacity-90"
-        >
-          <Plus className="h-4 w-4" />
-          Add budget
-        </button>
-      </div>
+      <PageHeader
+        eyebrow="Finance"
+        title="Budgets"
+        description="Track overall spending and category limits independently."
+        actions={
+          <button
+            type="button"
+            onClick={openCreateForm}
+            className="inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground transition hover:opacity-90"
+          >
+            <Plus className="h-4 w-4" aria-hidden="true" />
+            Add budget
+          </button>
+        }
+      />
 
       <div className="glass-panel-strong overflow-hidden rounded-3xl">
         <div className="border-b border-border/50 px-5 py-4">
@@ -224,6 +220,7 @@ export function BudgetManager({
                     >
                       <td className="px-5 py-4">
                         <p className="font-medium">{budget.name}</p>
+
                         <p className="mt-1 flex items-center gap-2 text-xs text-muted-foreground">
                           {budget.category ? (
                             <>
@@ -284,7 +281,7 @@ export function BudgetManager({
                             aria-label={`Edit ${budget.name}`}
                             className="rounded-lg p-2 text-muted-foreground transition hover:bg-primary/10 hover:text-primary"
                           >
-                            <Edit3 className="h-4 w-4" />
+                            <Edit3 className="h-4 w-4" aria-hidden="true" />
                           </button>
 
                           <button
@@ -294,7 +291,7 @@ export function BudgetManager({
                             aria-label={`Delete ${budget.name}`}
                             className="rounded-lg p-2 text-muted-foreground transition hover:bg-destructive/10 hover:text-destructive disabled:opacity-50"
                           >
-                            <Trash2 className="h-4 w-4" />
+                            <Trash2 className="h-4 w-4" aria-hidden="true" />
                           </button>
                         </div>
                       </td>
@@ -310,6 +307,7 @@ export function BudgetManager({
                   <div className="flex items-start justify-between gap-4">
                     <div className="min-w-0">
                       <h3 className="truncate font-medium">{budget.name}</h3>
+
                       <p className="mt-1 text-xs text-muted-foreground">
                         {budget.category?.name ?? "Overall budget"}
                       </p>
@@ -352,7 +350,7 @@ export function BudgetManager({
                         aria-label={`Edit ${budget.name}`}
                         className="rounded-lg p-2 text-muted-foreground hover:bg-primary/10 hover:text-primary"
                       >
-                        <Edit3 className="h-4 w-4" />
+                        <Edit3 className="h-4 w-4" aria-hidden="true" />
                       </button>
 
                       <button
@@ -362,7 +360,7 @@ export function BudgetManager({
                         aria-label={`Delete ${budget.name}`}
                         className="rounded-lg p-2 text-muted-foreground hover:bg-destructive/10 hover:text-destructive disabled:opacity-50"
                       >
-                        <Trash2 className="h-4 w-4" />
+                        <Trash2 className="h-4 w-4" aria-hidden="true" />
                       </button>
                     </div>
                   </div>
@@ -373,7 +371,7 @@ export function BudgetManager({
         ) : (
           <div className="px-6 py-16 text-center">
             <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/10 text-primary">
-              <CalendarDays className="h-6 w-6" />
+              <CalendarDays className="h-6 w-6" aria-hidden="true" />
             </div>
 
             <h3 className="mt-5 text-lg font-semibold">No budgets yet</h3>
@@ -388,7 +386,7 @@ export function BudgetManager({
               onClick={openCreateForm}
               className="mt-6 inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground"
             >
-              <Plus className="h-4 w-4" />
+              <Plus className="h-4 w-4" aria-hidden="true" />
               Add your first budget
             </button>
           </div>
@@ -414,6 +412,7 @@ export function BudgetManager({
             <div className="flex items-start justify-between gap-4">
               <div>
                 <p className="text-sm font-medium text-primary">Budgets</p>
+
                 <h2
                   id="budget-dialog-title"
                   className="mt-1 text-2xl font-semibold"
@@ -428,7 +427,7 @@ export function BudgetManager({
                 aria-label="Close budget form"
                 className="rounded-lg p-2 text-muted-foreground hover:bg-background/50 hover:text-foreground"
               >
-                <X className="h-5 w-5" />
+                <X className="h-5 w-5" aria-hidden="true" />
               </button>
             </div>
 

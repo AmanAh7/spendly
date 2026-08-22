@@ -43,3 +43,11 @@ export const changePasswordSchema = z
   });
 
 export type ChangePasswordInput = z.infer<typeof changePasswordSchema>;
+export const deleteAccountSchema = z.object({
+  currentPassword: z.string().min(1, "Current password is required."),
+  confirmationPhrase: z.literal("DELETE", {
+    message: "Type DELETE to confirm account deletion.",
+  }),
+});
+
+export type DeleteAccountInput = z.infer<typeof deleteAccountSchema>;

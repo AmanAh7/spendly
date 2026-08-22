@@ -63,6 +63,11 @@
   --glass-shadow: 0 8px 32px oklch(0.3 0.05 260 / 12%);
   --glow-1: oklch(0.7 0.15 293 / 12%);
   --glow-2: oklch(0.7 0.13 240 / 10%);
+
+  --chart-income: oklch(0.5 0.16 152);
+  --chart-expenses: oklch(0.52 0.22 293);
+  --chart-axis: var(--muted-foreground);
+  --chart-grid: var(--border);
 }
 
 .dark {
@@ -123,6 +128,11 @@
   --glass-shadow: 0 8px 32px oklch(0.05 0.02 264 / 45%);
   --glow-1: oklch(0.55 0.2 293 / 30%);
   --glow-2: oklch(0.55 0.18 240 / 25%);
+
+  --chart-income: oklch(0.72 0.16 152);
+  --chart-expenses: oklch(0.72 0.2 293);
+  --chart-axis: var(--muted-foreground);
+  --chart-grid: var(--border);
 }
 
 @theme inline {

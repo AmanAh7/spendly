@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
@@ -25,6 +26,7 @@ import {
 import { incomeSchema, type IncomeInput } from "@/lib/validators/income";
 import { formatCurrency } from "@/lib/format";
 import { Toast } from "@/components/ui/toast";
+import { PageHeader } from "@/components/layout/page-header";
 
 type IncomeRecord = {
   id: string;
@@ -196,6 +198,7 @@ export function IncomeManager({
     }
 
     params.set("page", String(nextPage));
+
     router.push(`/dashboard/income?${params.toString()}`);
   }
 
@@ -207,24 +210,30 @@ export function IncomeManager({
         onDismiss={() => setFeedback(null)}
       />
 
-      <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
-        <div>
-          <p className="text-sm text-muted-foreground">Finance</p>
-          <h1 className="mt-1 text-3xl font-semibold tracking-tight">Income</h1>
-          <p className="mt-2 text-sm text-muted-foreground">
-            Track and manage every source of income in one place.
-          </p>
-        </div>
+      <PageHeader
+        eyebrow="Finance"
+        title="Income"
+        description="Track and manage every source of income in one place."
+        actions={
+          <div className="flex flex-wrap items-center gap-2">
+            <Link
+              href="/dashboard/income-sources"
+              className="inline-flex items-center justify-center gap-2 rounded-xl border border-border px-4 py-2.5 text-sm font-medium transition hover:border-primary hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+            >
+              Manage income sources
+            </Link>
 
-        <button
-          type="button"
-          onClick={openCreateForm}
-          className="inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground transition hover:opacity-90"
-        >
-          <Plus className="h-4 w-4" />
-          Add income
-        </button>
-      </div>
+            <button
+              type="button"
+              onClick={openCreateForm}
+              className="inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground transition hover:opacity-90"
+            >
+              <Plus className="h-4 w-4" aria-hidden="true" />
+              Add income
+            </button>
+          </div>
+        }
+      />
 
       <form
         className="glass-panel-strong rounded-2xl p-4"
@@ -237,6 +246,7 @@ export function IncomeManager({
           <label className="relative block">
             <span className="sr-only">Search income</span>
             <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+
             <input
               name="search"
               defaultValue={search}
@@ -247,12 +257,14 @@ export function IncomeManager({
 
           <label>
             <span className="sr-only">Filter by income source</span>
+
             <select
               name="source"
               defaultValue={source}
               className="h-10 w-full rounded-xl border border-input bg-background/40 px-3 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/30"
             >
               <option value="">All sources</option>
+
               {incomeSources.map((incomeSource) => (
                 <option key={incomeSource.id} value={incomeSource.id}>
                   {incomeSource.name}
@@ -263,6 +275,7 @@ export function IncomeManager({
 
           <label>
             <span className="sr-only">Sort income</span>
+
             <select
               name="sort"
               defaultValue={sort}
@@ -280,7 +293,7 @@ export function IncomeManager({
             type="submit"
             className="inline-flex h-10 items-center justify-center gap-2 rounded-xl border border-border px-4 text-sm font-medium transition hover:border-primary hover:text-primary"
           >
-            <Filter className="h-4 w-4" />
+            <Filter className="h-4 w-4" aria-hidden="true" />
             Apply
           </button>
         </div>
@@ -290,6 +303,7 @@ export function IncomeManager({
         <div className="flex items-center justify-between border-b border-border/50 px-5 py-4">
           <div>
             <h2 className="text-base font-semibold">All income</h2>
+
             <p className="mt-1 text-xs text-muted-foreground">
               {totalCount} {totalCount === 1 ? "record" : "records"} found
             </p>
@@ -320,6 +334,7 @@ export function IncomeManager({
                     >
                       <td className="px-5 py-4">
                         <p className="font-medium">{income.description}</p>
+
                         {income.notes ? (
                           <p className="mt-1 max-w-xs truncate text-xs text-muted-foreground">
                             {income.notes}
@@ -347,7 +362,7 @@ export function IncomeManager({
                             aria-label={`Edit ${income.description}`}
                             className="rounded-lg p-2 text-muted-foreground transition hover:bg-primary/10 hover:text-primary"
                           >
-                            <Edit3 className="h-4 w-4" />
+                            <Edit3 className="h-4 w-4" aria-hidden="true" />
                           </button>
 
                           <button
@@ -359,7 +374,7 @@ export function IncomeManager({
                             aria-label={`Delete ${income.description}`}
                             className="rounded-lg p-2 text-muted-foreground transition hover:bg-destructive/10 hover:text-destructive disabled:opacity-50"
                           >
-                            <Trash2 className="h-4 w-4" />
+                            <Trash2 className="h-4 w-4" aria-hidden="true" />
                           </button>
                         </div>
                       </td>
@@ -377,6 +392,7 @@ export function IncomeManager({
                       <h3 className="truncate font-medium">
                         {income.description}
                       </h3>
+
                       <p className="mt-1 text-xs text-muted-foreground">
                         {income.source}
                       </p>
@@ -400,7 +416,7 @@ export function IncomeManager({
                         aria-label={`Edit ${income.description}`}
                         className="rounded-lg p-2 transition hover:bg-primary/10 hover:text-primary"
                       >
-                        <Edit3 className="h-4 w-4" />
+                        <Edit3 className="h-4 w-4" aria-hidden="true" />
                       </button>
 
                       <button
@@ -412,7 +428,7 @@ export function IncomeManager({
                         aria-label={`Delete ${income.description}`}
                         className="rounded-lg p-2 transition hover:bg-destructive/10 hover:text-destructive disabled:opacity-50"
                       >
-                        <Trash2 className="h-4 w-4" />
+                        <Trash2 className="h-4 w-4" aria-hidden="true" />
                       </button>
                     </div>
                   </div>
@@ -423,7 +439,7 @@ export function IncomeManager({
         ) : (
           <div className="px-6 py-16 text-center">
             <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-success/10 text-success">
-              <CalendarDays className="h-6 w-6" />
+              <CalendarDays className="h-6 w-6" aria-hidden="true" />
             </div>
 
             <h3 className="mt-5 text-lg font-semibold">No income found</h3>
@@ -440,7 +456,7 @@ export function IncomeManager({
                 onClick={openCreateForm}
                 className="mt-6 inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground"
               >
-                <Plus className="h-4 w-4" />
+                <Plus className="h-4 w-4" aria-hidden="true" />
                 Add your first income
               </button>
             ) : null}
@@ -461,7 +477,7 @@ export function IncomeManager({
                 className="rounded-lg border border-border p-2 transition hover:border-primary hover:text-primary disabled:cursor-not-allowed disabled:opacity-40"
                 aria-label="Previous page"
               >
-                <ChevronLeft className="h-4 w-4" />
+                <ChevronLeft className="h-4 w-4" aria-hidden="true" />
               </button>
 
               <button
@@ -471,7 +487,7 @@ export function IncomeManager({
                 className="rounded-lg border border-border p-2 transition hover:border-primary hover:text-primary disabled:cursor-not-allowed disabled:opacity-40"
                 aria-label="Next page"
               >
-                <ChevronRight className="h-4 w-4" />
+                <ChevronRight className="h-4 w-4" aria-hidden="true" />
               </button>
             </div>
           </div>
@@ -497,6 +513,7 @@ export function IncomeManager({
             <div className="flex items-start justify-between gap-4">
               <div>
                 <p className="text-sm font-medium text-success">Income</p>
+
                 <h2
                   id="income-dialog-title"
                   className="mt-1 text-2xl font-semibold"
@@ -511,7 +528,7 @@ export function IncomeManager({
                 aria-label="Close income form"
                 className="rounded-lg p-2 text-muted-foreground transition hover:bg-background/50 hover:text-foreground"
               >
-                <X className="h-5 w-5" />
+                <X className="h-5 w-5" aria-hidden="true" />
               </button>
             </div>
 

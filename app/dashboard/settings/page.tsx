@@ -39,9 +39,8 @@ export default async function SettingsPage() {
     ? (user.currency as (typeof currencyValues)[number])
     : "INR";
 
-  const theme = themeValues.includes(user.theme as (typeof themeValues)[number])
-    ? (user.theme as (typeof themeValues)[number])
-    : "system";
+  // Force dark theme for UI while keeping DB field compatible
+  const theme: (typeof themeValues)[number] = "dark";
 
   const dateFormat = dateFormatValues.includes(
     user.dateFormat as (typeof dateFormatValues)[number],

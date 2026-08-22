@@ -36,11 +36,10 @@ export function ThemeToggle() {
       className={cn(
         "flex h-10 w-10 items-center justify-center rounded-xl glass-panel text-foreground transition-all duration-200",
         "hover:border-primary/40 hover:glow-primary",
-        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
+        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background focus-visible:bg-background",
       )}
     >
       <Icon className="h-4 w-4" aria-hidden="true" />
-      <span className="sr-only">Toggle theme</span>
     </button>
   );
 }

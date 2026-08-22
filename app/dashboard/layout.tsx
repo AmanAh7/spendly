@@ -1,10 +1,9 @@
-import Link from "next/link";
 import { redirect } from "next/navigation";
-import { Settings } from "lucide-react";
 
 import { auth } from "@/auth";
+import { DashboardShell } from "@/components/layout/dashboard-shell";
+import { SiteFooter } from "@/components/layout/site-footer";
 import { prisma } from "@/lib/prisma";
-import { NotificationDropdown } from "@/components/notifications/notification-dropdown";
 
 export default async function DashboardLayout({
   children,
@@ -34,45 +33,28 @@ export default async function DashboardLayout({
     },
   });
 
-  const serialized = notifications.map((n) => ({
-    id: n.id,
-    type: n.type,
-    title: n.title,
-    message: n.message,
-    link: n.link,
-    createdAt: n.createdAt.toISOString(),
-    readAt: n.readAt ? n.readAt.toISOString() : null,
+  const serialized = notifications.map((notification) => ({
+    id: notification.id,
+    type: notification.type,
+    title: notification.title,
+    message: notification.message,
+    link: notification.link,
+    createdAt: notification.createdAt.toISOString(),
+    readAt: notification.readAt ? notification.readAt.toISOString() : null,
   }));
 
   return (
-    <div className="min-h-screen bg-linear-to-b from-background via-background to-background">
-      <header className="border-b border-border/60 bg-background/60 backdrop-blur">
-        <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 sm:px-6 lg:px-8">
-          <div>
-            <p className="text-xs font-medium text-primary">Spendly</p>
-            <p className="text-sm text-muted-foreground">
-              Take control of your money.
-            </p>
-          </div>
+    <div className="flex min-h-screen flex-col">
+      <a
+        href="#main-content"
+        className="sr-only focus:not-sr-only focus:fixed focus:left-2 focus:top-2 focus:z-60 focus:rounded-md focus:bg-background focus:px-4 focus:py-2 focus:text-sm focus:font-medium focus:text-foreground focus:shadow-lg focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background"
+      >
+        Skip to content
+      </a>
 
-          <div className="flex items-center gap-3">
-            <Link
-              href="/dashboard/settings"
-              className="inline-flex h-9 items-center justify-center gap-2 rounded-xl border border-border px-3 text-sm font-medium text-muted-foreground transition hover:border-primary hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-            >
-              <Settings className="h-4 w-4" />
-              <span className="hidden sm:inline">Settings</span>
-              <span className="sr-only sm:hidden">Settings</span>
-            </Link>
+      <DashboardShell notifications={serialized}>{children}</DashboardShell>
 
-            <NotificationDropdown notifications={serialized} />
-          </div>
-        </div>
-      </header>
-
-      <main className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
-        {children}
-      </main>
+      <SiteFooter />
     </div>
   );
 }
